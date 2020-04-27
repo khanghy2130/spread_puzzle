@@ -1,6 +1,6 @@
 import React from 'react';
 
-const index = () => {
+const Room_Page = () => {
     return (
         <div>
             room page
@@ -8,4 +8,4 @@ const index = () => {
     );
 };
 
-export default index;
+export default Room_Page;

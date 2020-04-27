@@ -1,6 +1,6 @@
 import React from 'react';
 
-const index = () => {
+const Play_Page = () => {
     return (
         <div>
             play page
@@ -8,4 +8,4 @@ const index = () => {
     );
 };
 
-export default index;
+export default Play_Page;

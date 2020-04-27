@@ -1,11 +1,27 @@
-import React from 'react';
+import React, {useEffect} from 'react';
+import io from 'socket.io-client';
 
-const index = () => {
+import title_img from './title_img.png';
+import "./style.scss";
+
+const Main_Page = () => {
+
+    useEffect(()=>{
+        if (typeof window !== 'undefined') {
+            
+            const socket = io("/server"); // namespace
+            console.log(socket);
+
+
+        }
+    });
+    
+
     return (
-        <div>
-            main page
-        </div>
+        <main>
+            <img src={title_img} alt="title" />
+        </main>
     );
 };
 
-export default index;
+export default Main_Page;

@@ -1,0 +1,48 @@
+/* color vars */
+
+
+/* breakpoints (default is bigger than desktop) */
+$desktop_bp: 1200px;
+$tablet_bp: 760px;
+$mobile_bp: 580px;
+
+/* font family classes */
+.font-header {
+	color:blue;
+}
+.font-body {
+	color:green;
+}
+
+
+
+/* reset */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+img {
+	width: 100%;
+}
+html {
+	scroll-behavior: smooth;
+}
+body {
+	overflow-x: hidden;
+  overflow-y: scroll;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a {
+	text-decoration: none;
+}
+button {
+	@extend .font-body;
+	background-color: transparent;
+	border: none;
+}
+
+::root {
+	font-size: 2vw; /* root text size */
+}

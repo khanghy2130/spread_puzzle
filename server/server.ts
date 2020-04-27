@@ -14,8 +14,18 @@ app.get('*', function (req: any, res: any) {
   res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
+const namespace = io.of('server'); // 'server' namespace
+namespace.on('connection', (socket: any) => {
 
-app.listen(process.env.PORT || 8080, () => {
+  console.log('a user connected');
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+
+});
+
+
+server.listen(process.env.PORT || 8080, () => {
   console.log("Server has started.");
 });
 
