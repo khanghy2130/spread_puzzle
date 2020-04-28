@@ -10,7 +10,7 @@ interface propObject {
 const Main_Page = ({ socket }: propObject) => {
 
     if (socket){
-        console.log(socket);
+        //console.log(socket);
     }
     
     function talk(){

@@ -16,8 +16,13 @@ function App() {
 
   useEffect(()=>{
     if (typeof window !== 'undefined') { 
+      // set up socket io connection
       setSocket(io("/server")); // namespace 'server'
 
+      if (socket){
+        socket.emit("update-user");
+      }
+      
     }
   }, []);
 
