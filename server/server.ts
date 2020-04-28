@@ -22,6 +22,11 @@ namespace.on('connection', (socket: any) => {
     console.log("Client disconnected");
   });
 
+    ///////////////////////////// dummy event
+  socket.on("justtalk", (msg: string, num: number) => {
+    console.log(msg, num)
+  });
+
 });
 
 

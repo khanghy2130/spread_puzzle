@@ -1,22 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState} from 'react';
 import { 
   BrowserRouter as Router, 
   Route, 
-  Switch
+  Switch,
+  Link
 } from 'react-router-dom';
+import io from 'socket.io-client';
 
-import Main_Page from './components/main_page/index';
-import Room_Page from './components/room_page/index';
-import Play_Page from './components/play_page/index';
+import MAIN_PAGE from './components/main_page/index';
+import ROOM_PAGE from './components/room_page/index';
+import PLAY_PAGE from './components/play_page/index';
 
 function App() {
+  const [socket, setSocket] = useState<any>(null);
+
+  useEffect(()=>{
+    if (typeof window !== 'undefined') { 
+      setSocket(io("/server")); // namespace 'server'
+
+    }
+  }, []);
+
   return (
     <div className="App">
       <Router>
+        <ul>
+          <li>
+              <Link to="/">Main</Link>
+          </li>
+          <li>
+              <Link to="/room">Room</Link>
+          </li>
+          <li>
+              <Link to="/play">About</Link>
+          </li>
+      </ul>
         <Switch>
-          <Route exact path="/room" component={Room_Page} />
-          <Route exact path="/play" component={Play_Page} />
-          <Route component={Main_Page} />
+          <Route
+            exact path='/room'
+            render={() => <ROOM_PAGE />}
+          />
+          <Route
+            exact path='/play'
+            render={() => <PLAY_PAGE />}
+          />
+          <Route
+            render={() => <MAIN_PAGE socket={socket} />}
+          />
         </Switch>  
       </Router>
     </div>
