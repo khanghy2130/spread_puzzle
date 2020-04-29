@@ -21,7 +21,23 @@ const Main_Page = ({ socket }: propObject) => {
     return (
         <main>
             <img src={title_img} alt="title" />
-            <button onClick={talk}>Talk</button>
+            
+            <div id="contents-wrapper">
+                <div id="nickname-div">
+                    <h2 className="main-page-header">Nickname</h2>
+                    <h3 id="nickname-display"></h3>
+                    <button>New Name</button>
+                </div>
+                <div id="create-room-div">
+                    <h2 className="main-page-header">Create new room</h2>
+                    <button>Create</button>
+                </div>
+                <div id="join-room-div">
+                    <h2 className="main-page-header">Join room</h2>
+                    <input type="text" placeholder="Room ID" />
+                    <button>Join</button>
+                </div>
+            </div>
         </main>
     );
 };

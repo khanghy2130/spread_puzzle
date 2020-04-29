@@ -1,5 +1,7 @@
 /* color vars */
-
+$main_purple: #a72ded;
+$background_dark: #2b2b2b;
+$text_white: #e3e3e3;
 
 /* breakpoints (default is bigger than desktop) */
 $desktop_bp: 1200px;
@@ -30,9 +32,11 @@ html {
 }
 body {
 	overflow-x: hidden;
-  overflow-y: scroll;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	overflow-y: scroll;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	color: $text_white;
+	background-color: $background_dark;
 }
 a {
 	text-decoration: none;
