@@ -15,7 +15,7 @@ const Main_Page = ({ socket }: propObject) => {
     
     function talk(){
         ///////////////////////////// dummy event
-        socket.emit("justtalk", "oh yeah", 50);
+        socket.emit("justtalk", socket.id.slice(-4));
     }
     
     return (
