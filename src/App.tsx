@@ -44,7 +44,13 @@ function App() {
           />
         </Switch>  
 
-        <ul>
+        
+      </Router>
+    </div>
+  );
+}
+
+/*<ul>
           <li>
               <Link to="/">Main</Link>
           </li>
@@ -54,10 +60,6 @@ function App() {
           <li>
               <Link to="/play">About</Link>
           </li>
-      </ul>
-      </Router>
-    </div>
-  );
-}
+      </ul>*/
 
 export default App;

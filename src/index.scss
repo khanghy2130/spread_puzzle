@@ -1,8 +1,9 @@
 /* color vars */
 $main_purple: #a72ded;
 $secondary_purple: #663683;
+$support_blue: rgb(12, 141, 240);
 $black: rgb(10, 10, 10);
-$dark: #1f1f1f;
+$dark: #2a2a2a;
 $text_white: #e3e3e3;
 
 /* breakpoints (default is bigger than desktop) */
@@ -33,7 +34,7 @@ img {
 }
 html {
 	scroll-behavior: smooth;
-	font-size: 20px;
+	font-size: 18px;
 }
 body {
 	overflow-x: hidden;
@@ -42,6 +43,7 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 	min-height: 100vh; 
 
+	@extend .font-body;
 	color: $text_white;
 	background-color: $secondary_purple;
 	font-size: 1em;

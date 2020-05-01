@@ -49,7 +49,7 @@
 
         #nickname-display {
             @extend .font-body;
-            color: $main_purple;
+            color: $support_blue;
         }
 
         #room-id-input {
@@ -65,21 +65,51 @@
 
         // all buttons
         button {
-            transition: 0.4s;
+            transition: 0.2s;
             transition-property: background-color;
             background-color: rgb(14, 14, 14);
-            //color: $main_purple;
             border-radius: 0.5em;
 
             padding: 0.4em 1em;
             margin: 0.5em;
 
             &:hover {
-                background-color: rgb(20, 20, 20);
+                background-color: rgb(26, 26, 26);
             }
         }
     }
 }
+
+#info-wrapper {
+    width: 100%;
+    padding: 1em 20%;
+
+    #tutorial-div, #credits-div {
+        background-color: rgba(0, 0, 0, 0.5);
+        margin: 2em 0;
+        padding: 1em 2em;
+
+        .main-page-header {
+            @extend .font-header;
+            color: $text_white;
+            font-size: 1.3em;
+        }
+
+        ul {
+            padding-left: 1.5em;
+            font-size: 0.9em;
+        }
+        a {
+            color: $support_blue;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+
+
 
 @media only screen and (max-width: $desktop-bp){
     #contents-wrapper {
@@ -88,9 +118,6 @@
 }
 
 @media only screen and (max-width: $tablet-bp){
-    body {
-        font-size: 1.1em;
-    }
 
     #title-img-div {
         padding: 1em 0;
@@ -101,6 +128,14 @@
 
         & > div {
             align-self: stretch !important;
+        }
+    }
+
+    #info-wrapper {
+        padding: 1em 0;
+
+        #tutorial-div, #credits-div {
+            padding: 1em 1em;
         }
     }
 }
