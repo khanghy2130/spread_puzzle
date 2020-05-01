@@ -30,17 +30,6 @@ function App() {
   return (
     <div className="App">
       <Router>
-        <ul>
-          <li>
-              <Link to="/">Main</Link>
-          </li>
-          <li>
-              <Link to="/room">Room</Link>
-          </li>
-          <li>
-              <Link to="/play">About</Link>
-          </li>
-      </ul>
         <Switch>
           <Route
             exact path='/room'
@@ -54,6 +43,18 @@ function App() {
             render={() => <MAIN_PAGE socket={socket} />}
           />
         </Switch>  
+
+        <ul>
+          <li>
+              <Link to="/">Main</Link>
+          </li>
+          <li>
+              <Link to="/room">Room</Link>
+          </li>
+          <li>
+              <Link to="/play">About</Link>
+          </li>
+      </ul>
       </Router>
     </div>
   );

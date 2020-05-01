@@ -20,22 +20,24 @@ const Main_Page = ({ socket }: propObject) => {
     
     return (
         <main>
-            <img src={title_img} alt="title" />
-            
+            <div id="title-img-div">
+                <img src={title_img} alt="title" />
+            </div>
+
             <div id="contents-wrapper">
                 <div id="nickname-div">
                     <h2 className="main-page-header">Nickname</h2>
-                    <h3 id="nickname-display"></h3>
-                    <button>New Name</button>
+                    <h3 id="nickname-display">Unknown</h3>
+                    <button>New name</button>
                 </div>
                 <div id="create-room-div">
                     <h2 className="main-page-header">Create new room</h2>
-                    <button>Create</button>
+                    <button>Create room</button>
                 </div>
                 <div id="join-room-div">
                     <h2 className="main-page-header">Join room</h2>
-                    <input type="text" placeholder="Room ID" />
-                    <button>Join</button>
+                    <input id="room-id-input" type="number" placeholder="Room ID" />
+                    <br/><button>Join room</button>
                 </div>
             </div>
         </main>

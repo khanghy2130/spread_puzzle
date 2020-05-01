@@ -1,23 +1,18 @@
-interface UserObject {
-    nickname: string,
-    roomID: string | null
-}
-
 interface PlayResult {
     nickname: string,
     time: number | null // null means not solved
 }
 
 interface RoomObject {
-    roomID: string,
-    hostID: string, // user socket id
+    users: string[], // list of user socket ID. first one is host
     option_moves: number,
     option_time: number, // number of seconds
-    results: PlayResult[] // array of PlayResults 
+    results: PlayResult[], // array of PlayResults
+    timerID: number | null // if is a number then the game is in progress
 }
 
-const usersList: {[key: string]: UserObject} = {}; // [key]socketID : UserObjects
-const roomsList: {[key: string]: RoomObject} = {}; // contains RoomObjects
+// [key]roomID (4 digits) : RoomObjects
+const roomsList: {[key: string]: RoomObject} = {}; 
 
 
 

@@ -1,8 +1,106 @@
 @import '../../index.scss';
 
 
+#title-img-div {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 2em 0;
+
+    img {
+        width: 90%;
+        max-width: 500px;
+        height: auto;
+    }
+}
+
 #contents-wrapper {
-    width: 50%;
-    height: 500px;
-    background: gray;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0 20%;
+
+    // the 3 children divs
+    & > div {
+        //width: 100%;
+        min-width: 50%;
+        background-color: $dark;
+        text-align: center;
+        padding: 1em 3em;
+        outline: $black 0.3em solid;
+        
+        &:nth-of-type(1){
+            align-self: flex-start;
+        }
+        &:nth-of-type(2){
+            align-self: center;
+            z-index: 10;
+        }
+        &:nth-of-type(3){
+            align-self: flex-end;
+        }
+        
+
+        .main-page-header {
+            @extend .font-header;
+            color: $text_white;
+        }
+
+        #nickname-display {
+            @extend .font-body;
+            color: $main_purple;
+        }
+
+        #room-id-input {
+            width: 80%;
+            max-width: 200px;
+            background-color: $black;
+            color: $main_purple;
+            border: none;
+            padding: 0.5em;
+            margin: 0.5em;
+            font-size: 0.8em;
+        }
+
+        // all buttons
+        button {
+            transition: 0.4s;
+            transition-property: background-color;
+            background-color: rgb(14, 14, 14);
+            //color: $main_purple;
+            border-radius: 0.5em;
+
+            padding: 0.4em 1em;
+            margin: 0.5em;
+
+            &:hover {
+                background-color: rgb(20, 20, 20);
+            }
+        }
+    }
+}
+
+@media only screen and (max-width: $desktop-bp){
+    #contents-wrapper {
+        padding: 0 10%;
+    }
+}
+
+@media only screen and (max-width: $tablet-bp){
+    body {
+        font-size: 1.1em;
+    }
+
+    #title-img-div {
+        padding: 1em 0;
+    }
+
+    #contents-wrapper {
+        padding: 0;
+
+        & > div {
+            align-self: stretch !important;
+        }
+    }
 }

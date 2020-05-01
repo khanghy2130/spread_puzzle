@@ -1,6 +1,8 @@
 /* color vars */
 $main_purple: #a72ded;
-$background_dark: #2b2b2b;
+$secondary_purple: #663683;
+$black: rgb(10, 10, 10);
+$dark: #1f1f1f;
 $text_white: #e3e3e3;
 
 /* breakpoints (default is bigger than desktop) */
@@ -10,10 +12,12 @@ $mobile_bp: 580px;
 
 /* font family classes */
 .font-header {
-	color:blue;
+	font-family: 'Baloo 2', cursive;
+	font-weight: 600;
 }
 .font-body {
-	color:green;
+	font-family: 'Baloo 2', cursive;
+	font-weight: 400;
 }
 
 
@@ -29,24 +33,32 @@ img {
 }
 html {
 	scroll-behavior: smooth;
+	font-size: 20px;
 }
 body {
 	overflow-x: hidden;
 	overflow-y: scroll;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	min-height: 100vh; 
+
 	color: $text_white;
-	background-color: $background_dark;
+	background-color: $secondary_purple;
+	font-size: 1em;
 }
 a {
 	text-decoration: none;
 }
 button {
 	@extend .font-body;
+	font-size: 1em;
 	background-color: transparent;
+	color: $text_white;
 	border: none;
+	cursor: pointer;
 }
-
-::root {
-	font-size: 2vw; /* root text size */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
 }
