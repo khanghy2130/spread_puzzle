@@ -52,7 +52,12 @@
             color: $support_blue;
         }
 
-        #room-id-input {
+        #no-room-alert {
+            color: rgb(243, 86, 86);
+            font-size: 0.9em;
+        }
+
+        input {
             width: 80%;
             max-width: 200px;
             background-color: $black;

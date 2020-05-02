@@ -1,8 +1,9 @@
-import React, { useEffect, useState} from 'react';
+import React from 'react';
 import { 
   BrowserRouter as Router, 
   Route, 
   Switch,
+  // eslint-disable-next-line
   Link
 } from 'react-router-dom';
 import io from 'socket.io-client';
@@ -12,20 +13,14 @@ import ROOM_PAGE from './components/room_page/index';
 import PLAY_PAGE from './components/play_page/index';
 
 function App() {
-  const [socket, setSocket] = useState<any>(null);
+  let socket: any;
 
-  useEffect(()=>{
-    if (typeof window !== 'undefined') { 
-      // set up socket io connection
-      setSocket(io("/server")); // namespace 'server'
-
-      if (socket){
-        socket.emit("update-user");
-      }
-      
-    }
-  // eslint-disable-next-line
-  }, []);
+  if (typeof window !== 'undefined') { 
+    // set up socket io connection
+    socket = io("/server"); // namespace 'server'
+    console.log(socket);
+    
+  }
 
   return (
     <div className="App">
@@ -44,22 +39,22 @@ function App() {
           />
         </Switch>  
 
-        
+        <ul>
+    <li>
+        <Link to="/">Main</Link>
+    </li>
+    <li>
+        <Link to="/room">Room</Link>
+    </li>
+    <li>
+        <Link to="/play">About</Link>
+    </li>
+</ul>
       </Router>
     </div>
   );
 }
 
-/*<ul>
-          <li>
-              <Link to="/">Main</Link>
-          </li>
-          <li>
-              <Link to="/room">Room</Link>
-          </li>
-          <li>
-              <Link to="/play">About</Link>
-          </li>
-      </ul>*/
+
 
 export default App;

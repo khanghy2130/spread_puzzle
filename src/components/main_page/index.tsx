@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 
 import title_img from './title_img.png';
 import "./style.scss";
@@ -12,17 +12,53 @@ const Main_Page = ({ socket }: propObject) => {
     const fruits: string[] = ["Apple","Berry","Banana","Cherry","Coconut","Grape","Lemon","Mango","Peach","Pear"];
     
     const [nickname, setNickname] = useState<string>(rollNewName());
+    const no_room_alert_text = useRef<HTMLParagraphElement>(null);
+    const roomID_input = useRef<HTMLInputElement>(null);
+    // joining => true when clicked create or join
+    const [joining, setJoining] = useState<boolean>(false);
 
-    // if (socket){
-    //     console.log(nickname);
-    // }
+    useEffect(()=>{
+        if (typeof window !== 'undefined') { 
+            console.log("main:on ...");
+
+            socket.on("join-success", () => {
+                console.log("yes!");
+            });
+
+            socket.on("join-fail", () => {
+                if (no_room_alert_text && no_room_alert_text.current){
+                    no_room_alert_text.current.hidden = false;
+                }
+                setJoining(false);
+            });
+        }
+
+        return ()=>{
+            // removing listeners
+            socket.off("join-success");
+            socket.off("join-fail");
+        }
+    // eslint-disable-next-line
+    }, []);
     
-    /*
-    function talk(){
-        socket.emit("justtalk", socket.id.slice(-4));
+
+    function createRoom(){
+        if (joining) return; // early exit
+        setJoining(true);
+        socket.emit("enter-room", nickname, null); // null => create
     }
-    */
-    
+    function joinRoom(){
+        if (joining) return; //early exit
+        if (roomID_input && roomID_input.current){
+            if (roomID_input.current.checkValidity()){
+                setJoining(true);
+                socket.emit("enter-room", nickname, roomID_input.current.value);
+            }
+            else {
+                roomID_input.current.reportValidity(); // invaild room ID
+            }
+        }
+    }
 
     // returns a random integer from 0 to (limit - 1)
     function ranNum(limit: number): number {
@@ -50,12 +86,21 @@ const Main_Page = ({ socket }: propObject) => {
                 </div>
                 <div id="create-room-div">
                     <h2 className="main-page-header">Create new room</h2>
-                    <button>Create room</button>
+                    <button onClick={createRoom}>Create room</button>
                 </div>
                 <div id="join-room-div">
                     <h2 className="main-page-header">Join room</h2>
-                    <input id="room-id-input" type="number" placeholder="Room ID" />
-                    <br/><button>Join room</button>
+                    <p ref={no_room_alert_text} id="no-room-alert" hidden>Room {
+                        (roomID_input && roomID_input.current) ? roomID_input.current.value : ""
+                    } doesn't exist.</p>
+                    <input 
+                        ref={roomID_input} 
+                        type="text" 
+                        pattern="[0-9]{4}" 
+                        placeholder="Room ID" 
+                        title="Room ID is a 4-digits number"
+                        required />
+                    <br/><button onClick={joinRoom}>Join room</button>
                 </div>
             </div>
 
@@ -73,9 +118,27 @@ const Main_Page = ({ socket }: propObject) => {
                 <div id="credits-div">
                     <h2 className="main-page-header">Credits</h2>
                     <ul>
-                        <li>Chess Puzzle is made by <a target="_blank" href="https://www.hynguyen.info">Hy Nguyen</a></li>
-                        <li>The game is inspired by <a target="_blank" href="https://play.google.com/store/apps/details?id=com.mythicowl.chessace&hl=en_US">Chess Ace</a></li>
-                        <li>Chessman images by <a target="_blank" href="https://en.wikipedia.org/wiki/User:Cburnett">Colin Burnett</a></li>
+                        <li>Chess Puzzle is made by&nbsp;
+                            <a target="_blank" 
+                            rel="noopener noreferrer" 
+                            href="https://www.hynguyen.info">
+                                Hy Nguyen
+                            </a>
+                        </li>
+                        <li>The game is inspired by&nbsp;
+                            <a target="_blank" 
+                            rel="noopener noreferrer" 
+                            href="https://play.google.com/store/apps/details?id=com.mythicowl.chessace&hl=en_US">
+                                Chess Ace
+                            </a>
+                        </li>
+                        <li>Chessman images by&nbsp;
+                            <a target="_blank" 
+                            rel="noopener noreferrer" 
+                            href="https://en.wikipedia.org/wiki/User:Cburnett">
+                                Colin Burnett
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
