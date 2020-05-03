@@ -14,8 +14,7 @@ import PLAY_PAGE from './components/play_page/index';
 
 function App() {
   let socket: any;
-
-  if (typeof window !== 'undefined') { 
+  if (typeof window !== 'undefined' && !socket) { 
     // set up socket io connection
     socket = io("/server"); // namespace 'server'
     console.log(socket);
@@ -28,14 +27,14 @@ function App() {
         <Switch>
           <Route
             exact path='/room'
-            render={() => <ROOM_PAGE />}
+            render={() => <ROOM_PAGE socket={socket}  />}
           />
           <Route
             exact path='/play'
             render={() => <PLAY_PAGE />}
           />
           <Route
-            render={() => <MAIN_PAGE socket={socket} />}
+            render={() => <MAIN_PAGE socket={socket}  />}
           />
         </Switch>  
 

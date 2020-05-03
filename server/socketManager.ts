@@ -3,8 +3,13 @@ interface PlayResult {
     time: number | null // null means not solved
 }
 
+interface User {
+    id: string,
+    nickname: string
+}
+
 interface RoomObject {
-    users: string[], // list of user socket ID. first one is host
+    users: User[], // ID as key, nickname as value. first user is host
     option_moves: number,
     option_time: number, // number of seconds
     results: PlayResult[], // array of PlayResults
@@ -26,19 +31,22 @@ exports.manager = function(socket: any) : void {
     });
 
 
-    /*      >> = receive    << = send
+    /*                          >> = receive    << = send
             MAIN PAGE events
         >> enter-room: {nickname, roomID}  join or create a room (roomID = null)
-        << join-success
+        << join-success: {room_object}
         << join-fail
 
             ROOM PAGE events
+        << update-room: {room_object}   when host updates options or someone leaves
 
             PLAY PAGE events
 
     */
 
     socket.on("enter-room", (nickname: string, roomID: string | null) => {
+        
+
         // create room if needed
         if (roomID === null){
             function r(): number { return Math.floor(Math.random() * 10); }
@@ -60,7 +68,22 @@ exports.manager = function(socket: any) : void {
         
         // if room exists
         if (roomsList[roomID]){
-            socket.emit("join-success");
+            // leave current room if already in a room
+            if (socket.currentRoom) {
+                socket.leave(socket.currentRoom);
+                socket.currentRoom = null;
+            }
+            // join and set up new room as current room
+            socket.join(roomID);
+            socket.currentRoom = roomID;
+
+            // add this user
+            roomsList[roomID].users.push({
+                id: socket.id,
+                nickname: nickname
+            });
+
+            socket.emit("join-success", roomsList[roomID]); // notify client
         }
         else {
             socket.emit("join-fail");

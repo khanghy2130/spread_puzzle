@@ -1,6 +1,12 @@
 import React from 'react';
 
-const Room_Page = () => {
+import "./style.scss";
+
+interface propObject {
+    socket: any
+};
+
+const Room_Page = ({ socket }: propObject) => {
     return (
         <div>
             room page

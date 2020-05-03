@@ -81,6 +81,9 @@
             &:hover {
                 background-color: rgb(26, 26, 26);
             }
+            &:active {
+                background-color: $main_purple;
+            }
         }
     }
 }

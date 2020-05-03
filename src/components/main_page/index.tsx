@@ -18,18 +18,15 @@ const Main_Page = ({ socket }: propObject) => {
     const [joining, setJoining] = useState<boolean>(false);
 
     useEffect(()=>{
-        if (typeof window !== 'undefined') { 
-            console.log("main:on ...");
-
+        if (typeof window !== 'undefined') {
+            // adding listeners
             socket.on("join-success", () => {
                 console.log("yes!");
             });
 
             socket.on("join-fail", () => {
-                if (no_room_alert_text && no_room_alert_text.current){
-                    no_room_alert_text.current.hidden = false;
-                }
-                setJoining(false);
+                setAlertTextHidden(false); // show alert
+                setJoining(false); // clear joining status
             });
         }
 
@@ -51,12 +48,18 @@ const Main_Page = ({ socket }: propObject) => {
         if (joining) return; //early exit
         if (roomID_input && roomID_input.current){
             if (roomID_input.current.checkValidity()){
+                setAlertTextHidden(true); // hide alert
                 setJoining(true);
                 socket.emit("enter-room", nickname, roomID_input.current.value);
             }
             else {
                 roomID_input.current.reportValidity(); // invaild room ID
             }
+        }
+    }
+    function setAlertTextHidden(status: boolean){
+        if (no_room_alert_text && no_room_alert_text.current){
+            no_room_alert_text.current.hidden = status; 
         }
     }
 
@@ -109,7 +112,7 @@ const Main_Page = ({ socket }: propObject) => {
                     <h2 className="main-page-header">What is Chess Puzzle?</h2>
                     <ul>
                         <li>Chess Puzzle is a multiplayer game.</li>
-                        <li>Create a new room or join an existing room.</li>
+                        <li>To begin, create a new room or join an existing room.</li>
                         <li>The room host can change the options and start the game.</li>
                         <li>Race with other players to collect all gems. Have fun!</li>
                     </ul>
