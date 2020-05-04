@@ -1,2 +1,135 @@
 @import '../../index.scss';
 
+#room-page-main {
+    // big desktop stylings
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: flex-start;
+
+    #options-div {
+        text-align: center;
+        background-color: $dark;
+        outline: $black 0.3em solid;
+        display: flex;
+        flex-direction: column;
+
+        margin: 1em;
+        margin-top: 2em;
+        padding: 2em 1.5em;
+        max-width: 450px;
+        width: 60%;
+
+        // Room ID
+        h2 {
+            color: $support_blue;
+            margin-bottom: 1em;
+        }
+
+        label {
+            margin-bottom: 0;
+        }
+        input {
+            margin-bottom: 2em;
+        }
+
+        // option displays
+        span {
+            &.updated {
+                color: $green;
+            }
+            &.not-updated {
+                color: $red;
+            }
+        }
+
+        #host-buttons {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+
+            margin: 1.5em 0 1em;
+
+            #save-button {
+                background-color: $support_blue;
+                &:disabled {
+                    background-color: gray;
+                    cursor: default;
+                    &:hover {
+                        background-color: gray !important;
+                    }
+                }
+            }
+            #start-button {
+                background-color: $green;
+            }
+        }
+
+        #not-host-message {
+            font-size: 0.9em;
+            color: $text_white;
+            margin: 3em 0 1em;
+        }
+
+        #leave-button {
+            background-color: $red;
+        }
+
+        button {
+            @extend .font-header;
+            padding: 0.2em 2em;
+            outline: $black 0.2em solid;
+            color: $black;
+            flex-grow: 1;
+
+            transition: background-color 0.3s;
+
+            &:hover {
+                background-color: $text_white !important;
+            }
+        }
+    }
+
+    #players-div {
+        margin-top: 3em;
+
+        h2 {
+            width: 100%;
+            text-align: center;
+            margin: 0.3em 0;
+        }
+
+        // each player
+        h4 {
+            // host player
+            &:first-of-type(){
+                &::after { content: " (Host)"; }
+            }
+
+            // current player
+            &.you {
+                color: $main_purple;
+            }
+
+            background-color: $dark;
+            padding: 0.3em 0.7em;
+            margin-bottom: 0.5em;
+            border: $black 0.1em solid;
+        }
+    }
+}
+
+@media only screen and (max-width: $mobile-bp){
+    #room-page-main {
+        flex-direction: column;
+        align-items: center;
+
+        #options-div {
+            width: auto;
+        }
+
+        #players-div {
+            margin-top: 0;
+        }
+    }
+}

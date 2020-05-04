@@ -41,9 +41,10 @@ exports.manager = function(socket: any) : void {
 
             // setup default room object
             roomsList[newRoomID] = {
+                roomID: newRoomID,
                 users: [],
                 option_moves: 3,
-                option_time: 60,
+                option_time: 2,
                 results: [],
                 timerID: null
             };

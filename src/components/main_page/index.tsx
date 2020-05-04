@@ -37,12 +37,17 @@ const Main_Page = ({ socket }: propObject) => {
                 setAlertTextHidden(false); // show alert
                 setJoining(false); // clear joining status
             });
+
+            socket.on("update-room", (receivedRoom: RoomObject) => {
+                console.log("received the room object to update!");///
+            });
         }
 
         return ()=>{
             // removing listeners
             socket.off("join-success");
             socket.off("join-fail");
+            socket.off("update-room");
         }
     // eslint-disable-next-line
     }, []);
@@ -91,10 +96,12 @@ const Main_Page = ({ socket }: propObject) => {
     }
 
     // joined room?
-    if (!showMain) return <ROOM_PAGE socket={socket} room={room}  />;
+    if (!showMain && room !== null) {
+        return <ROOM_PAGE socket={socket} room={room} resetMainPage={resetMainPage} />;
+    }
     
     return (
-        <main>
+        <main id="main-page-main">
             <div id="title-img-div">
                 <img src={title_img} alt="title" />
             </div>
@@ -120,7 +127,11 @@ const Main_Page = ({ socket }: propObject) => {
                         pattern="[0-9]{4}" 
                         placeholder="Room ID" 
                         title="Room ID is a 4-digits number"
-                        required />
+                        required
+                        onKeyUp={(e) => {
+                            if (e.keyCode === 13) joinRoom();
+                        }}     
+                    />
                     <br/><button onClick={joinRoom}>Join room</button>
                 </div>
             </div>

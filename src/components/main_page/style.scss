@@ -53,7 +53,7 @@
         }
 
         #no-room-alert {
-            color: rgb(243, 86, 86);
+            color: $red;
             font-size: 0.9em;
         }
 
@@ -61,7 +61,7 @@
             width: 80%;
             max-width: 200px;
             background-color: $black;
-            color: $main_purple;
+            color: $support_blue;
             border: none;
             padding: 0.5em;
             margin: 0.5em;
@@ -125,7 +125,7 @@
     }
 }
 
-@media only screen and (max-width: $tablet-bp){
+@media only screen and (max-width: $mobile-bp){
 
     #title-img-div {
         padding: 1em 0;
