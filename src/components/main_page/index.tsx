@@ -2,12 +2,19 @@ import React, {useState, useEffect, useRef} from 'react';
 
 import title_img from './title_img.png';
 import "./style.scss";
+import ROOM_PAGE from '../room_page/index';
+
+import RoomObject from '../../../server/Room_Object';
 
 interface propObject {
     socket: any
 };
 
 const Main_Page = ({ socket }: propObject) => {
+    // render main page (true) or room page (false)
+    const [showMain, setShowMain] = useState<boolean>(true);
+    const [room, setRoom] = useState<RoomObject | null>(null);
+
     const colors: string[] = ["Black","Blue","Brown","Green","Orange","Pink","Purple","Red","White","Yellow"];
     const fruits: string[] = ["Apple","Berry","Banana","Cherry","Coconut","Grape","Lemon","Mango","Peach","Pear"];
     
@@ -18,10 +25,12 @@ const Main_Page = ({ socket }: propObject) => {
     const [joining, setJoining] = useState<boolean>(false);
 
     useEffect(()=>{
+        console.log("main_page useEffect running"); ///////
         if (typeof window !== 'undefined') {
             // adding listeners
-            socket.on("join-success", () => {
-                console.log("yes!");
+            socket.on("join-success", (receivedRoom: RoomObject) => {
+                setRoom(receivedRoom);
+                setShowMain(false);
             });
 
             socket.on("join-fail", () => {
@@ -67,13 +76,22 @@ const Main_Page = ({ socket }: propObject) => {
     function ranNum(limit: number): number {
         return Math.floor(Math.random() * limit);
     }
-
     function rollNewName(): string{
         const colors_index: number = ranNum(colors.length);
         const fruits_index: number = ranNum(fruits.length);
         
         return colors[colors_index] + fruits[fruits_index] + ranNum(10) + ranNum(10);
     }
+
+    // called when user leaves room
+    function resetMainPage(){
+        setJoining(false);
+        setShowMain(true);
+        setRoom(null);
+    }
+
+    // joined room?
+    if (!showMain) return <ROOM_PAGE socket={socket} room={room}  />;
     
     return (
         <main>
@@ -114,7 +132,8 @@ const Main_Page = ({ socket }: propObject) => {
                         <li>Chess Puzzle is a multiplayer game.</li>
                         <li>To begin, create a new room or join an existing room.</li>
                         <li>The room host can change the options and start the game.</li>
-                        <li>Race with other players to collect all gems. Have fun!</li>
+                        <li>Turn your piece into any given chessman to make the move.</li>
+                        <li>Race with other players to capture all targets. Have fun!</li>
                     </ul>
                 </div>
 
