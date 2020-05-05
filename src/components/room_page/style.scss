@@ -52,12 +52,24 @@
 
             #save-button {
                 background-color: $support_blue;
+                animation: blinker 4.5s linear infinite;
+
                 &:disabled {
-                    background-color: gray;
                     cursor: default;
+                    background-color: gray;
+                    animation: none;
+
                     &:hover {
                         background-color: gray !important;
                     }
+                }
+            }
+            @keyframes blinker {
+                10% {
+                    color: $green;
+                }
+                20% {
+                    color: $black;
                 }
             }
             #start-button {

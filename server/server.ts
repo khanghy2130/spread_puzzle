@@ -16,7 +16,9 @@ app.get('*', function (req: any, res: any) : void {
 });
 
 const namespace = io.of('server'); // 'server' namespace
-namespace.on('connection', socketManager);
+namespace.on('connection', function(socket: any): void {
+  socketManager(socket, namespace);
+});
 
 
 server.listen(process.env.PORT || 8080, () : void => {

@@ -39,11 +39,11 @@ const Main_Page = ({ socket }: propObject) => {
             });
 
             socket.on("update-room", (receivedRoom: RoomObject) => {
-                console.log("received the room object to update!");///
+                setRoom(receivedRoom);
             });
         }
 
-        return ()=>{
+        return () => {
             // removing listeners
             socket.off("join-success");
             socket.off("join-fail");
