@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import "./style.scss";
 import RoomObject from '../../../server/Room_Object';
 import PLAY_PAGE from '../play_page/index'; 
+import LevelObject from '../../../server/Level_Object';
 
 
 interface propObject {
@@ -15,6 +16,8 @@ interface propObject {
 const Room_Page = ({ socket, room, resetMainPage }: propObject) => {
     // render room page (true) or play page (false)
     const [showRoom, setShowRoom] = useState<boolean>(true);
+    const [levelObject, setLevelObject] = useState<LevelObject | null>(null);
+
     const isHost: boolean = socket.id === room.users[0].id;
 
     const option_moves_input = useRef<HTMLInputElement>(null);
@@ -29,7 +32,8 @@ const Room_Page = ({ socket, room, resetMainPage }: propObject) => {
         console.log("room_page useEffect running"); ///////
         if (typeof window !== 'undefined') {
             // adding listeners
-            socket.on("start-game", () => {
+            socket.on("start-game", (receivedLevelObject : LevelObject) => {
+                setLevelObject(receivedLevelObject);
                 setShowRoom(false);
             });
         }
@@ -102,8 +106,8 @@ const Room_Page = ({ socket, room, resetMainPage }: propObject) => {
     }
 
     // joined room?
-    if (!showRoom) {
-        return <PLAY_PAGE />;
+    if (!showRoom && levelObject !== null) {
+        return <PLAY_PAGE levelObject={levelObject} />;
     }
 
     // for options, render the sliders and update button if isHost

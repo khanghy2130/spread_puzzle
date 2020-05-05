@@ -33,8 +33,8 @@ const Main_Page = ({ socket }: propObject) => {
                 setShowMain(false);
             });
 
-            socket.on("join-fail", () => {
-                setAlertTextHidden(false); // show alert
+            socket.on("join-fail", (message: string) => {
+                setAlertText(false, message); // show alert
                 setJoining(false); // clear joining status
             });
 
@@ -62,7 +62,7 @@ const Main_Page = ({ socket }: propObject) => {
         if (joining) return; //early exit
         if (roomID_input && roomID_input.current){
             if (roomID_input.current.checkValidity()){
-                setAlertTextHidden(true); // hide alert
+                setAlertText(true); // hide alert
                 setJoining(true);
                 socket.emit("enter-room", nickname, roomID_input.current.value);
             }
@@ -71,9 +71,10 @@ const Main_Page = ({ socket }: propObject) => {
             }
         }
     }
-    function setAlertTextHidden(status: boolean){
+    function setAlertText(status: boolean, message?: string){
         if (no_room_alert_text && no_room_alert_text.current){
             no_room_alert_text.current.hidden = status; 
+            if (message) no_room_alert_text.current.innerText = message; 
         }
     }
 
@@ -118,9 +119,7 @@ const Main_Page = ({ socket }: propObject) => {
                 </div>
                 <div id="join-room-div">
                     <h2 className="main-page-header">Join room</h2>
-                    <p ref={no_room_alert_text} id="no-room-alert" hidden>Room {
-                        (roomID_input && roomID_input.current) ? roomID_input.current.value : ""
-                    } doesn't exist.</p>
+                    <p ref={no_room_alert_text} id="no-room-alert" hidden></p>
                     <input 
                         ref={roomID_input} 
                         type="text" 

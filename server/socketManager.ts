@@ -1,10 +1,13 @@
 import RoomObject from './Room_Object';
+import LevelObject from './Level_Object';
 
 // [key]roomID : RoomObjects
 const roomsList: {[key: string]:  RoomObject} = {}; 
 
 
 function leaveRoom(socket: any, roomID: string){
+    if (!roomsList[roomID]) return;
+
     const usersList = roomsList[roomID].users;
     // find and remove this user from the users list
     for (let i=0; i < usersList.length; i++){
@@ -46,7 +49,7 @@ exports.manager = function(socket: any, namespace: any) : void {
             MAIN PAGE events
         ->> enter-room: {nickname, roomID}  @join or create a room (roomID = null)
         <<- join-success: {room_object}
-        <<- join-fail
+        <<- join-fail:  message     @when room doesn't exist or is in progress
         <<- update-room: {room_object}   @when host saves options or someone leaves/joins
 
             ROOM PAGE events
@@ -61,7 +64,7 @@ exports.manager = function(socket: any, namespace: any) : void {
     */
 
     socket.on("enter-room", (nickname: string, roomID: string | null) => {
-        // create room if needed
+        // creating a new room?
         if (roomID === null){
             function r(): number { return Math.floor(Math.random() * 10); }
             let newRoomID : string;
@@ -83,6 +86,12 @@ exports.manager = function(socket: any, namespace: any) : void {
         
         // if room exists
         if (roomsList[roomID]){
+            // stop the joining if room is in progress
+            if (roomsList[roomID].timerID !== null) {
+                socket.emit("join-fail", `Room ${roomID} has started the game.`);
+                return;
+            }
+
             // leave current room if already in a room
             if (socket.currentRoomID) {
                 socket.leave(socket.currentRoomID);
@@ -102,7 +111,7 @@ exports.manager = function(socket: any, namespace: any) : void {
             socket.to(roomID).emit('update-room', roomsList[roomID]); //  update room for others
         }
         else {
-            socket.emit("join-fail");
+            socket.emit("join-fail", `Room ${roomID} doesn't exist.`);
         }
     });
     
@@ -125,7 +134,16 @@ exports.manager = function(socket: any, namespace: any) : void {
     socket.on("start-game", (roomID: string) => {
         if (!roomsList[roomID]) return;
 
-        namespace.to(roomID).emit("start-game");
+        //roomsList[roomID].timerID = setTimeout(()=>{console.log("timeout works")}, 2000);
+        
+
+        const level_object: LevelObject = {
+            gridData : [],
+            chessmanList : [],
+            timeLimit : roomsList[roomID].option_time * 30
+        }
+
+        namespace.to(roomID).emit("start-game", level_object);
     });
 }
 

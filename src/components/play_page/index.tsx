@@ -1,6 +1,14 @@
 import React from 'react';
 
-const Play_Page = () => {
+import LevelObject from '../../../server/Level_Object';
+
+interface propObject {
+    levelObject: LevelObject
+};
+
+const Play_Page = ({levelObject} : propObject) => {
+    console.log(levelObject);
+
     return (
         <div>
             play page

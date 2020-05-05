@@ -1,3 +1,5 @@
+// Room Object for roomsList
+
 interface PlayResult {
     nickname: string,
     time: number | null // null means not solved
@@ -14,5 +16,5 @@ export default interface RoomObject {
     option_moves: number,
     option_time: number, // 1 unit equals 30 seconds (ex: 3 = 90 sec)
     results: PlayResult[], // array of PlayResults
-    timerID: number | null // if is a number then the game is in progress
+    timerID: any // if not null then the game is in progress
 }

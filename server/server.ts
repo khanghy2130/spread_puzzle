@@ -17,7 +17,7 @@ app.get('*', function (req: any, res: any) : void {
 
 const namespace = io.of('server'); // 'server' namespace
 namespace.on('connection', function(socket: any): void {
-  socketManager(socket, namespace);
+  socketManager(socket, namespace); 
 });
 
 
