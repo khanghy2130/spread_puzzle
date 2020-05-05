@@ -47,19 +47,20 @@ exports.manager = function(socket: any, namespace: any) : void {
 
     /*                         ->> = receive    <<- = send
             MAIN PAGE events
-        ->> enter-room: {nickname, roomID}  @join or create a room (roomID = null)
+        ->> enter-room: {nickname, roomID}        @join or create a room (roomID = null)
         <<- join-success: {room_object}
-        <<- join-fail:  message     @when room doesn't exist or is in progress
-        <<- update-room: {room_object}   @when host saves options or someone leaves/joins
+        <<- join-fail:  {message}                @when room doesn't exist or is in progress
+        <<- update-room: {room_object}           @when host saves options or someone leaves/joins
 
             ROOM PAGE events
         ->> leave-room
-        ->> save-options  option_moves, option_time   @host clicks save
-        ->> start-game     @host clicks start
+        ->> save-options  {option_moves, option_time}   @host clicks save
+        ->> start-game                             @host clicks start
         <<- start-game {play_object}
 
             PLAY PAGE events
-        
+        ->> play-report:  {nickname, time}
+        <<- end-game: {results}            @when server timer fires or all play-reports received
 
     */
 
@@ -78,7 +79,7 @@ exports.manager = function(socket: any, namespace: any) : void {
                 users: [],
                 option_moves: 3,
                 option_time: 2,
-                results: [],
+                results: [{nickname: "johnXame00", time: 20},{nickname: "RloxTop3", time: 111},{nickname: "woxelSeme", time: null},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111}],
                 timerID: null
             };
             roomID = newRoomID;

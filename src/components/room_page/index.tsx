@@ -24,9 +24,11 @@ const Room_Page = ({ socket, room, resetMainPage }: propObject) => {
     const option_moves_display = useRef<HTMLInputElement>(null);
     const option_time_input = useRef<HTMLInputElement>(null);
     const option_time_display = useRef<HTMLInputElement>(null);
-
     // if changed then user can click save button
     const [changed, setChanged] = useState<boolean>(false);
+
+    const [results, setResults] = useState<any>(room.results);
+    const [showResults, setShowResults] = useState<boolean>(false);
 
     useEffect(()=>{
         console.log("room_page useEffect running"); ///////
@@ -105,9 +107,13 @@ const Room_Page = ({ socket, room, resetMainPage }: propObject) => {
         }
     }
 
+    function resetRoomPage(){
+        setShowRoom(true);
+    }
+
     // joined room?
     if (!showRoom && levelObject !== null) {
-        return <PLAY_PAGE levelObject={levelObject} />;
+        return <PLAY_PAGE socket={socket} levelObject={levelObject} resetRoomPage={resetRoomPage} />;
     }
 
     // for options, render the sliders and update button if isHost
@@ -158,10 +164,37 @@ const Room_Page = ({ socket, room, resetMainPage }: propObject) => {
             </div>
 
             <div id="players-div">
+                <h2>Players</h2>
                 {room.users.map(
                     (user, index) => <h4 className={(user.id === socket.id) ? "you" : ""} key={index}>{user.nickname}</h4>
                 )}
+                {
+                    (results.length === 0) ? null :
+                    <button id="results-button" onClick={()=>{setShowResults(true)}}>
+                        See Results
+                    </button>
+                }
             </div>
+            
+            {
+                (!showResults) ? null :
+                <div id="results-wrapper">
+                    <button id="close-button" onClick={()=>{setShowResults(false)}}>
+                        Close Results
+                    </button>
+                    <div id="results-div">
+                        {results.map((result: any, index: number) => (
+                            <h3 key={index}>
+                                {index+1}:&nbsp;
+                                {result.nickname} -&nbsp;
+                                <span className={(result.time)? "":"dnf"}>
+                                    {(result.time) ? result.time + " sec" : "DNF"}
+                                </span>
+                            </h3>
+                        ))}
+                    </div>
+                </div>
+            }       
         </main>
     );
 };
