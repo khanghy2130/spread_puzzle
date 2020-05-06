@@ -9,11 +9,12 @@ import LevelObject from '../../../server/Level_Object';
 interface propObject {
     socket: any,
     room: RoomObject,
-    resetMainPage: () => void
+    resetMainPage: () => void,
+    nickname: string
 };
 
 
-const Room_Page = ({ socket, room, resetMainPage }: propObject) => {
+const Room_Page = ({ socket, room, resetMainPage, nickname }: propObject) => {
     // render room page (true) or play page (false)
     const [showRoom, setShowRoom] = useState<boolean>(true);
     const [levelObject, setLevelObject] = useState<LevelObject | null>(null);
@@ -107,13 +108,21 @@ const Room_Page = ({ socket, room, resetMainPage }: propObject) => {
         }
     }
 
+    // going back to room page from play page
     function resetRoomPage(){
         setShowRoom(true);
+        setShowResults(true);
     }
 
     // joined room?
     if (!showRoom && levelObject !== null) {
-        return <PLAY_PAGE socket={socket} levelObject={levelObject} resetRoomPage={resetRoomPage} />;
+        return (<PLAY_PAGE 
+            socket={socket} 
+            levelObject={levelObject} 
+            resetRoomPage={resetRoomPage} 
+            roomID={room.roomID}
+            nickname={nickname} 
+        />);
     }
 
     // for options, render the sliders and update button if isHost

@@ -98,7 +98,12 @@ const Main_Page = ({ socket }: propObject) => {
 
     // joined room?
     if (!showMain && room !== null) {
-        return <ROOM_PAGE socket={socket} room={room} resetMainPage={resetMainPage} />;
+        return (<ROOM_PAGE 
+            socket={socket} 
+            room={room} 
+            resetMainPage={resetMainPage} 
+            nickname={nickname} 
+        />);
     }
     
     return (

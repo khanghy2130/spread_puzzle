@@ -29,6 +29,11 @@ function leaveRoom(socket: any, roomID: string){
     }
 }
 
+// called when all reports received or server timer is up
+function reopenRoom(socket: any, roomID: string){
+    // set timerID to null
+}
+
 exports.manager = function(socket: any, namespace: any) : void {
 
     ////////////////////////
@@ -37,30 +42,29 @@ exports.manager = function(socket: any, namespace: any) : void {
     socket.on("disconnect", () => {
         console.log(socket.id.slice(-4), "disconnected.");
 
-        // call leaveRoom() if in a room
-        if (socket.currentRoomID) leaveRoom(socket, socket.currentRoomID);
-
-        // send report of 'unsolved' if the game is in progress
-        
+        // if currently in a room
+        if (socket.currentRoomID) {
+            leaveRoom(socket, socket.currentRoomID);
+        }
     });
 
 
     /*                         ->> = receive    <<- = send
             MAIN PAGE events
-        ->> enter-room: {nickname, roomID}        @join or create a room (roomID = null)
+        ->> enter-room:   {nickname, roomID}     @join or create a room (roomID = null)
         <<- join-success: {room_object}
-        <<- join-fail:  {message}                @when room doesn't exist or is in progress
-        <<- update-room: {room_object}           @when host saves options or someone leaves/joins
+        <<- join-fail:    {message}              @when room doesn't exist or is in progress
+        <<- update-room:  {room_object}          @when host saves options or someone leaves/joins
 
             ROOM PAGE events
         ->> leave-room
-        ->> save-options  {option_moves, option_time}   @host clicks save
-        ->> start-game                             @host clicks start
-        <<- start-game {play_object}
+        ->> save-options: {option_moves, option_time}   @host clicks save
+        ->> start-game                          @host clicks start
+        <<- start-game:   {play_object}
 
             PLAY PAGE events
         ->> play-report:  {nickname, time}
-        <<- end-game: {results}            @when server timer fires or all play-reports received
+        <<- end-game:     {results}             @when server timer fires or all play-reports received
 
     */
 
@@ -79,7 +83,7 @@ exports.manager = function(socket: any, namespace: any) : void {
                 users: [],
                 option_moves: 3,
                 option_time: 2,
-                results: [{nickname: "johnXame00", time: 20},{nickname: "RloxTop3", time: 111},{nickname: "woxelSeme", time: null},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111},{nickname: "RloxTop3", time: 111}],
+                results: [],
                 timerID: null
             };
             roomID = newRoomID;
@@ -135,16 +139,48 @@ exports.manager = function(socket: any, namespace: any) : void {
     socket.on("start-game", (roomID: string) => {
         if (!roomsList[roomID]) return;
 
-        //roomsList[roomID].timerID = setTimeout(()=>{console.log("timeout works")}, 2000);
-        
-
+        // GENERATE THE LEVEL
         const level_object: LevelObject = {
             gridData : [],
             chessmanList : [],
-            timeLimit : roomsList[roomID].option_time * 30
+            timeLimit : roomsList[roomID].option_time * 2 //////////////// 30
         }
 
+        // SEND THE LEVEL TO CLIENTS
         namespace.to(roomID).emit("start-game", level_object);
+
+        // SET UP TIMEOUT FOR SERVER, in case clients won't respond
+        roomsList[roomID].timerID = setTimeout(()=>{
+            console.log("timeout works");
+
+            //////////////////// 
+            // reopenRoom
+        }, 2000);
+    });
+
+    socket.on("play-report", (roomID: string, nickname: string, finishedTime: number) => {
+        if (!roomsList[roomID]) return;
+
+        const results = roomsList[roomID].results;
+
+        // no report yet? or time is null?
+        if (results.length === 0 || finishedTime === null){
+            results.push({nickname: nickname, time: finishedTime});
+        }
+        else {
+            // insert in a sorted manner into results list
+            for (let i=results.length-1; i >= 0; i--){
+                // if this report has slower or equal time then insert it here
+                // @ts-ignore
+                if (finishedTime <= results[i].time){
+                    results.splice(i + 1, 0, {nickname: nickname, time: finishedTime});
+                    break;
+                }
+            }
+        }
+
+        // check if all reports are collected
+        // reopenRoom
     });
 }
 

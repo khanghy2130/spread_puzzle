@@ -1,6 +1,6 @@
 // Room Object for roomsList
 
-interface PlayResult {
+interface PlayReport {
     nickname: string,
     time: number | null // null means not solved
 }
@@ -15,6 +15,6 @@ export default interface RoomObject {
     users: User[], // ID as key, nickname as value. first user is host
     option_moves: number,
     option_time: number, // 1 unit equals 30 seconds (ex: 3 = 90 sec)
-    results: PlayResult[], // array of PlayResults
+    results: PlayReport[], // array of PlayReports
     timerID: any // if not null then the game is in progress
 }
