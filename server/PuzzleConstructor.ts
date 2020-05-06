@@ -5,8 +5,8 @@ const PuzzleConstructor = function(this: LevelObject, moves: number, calculatedT
         [0, 0, 1, 1, 0],
         [0, 0, 0, 0, 0],
         [1, 0, 0, 0, 0],
-        [0, 0, 0, 2, 0],
-        [0, 1, 0, 0, 0]
+        [0, 1, 0, 2, 0],
+        [0, 0, 0, 0, 0]
     ];
     this.chessmanList = ["pawn", "bishop", "knight", "rook", "queen", "king"];
     this.timeLimit = calculatedTime;

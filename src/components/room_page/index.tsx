@@ -196,8 +196,8 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
                     <div id="results-div">
                         {room.results.map((result: any, index: number) => (
                             <h3 key={index}>
-                                {index+1}:&nbsp;
-                                {result.nickname} -&nbsp;
+                                {index+1}) &nbsp;
+                                {result.nickname}:&nbsp;
                                 <span className={(result.time !== null)? "":"dnf"}>
                                     {(result.time !== null) ? result.time + " sec" : "DNF"}
                                 </span>

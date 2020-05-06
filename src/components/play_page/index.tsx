@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 
+import "./style.scss";
 import LevelObject from '../../../server/Level_Object';
 import RoomObject from '../../../server/Room_Object';
 
@@ -13,63 +14,94 @@ interface propObject {
 
 const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : propObject) => {
     const time_display = useRef<HTMLHeadingElement>(null);
-    let timeLeft: number = levelObject.timeLimit; // in second
-    let intervalID: any; // ID of the countdown interval
+    // store timeLeft as ref
+    const timeLeft = useRef<any>({ value: levelObject.timeLimit });
+    //const [timeLeft, setTimeLeft] = useState<number>(levelObject.timeLimit);
+    const [timeLimitIntervalID, setTimeLimitIntervalID] = useState<any>(null); // ID of the time limit countdown interval
 
-    const [progress, setProgress] = useState<"playing"|"incomplete"|"complete">("playing");
+    // begin countdown 
+    const begin_countdown_display = useRef<HTMLHeadingElement>(null);
+    let beginCountdownIntervalID: any; // ID of the begin countdown interval
+
+    const [progress, setProgress] = useState<"preparing"|"playing"|"incomplete"|"complete">("preparing");
 
     useEffect(()=>{
         console.log("play_page useEffect running"); ///////
         if (typeof window !== 'undefined') {
             initializeGame();
 
-            // adding listeners
             socket.on("end-game", (receivedRoomObject : RoomObject) => {
                 resetRoomPage(receivedRoomObject);
             });
         }
 
         return () => {
-            // removing listeners
             socket.off("end-game");
+            window.clearInterval(beginCountdownIntervalID); // stop countdown
+            window.clearInterval(timeLimitIntervalID); // stop countdown
         }
     // eslint-disable-next-line
     }, []);
 
+    useLayoutEffect(()=>{
+        console.log("Just changed: " , progress);
+        // after begin countdown is done
+        if (progress === "playing"){
+            setTimeLimitIntervalID(setInterval(()=>{
+                if (timeLeft.current.value > 0){
+                    timeLeft.current.value--;
+                    if (time_display && time_display.current){
+                        time_display.current.innerText = `Time Remaining: ${timeLeft.current.value} sec`;
+                    }
+                } else {
+                    setProgress("incomplete");
+                }
+            }, 1000));
+        }
+        // after puzzle is solved
+        else if (progress === "complete"){
+            window.clearInterval(timeLimitIntervalID); // stop countdown interval
+            socket.emit("play-report", roomID, levelObject.timeLimit - timeLeft.current.value);
+        }
+        // after time limit countdown is done
+        else if (progress === "incomplete"){
+            window.clearInterval(timeLimitIntervalID); // stop countdown interval
+            socket.emit("play-report", roomID, null);
+        }
+
+    // eslint-disable-next-line
+    }, [progress]);
+
+    // called when page loads
+    // load level data. initiate begin countdown
     function initializeGame(){
-        intervalID = setInterval(()=>{
-            if (timeLeft > 0){
-                timeLeft--; // decrease the timeLimit
-                if (time_display && time_display.current){
-                    time_display.current.innerText = `Time Remaining: ${timeLeft} sec`;
+        let beginCountdownLeft = 4;
+        beginCountdownIntervalID = setInterval(()=>{
+            if (beginCountdownLeft > 0){
+                beginCountdownLeft--; // decrease the timeLimit
+                if (begin_countdown_display && begin_countdown_display.current){
+                    begin_countdown_display.current.innerText = `Starting in ${beginCountdownLeft}`;
                 }
             } else {
-                puzzleIncomplete();
+                window.clearInterval(beginCountdownIntervalID); // stop begin countdown
+                setProgress("playing");
             }
         }, 1000);
 
     }
 
-    // called when time's up
-    function puzzleIncomplete(){
-        window.clearInterval(intervalID); // stop countdown
-        setProgress("incomplete");
-        socket.emit("play-report", roomID, null);
-    }
 
-    // called when the puzzle is solved
-    function puzzleComplete(){
-        window.clearInterval(intervalID); // stop countdown
-        setProgress("complete");
-        socket.emit("play-report", roomID, levelObject.timeLimit - timeLeft);
-    }
 
     return (
-        <div>
-            <button onClick={puzzleComplete}>Click Me To Win</button>
+        <main id="play-page-main">
+            <h1 ref={begin_countdown_display}>begin</h1>
+            <h3 ref={time_display}>Time Remaining: {timeLeft.current.value} sec</h3>
             <h3>Status: {progress}</h3>
-            <h3 ref={time_display}>Time Remaining: {timeLeft} sec</h3>
-        </div>
+            {
+                (progress !== "playing") ? null:
+                <button onClick={() => {setProgress("complete");}}>Click Me To Win</button>
+            }
+        </main>
     );
 };
 
