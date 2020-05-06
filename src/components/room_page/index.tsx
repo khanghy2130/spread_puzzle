@@ -10,11 +10,12 @@ interface propObject {
     socket: any,
     room: RoomObject,
     resetMainPage: () => void,
-    nickname: string
+    nickname: string,
+    setRoom: (receivedRoomObject: RoomObject) => void
 };
 
 
-const Room_Page = ({ socket, room, resetMainPage, nickname }: propObject) => {
+const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObject) => {
     // render room page (true) or play page (false)
     const [showRoom, setShowRoom] = useState<boolean>(true);
     const [levelObject, setLevelObject] = useState<LevelObject | null>(null);
@@ -28,7 +29,6 @@ const Room_Page = ({ socket, room, resetMainPage, nickname }: propObject) => {
     // if changed then user can click save button
     const [changed, setChanged] = useState<boolean>(false);
 
-    const [results, setResults] = useState<any>(room.results);
     const [showResults, setShowResults] = useState<boolean>(false);
 
     useEffect(()=>{
@@ -109,7 +109,8 @@ const Room_Page = ({ socket, room, resetMainPage, nickname }: propObject) => {
     }
 
     // going back to room page from play page
-    function resetRoomPage(){
+    function resetRoomPage(receivedRoomObject: RoomObject){
+        setRoom(receivedRoomObject);
         setShowRoom(true);
         setShowResults(true);
     }
@@ -159,7 +160,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname }: propObject) => {
                     (isHost) ? 
                     <div id="host-buttons">
                         <button id="save-button" disabled={!changed} onClick={onSave}>
-                            {(changed) ? "Save" : "Saved"}
+                            Save
                         </button>
                         <button id="start-button" onClick={onStart}>Start!</button>
                     </div>
@@ -175,10 +176,10 @@ const Room_Page = ({ socket, room, resetMainPage, nickname }: propObject) => {
             <div id="players-div">
                 <h2>Players</h2>
                 {room.users.map(
-                    (user, index) => <h4 className={(user.id === socket.id) ? "you" : ""} key={index}>{user.nickname}</h4>
+                    (user, index) => <h4 className={(user.id === socket.id) ? "you" : ""} key={user.id}>{user.nickname}</h4>
                 )}
                 {
-                    (results.length === 0) ? null :
+                    (room.results.length === 0) ? null :
                     <button id="results-button" onClick={()=>{setShowResults(true)}}>
                         See Results
                     </button>
@@ -192,12 +193,12 @@ const Room_Page = ({ socket, room, resetMainPage, nickname }: propObject) => {
                         Close Results
                     </button>
                     <div id="results-div">
-                        {results.map((result: any, index: number) => (
+                        {room.results.map((result: any, index: number) => (
                             <h3 key={index}>
                                 {index+1}:&nbsp;
                                 {result.nickname} -&nbsp;
-                                <span className={(result.time)? "":"dnf"}>
-                                    {(result.time) ? result.time + " sec" : "DNF"}
+                                <span className={(result.time !== null)? "":"dnf"}>
+                                    {(result.time !== null) ? result.time + " sec" : "DNF"}
                                 </span>
                             </h3>
                         ))}

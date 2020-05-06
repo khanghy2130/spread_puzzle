@@ -16,5 +16,6 @@ export default interface RoomObject {
     option_moves: number,
     option_time: number, // 1 unit equals 30 seconds (ex: 3 = 90 sec)
     results: PlayReport[], // array of PlayReports
-    timerID: any // if not null then the game is in progress
+    timerID: any, // if not null then the game is in progress
+    playingUsers: string[] // array of socket ids of players that started playing
 }

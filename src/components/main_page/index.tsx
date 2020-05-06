@@ -102,7 +102,8 @@ const Main_Page = ({ socket }: propObject) => {
             socket={socket} 
             room={room} 
             resetMainPage={resetMainPage} 
-            nickname={nickname} 
+            nickname={nickname}
+            setRoom={setRoom}
         />);
     }
     

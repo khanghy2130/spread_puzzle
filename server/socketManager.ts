@@ -1,9 +1,10 @@
 import RoomObject from './Room_Object';
 import LevelObject from './Level_Object';
 
+const TIME_FACTOR: number = 2;
+
 // [key]roomID : RoomObjects
 const roomsList: {[key: string]:  RoomObject} = {}; 
-
 
 function leaveRoom(socket: any, roomID: string){
     if (!roomsList[roomID]) return;
@@ -23,15 +24,67 @@ function leaveRoom(socket: any, roomID: string){
     if (usersList.length === 0){
         delete roomsList[roomID];
     }
-    // there are other user(s)? => update room for others
-    else {
+    // there are other user(s) and room is not in progress? => update room for others
+    else if (roomsList[roomID].timerID === null){
         socket.to(roomID).emit('update-room', roomsList[roomID]);
     }
 }
 
-// called when all reports received or server timer is up
-function reopenRoom(socket: any, roomID: string){
-    // set timerID to null
+// called when a report is received
+function checkoffReport(namespace: any, socket: any, roomID: string, finishedTime: number | null){
+    if (!roomsList[roomID]) return;
+
+    // if this room is in progress
+    if (roomsList[roomID].timerID){
+        const results = roomsList[roomID].results;
+
+        // no report yet? or finishedTime is null?
+        if (results.length === 0 || finishedTime === null){
+            results.push({nickname: socket.nickname, time: finishedTime});
+        }
+        // finishedTime is not null
+        else {
+            // insert in a sorted manner into results list
+            for (let i=0; i <= results.length; i++){
+                // if no more other time to compare with
+                if (i === results.length){
+                    results.push({nickname: socket.nickname, time: finishedTime});
+                    break;
+                }
+
+                // insert if the comparing time is null or this time is smaller (faster)
+                // @ts-ignore
+                if (results[i].time === null || finishedTime < results[i].time){
+                    results.splice(i, 0, {nickname: socket.nickname, time: finishedTime});
+                    break;
+                }
+            }
+        }
+
+        // checkoff in playingUsers array
+        const playingUsers = roomsList[roomID].playingUsers;
+        for (let i=0; i < playingUsers.length; i++){
+            if (playingUsers[i] === socket.id){
+                playingUsers.splice(i, 1);
+                break;
+            }
+        }
+
+        // check if all reports received
+        if (playingUsers.length === 0) endGame(namespace, roomID);
+    }
+}
+
+function endGame(namespace: any, roomID: string){
+    if (!roomsList[roomID]) return;
+
+    clearTimeout(roomsList[roomID].timerID); // clear server timer
+    roomsList[roomID].timerID = null; // reopen room
+    
+    setTimeout(()=>{
+        // EMIT TO ALL PLAYING USERS
+        namespace.to(roomID).emit("end-game", roomsList[roomID]);
+    }, 2000);
 }
 
 exports.manager = function(socket: any, namespace: any) : void {
@@ -44,7 +97,9 @@ exports.manager = function(socket: any, namespace: any) : void {
 
         // if currently in a room
         if (socket.currentRoomID) {
-            leaveRoom(socket, socket.currentRoomID);
+            // send report in case is in a game
+            checkoffReport(namespace, socket, socket.currentRoomID, null);
+            leaveRoom(socket, socket.currentRoomID); //leave room
         }
     });
 
@@ -84,7 +139,8 @@ exports.manager = function(socket: any, namespace: any) : void {
                 option_moves: 3,
                 option_time: 2,
                 results: [],
-                timerID: null
+                timerID: null,
+                playingUsers: []
             };
             roomID = newRoomID;
         }
@@ -105,6 +161,7 @@ exports.manager = function(socket: any, namespace: any) : void {
             // join and set up new room as current room
             socket.join(roomID);
             socket.currentRoomID = roomID;
+            socket.nickname = nickname; // also make a nickname prop
 
             // add this user
             roomsList[roomID].users.push({
@@ -143,44 +200,31 @@ exports.manager = function(socket: any, namespace: any) : void {
         const level_object: LevelObject = {
             gridData : [],
             chessmanList : [],
-            timeLimit : roomsList[roomID].option_time * 2 //////////////// 30
+            timeLimit : roomsList[roomID].option_time * TIME_FACTOR
         }
+
+        // SET UP LIST OF PLAYING USERS
+        const playingUsers: string[] = [];
+        roomsList[roomID].users.forEach((user: any) => {
+            playingUsers.push(user.id);
+        });
+        roomsList[roomID].playingUsers = playingUsers;
+
+        // CLEAR PREVIOUS RESULTS
+        roomsList[roomID].results = [];
 
         // SEND THE LEVEL TO CLIENTS
         namespace.to(roomID).emit("start-game", level_object);
 
-        // SET UP TIMEOUT FOR SERVER, in case clients won't respond
+        // SET UP TIMEOUT FOR SERVER (+3 extra seconds), in case clients won't respond
         roomsList[roomID].timerID = setTimeout(()=>{
-            console.log("timeout works");
-
-            //////////////////// 
-            // reopenRoom
-        }, 2000);
+            endGame(namespace, roomID);
+        }, (roomsList[roomID].option_time * TIME_FACTOR + 3) * 1000);
     });
 
-    socket.on("play-report", (roomID: string, nickname: string, finishedTime: number) => {
+    socket.on("play-report", (roomID: string, finishedTime: number) => {
         if (!roomsList[roomID]) return;
-
-        const results = roomsList[roomID].results;
-
-        // no report yet? or time is null?
-        if (results.length === 0 || finishedTime === null){
-            results.push({nickname: nickname, time: finishedTime});
-        }
-        else {
-            // insert in a sorted manner into results list
-            for (let i=results.length-1; i >= 0; i--){
-                // if this report has slower or equal time then insert it here
-                // @ts-ignore
-                if (finishedTime <= results[i].time){
-                    results.splice(i + 1, 0, {nickname: nickname, time: finishedTime});
-                    break;
-                }
-            }
-        }
-
-        // check if all reports are collected
-        // reopenRoom
+        checkoffReport(namespace, socket, roomID, finishedTime);
     });
 }
 
