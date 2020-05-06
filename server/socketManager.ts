@@ -36,7 +36,7 @@ function startGame(namespace: any, roomObj: RoomObject){
     // GENERATE THE LEVEL
     const level_object : LevelObject = new PuzzleConstructor(
         roomObj.option_moves,
-        roomObj.option_time * TIME_FACTOR 
+        roomObj.option_time * TIME_FACTOR
     );
 
     // SET UP LIST OF PLAYING USERS
@@ -52,10 +52,11 @@ function startGame(namespace: any, roomObj: RoomObject){
     // SEND THE LEVEL TO CLIENTS
     namespace.to(roomObj.roomID).emit("start-game", level_object);
 
-    // SET UP TIMEOUT FOR SERVER (+5 extra seconds), in case clients won't respond
+    // SET UP TIMEOUT FOR SERVER
+    // +10 extra seconds in case client responses are delayed or won't come
     roomObj.timerID = setTimeout(()=>{
         endGame(namespace, roomObj.roomID);
-    }, (roomObj.option_time * TIME_FACTOR + 5) * 1000);
+    }, (roomObj.option_time * TIME_FACTOR + 10) * 1000);
 }
 
 // called when a report is received
@@ -64,8 +65,19 @@ function checkoffReport(namespace: any, socket: any, roomID: string, finishedTim
 
     // if this room is in progress
     if (roomsList[roomID].timerID){
-        const results = roomsList[roomID].results;
+        // find and checkoff in playingUsers array
+        const playingUsers = roomsList[roomID].playingUsers;
+        let found: boolean = false; // if false then there is no need to get the report
+        for (let i=0; i < playingUsers.length; i++){
+            if (playingUsers[i] === socket.id){
+                playingUsers.splice(i, 1);
+                found = true;
+                break;
+            }
+        }
+        if (!found) return; // just a duplicated report, stop the function
 
+        const results = roomsList[roomID].results;
         // no report yet? or finishedTime is null?
         if (results.length === 0 || finishedTime === null){
             results.push({nickname: socket.nickname, time: finishedTime});
@@ -89,14 +101,7 @@ function checkoffReport(namespace: any, socket: any, roomID: string, finishedTim
             }
         }
 
-        // checkoff in playingUsers array
-        const playingUsers = roomsList[roomID].playingUsers;
-        for (let i=0; i < playingUsers.length; i++){
-            if (playingUsers[i] === socket.id){
-                playingUsers.splice(i, 1);
-                break;
-            }
-        }
+        
 
         // check if all reports received
         if (playingUsers.length === 0) endGame(namespace, roomID);
