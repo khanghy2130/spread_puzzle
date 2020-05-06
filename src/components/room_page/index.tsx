@@ -113,6 +113,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
         setRoom(receivedRoomObject);
         setShowRoom(true);
         setShowResults(true);
+        setChanged(false);
     }
 
     // joined room?

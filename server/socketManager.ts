@@ -1,5 +1,7 @@
 import RoomObject from './Room_Object';
 import LevelObject from './Level_Object';
+const PuzzleConstructor = require('./PuzzleConstructor').PuzzleConstructor;
+
 
 const TIME_FACTOR: number = 2;
 
@@ -28,6 +30,32 @@ function leaveRoom(socket: any, roomID: string){
     else if (roomsList[roomID].timerID === null){
         socket.to(roomID).emit('update-room', roomsList[roomID]);
     }
+}
+
+function startGame(namespace: any, roomObj: RoomObject){
+    // GENERATE THE LEVEL
+    const level_object : LevelObject = new PuzzleConstructor(
+        roomObj.option_moves,
+        roomObj.option_time * TIME_FACTOR 
+    );
+
+    // SET UP LIST OF PLAYING USERS
+    const playingUsers: string[] = [];
+    roomObj.users.forEach((user: any) => {
+        playingUsers.push(user.id);
+    });
+    roomObj.playingUsers = playingUsers;
+
+    // CLEAR PREVIOUS RESULTS
+    roomObj.results = [];
+
+    // SEND THE LEVEL TO CLIENTS
+    namespace.to(roomObj.roomID).emit("start-game", level_object);
+
+    // SET UP TIMEOUT FOR SERVER (+5 extra seconds), in case clients won't respond
+    roomObj.timerID = setTimeout(()=>{
+        endGame(namespace, roomObj.roomID);
+    }, (roomObj.option_time * TIME_FACTOR + 5) * 1000);
 }
 
 // called when a report is received
@@ -195,31 +223,7 @@ exports.manager = function(socket: any, namespace: any) : void {
 
     socket.on("start-game", (roomID: string) => {
         if (!roomsList[roomID]) return;
-
-        // GENERATE THE LEVEL
-        const level_object: LevelObject = {
-            gridData : [],
-            chessmanList : [],
-            timeLimit : roomsList[roomID].option_time * TIME_FACTOR
-        }
-
-        // SET UP LIST OF PLAYING USERS
-        const playingUsers: string[] = [];
-        roomsList[roomID].users.forEach((user: any) => {
-            playingUsers.push(user.id);
-        });
-        roomsList[roomID].playingUsers = playingUsers;
-
-        // CLEAR PREVIOUS RESULTS
-        roomsList[roomID].results = [];
-
-        // SEND THE LEVEL TO CLIENTS
-        namespace.to(roomID).emit("start-game", level_object);
-
-        // SET UP TIMEOUT FOR SERVER (+3 extra seconds), in case clients won't respond
-        roomsList[roomID].timerID = setTimeout(()=>{
-            endGame(namespace, roomID);
-        }, (roomsList[roomID].option_time * TIME_FACTOR + 3) * 1000);
+        startGame(namespace, roomsList[roomID]);        
     });
 
     socket.on("play-report", (roomID: string, finishedTime: number) => {
