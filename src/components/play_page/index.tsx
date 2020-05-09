@@ -4,6 +4,14 @@ import "./style.scss";
 import LevelObject from '../../../server/Level_Object';
 import RoomObject from '../../../server/Room_Object';
 
+import img_king from './chess_pieces/king.svg';
+import img_queen from './chess_pieces/queen.svg';
+import img_pawn from './chess_pieces/pawn.svg';
+import img_bishop from './chess_pieces/bishop.svg';
+import img_knight from './chess_pieces/knight.svg';
+import img_rook from './chess_pieces/rook.svg';
+import img_target from './chess_pieces/target.svg';
+
 interface propObject {
     socket: any,
     levelObject: LevelObject,
@@ -12,11 +20,12 @@ interface propObject {
     nickname: string
 };
 
+type Cell = 0 | 1 | 2; // 0: empty; 1: target; 2: player
+
 const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : propObject) => {
     const time_display = useRef<HTMLHeadingElement>(null);
     // store timeLeft as ref
     const timeLeft = useRef<any>({ value: levelObject.timeLimit });
-    //const [timeLeft, setTimeLeft] = useState<number>(levelObject.timeLimit);
     const [timeLimitIntervalID, setTimeLimitIntervalID] = useState<any>(null); // ID of the time limit countdown interval
 
     // begin countdown 
@@ -24,6 +33,8 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
     let beginCountdownIntervalID: any; // ID of the begin countdown interval
 
     const [progress, setProgress] = useState<"preparing"|"playing"|"incomplete"|"complete">("preparing");
+
+    const [gridData, setGridData] = useState<Cell[][]>(levelObject.gridData);
 
     // socket io events
     useEffect(()=>{
@@ -80,7 +91,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
     // load level data. initiate begin countdown
     function initialize(){
-        let beginCountdownLeft = 4;
+        let beginCountdownLeft = 3;
         beginCountdownIntervalID = setInterval(()=>{
             if (beginCountdownLeft > 0){
                 beginCountdownLeft--; // decrease the timeLimit
@@ -95,15 +106,36 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
     }
 
-
+    function cellClicked(x: number, y: number){
+        console.log(`x: ${x}  y: ${y}`);
+    }
 
     return (
         <main id="play-page-main">
+            {/* <h3 ref={time_display}>Time Remaining: {timeLeft.current.value} sec</h3> */}
             
-            <h3 ref={time_display}>Time Remaining: {timeLeft.current.value} sec</h3>
-            
+            <div>
+                <table>
+                    {gridData.map((row: Cell[], y: number) => (
+                        <tr key={"row:" + y}>{
+                            row.map((cellData: Cell, x: number) => (
+                                <td key={"cell: " + x}>
+                                    <div className="highlighter" 
+                                    onClick={() => cellClicked(x, y)}>
+                                        {/* image if */}
+                                        <img src={img_bishop} alt="" />
+                                    </div>
+                                </td>
+                            ))
+                        }</tr>
+                    ))}
+                </table>
+
+            </div>
+
+
             {
-                (progress !== "playing") ? null:
+                (progress !== "playing" || true) ? null:
                 <button onClick={() => {setProgress("complete");}}>Click Me To Win</button>
             }
 
@@ -113,7 +145,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
                         (progress === "preparing") ? (<div>
                             <h3 className="blue-color">Capture all targets!</h3>
                             <h2>Starting in...</h2>
-                            <h2 ref={begin_countdown_display}>4</h2>
+                            <h2 ref={begin_countdown_display}>3</h2>
                         </div>) :
                         (progress === "complete") ? (<div>
                             <h2 className="blue-color">Puzzle solved!</h2>

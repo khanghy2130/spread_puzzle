@@ -1,7 +1,47 @@
 @import '../../index.scss';
 
 #play-page-main {
+    display: flex;
+    flex-direction: row; // column for smaller screens
+    justify-content: center;
+    align-items: center;
+    padding-top: 50px;
 
+    table {
+        border-collapse: collapse;
+        border: 5px solid $black;
+
+        tr {
+            td {
+                background-color: rgb(80, 80, 80); // default color value
+
+                .highlighter {
+                    width: 90px;
+                    height: 90px;
+                    
+
+                    &:hover {background-color: rgba(0, 250, 0, 0.3);}
+
+                    & > img {
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+            }
+
+            // checker board pattern background colors
+            &:nth-of-type(2n){
+                td:nth-of-type(2n - 1) {
+                    background-color: $text_white;
+                }
+            }
+            &:nth-of-type(2n - 1){
+                td:nth-of-type(2n) {
+                    background-color: $text_white;
+                }
+            }
+        }
+    }
 
     #play-page-modal {
         position: fixed;
@@ -16,9 +56,9 @@
 
         & > div {
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 1.5em;
-
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 2em 0;
+            width: 100%;
             .green-color {
                 color: $green;
             }
@@ -36,5 +76,20 @@
             }
         }
     }
-    
+}
+
+@media only screen and (max-width: $tablet-bp){
+    #play-page-main {
+        flex-direction: column;
+        table {
+            tr {
+                td {
+                    .highlighter {
+                        width: 18vw;
+                        height: 18vw;
+                    }
+                }
+            }
+        }
+    }
 }
