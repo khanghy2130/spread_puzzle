@@ -25,11 +25,10 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
     const [progress, setProgress] = useState<"preparing"|"playing"|"incomplete"|"complete">("preparing");
 
+    // socket io events
     useEffect(()=>{
         console.log("play_page useEffect running"); ///////
         if (typeof window !== 'undefined') {
-            initializeGame();
-
             socket.on("end-game", (receivedRoomObject : RoomObject) => {
                 resetRoomPage(receivedRoomObject);
             });
@@ -37,16 +36,19 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
         return () => {
             socket.off("end-game");
-            window.clearInterval(beginCountdownIntervalID); // stop countdown
-            window.clearInterval(timeLimitIntervalID); // stop countdown
         }
     // eslint-disable-next-line
     }, []);
 
+    // progress status handler
     useLayoutEffect(()=>{
         console.log("Just changed: " , progress);
         // after begin countdown is done
-        if (progress === "playing"){
+        if (progress === "preparing"){
+            initialize();
+        }
+        else if (progress === "playing"){
+            // start the time limit countdown
             setTimeLimitIntervalID(setInterval(()=>{
                 if (timeLeft.current.value > 0){
                     timeLeft.current.value--;
@@ -69,24 +71,27 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
             socket.emit("play-report", roomID, null);
         }
 
+        return () => {
+            window.clearInterval(beginCountdownIntervalID); // stop countdown
+            window.clearInterval(timeLimitIntervalID); // stop countdown
+        }
     // eslint-disable-next-line
     }, [progress]);
 
-    // called when page loads
     // load level data. initiate begin countdown
-    function initializeGame(){
+    function initialize(){
         let beginCountdownLeft = 4;
         beginCountdownIntervalID = setInterval(()=>{
             if (beginCountdownLeft > 0){
                 beginCountdownLeft--; // decrease the timeLimit
                 if (begin_countdown_display && begin_countdown_display.current){
-                    begin_countdown_display.current.innerText = `Starting in ${beginCountdownLeft}`;
+                    begin_countdown_display.current.innerText = "" + beginCountdownLeft;
                 }
             } else {
                 window.clearInterval(beginCountdownIntervalID); // stop begin countdown
                 setProgress("playing");
             }
-        }, 1000);
+        }, 800);
 
     }
 
@@ -94,13 +99,34 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
     return (
         <main id="play-page-main">
-            <h1 ref={begin_countdown_display}>begin</h1>
+            
             <h3 ref={time_display}>Time Remaining: {timeLeft.current.value} sec</h3>
-            <h3>Status: {progress}</h3>
+            
             {
                 (progress !== "playing") ? null:
                 <button onClick={() => {setProgress("complete");}}>Click Me To Win</button>
             }
+
+            {(progress === "playing") ? null : (
+                <div id="play-page-modal">
+                    {
+                        (progress === "preparing") ? (<div>
+                            <h3 className="blue-color">Capture all targets!</h3>
+                            <h2>Starting in...</h2>
+                            <h2 ref={begin_countdown_display}>4</h2>
+                        </div>) :
+                        (progress === "complete") ? (<div>
+                            <h2 className="blue-color">Puzzle solved!</h2>
+                            <h3>Your time:</h3>
+                            <h3 className="green-color">{levelObject.timeLimit - timeLeft.current.value} seconds</h3>
+                        </div>) :
+                        (progress === "incomplete") ? (<div>
+                            <h2 className="red-color">Time's up!</h2>
+                        </div>) : null
+                    }
+                </div>
+            )}
+            
         </main>
     );
 };
