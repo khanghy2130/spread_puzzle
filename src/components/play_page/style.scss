@@ -106,6 +106,10 @@
             transition: background-color 0.25s;
             
             img {
+                // prvent getting too big
+                max-height: 80px;
+                max-width: 80px;
+
                 height: 13vh;
                 width: auto;
             }
@@ -174,7 +178,22 @@
 // move chessman container to the top
 @media only screen and (max-width: $tablet-bp){
     #play-page-main {
-        flex-direction: column;
+        flex-direction: column-reverse;
+        align-items: center;
+
+        ///////////// fit 
+        #chessman-container {
+            flex-direction: row;
+            margin: 0;
+            margin-bottom: 0.8em;
+
+            button {
+                img {
+                    height: auto;
+                    width: 15vw;
+                }
+            }
+        }
     }
 }
 
@@ -185,11 +204,20 @@
             table {
                 tr {
                     td {
-                        .highlighter {
+                        & > div {
                             width: 18vw;
                             height: 18vw;
                         }
                     }
+                }
+            }
+        }
+
+        #chessman-container {
+            button {
+                img {
+                    height: auto;
+                    width: 15vw;
                 }
             }
         }
