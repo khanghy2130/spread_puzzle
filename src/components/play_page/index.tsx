@@ -11,6 +11,8 @@ import img_bishop from './chess_pieces/bishop.svg';
 import img_knight from './chess_pieces/knight.svg';
 import img_rook from './chess_pieces/rook.svg';
 import img_target from './chess_pieces/target.svg';
+import img_unselected from './chess_pieces/unselected.svg';
+
 
 interface propObject {
     socket: any,
@@ -49,13 +51,15 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
         "bishop": img_bishop,
         "knight": img_knight,
         "rook": img_rook,
-        "target": img_target
+        "target": img_target,
+        "unselected": img_unselected
     };
 
     // play control data
     const [gridData, setGridData] = useState<Cell[][]>(levelObject.gridData);
     const [cmList, setCmList] = useState<ChessmanPlay[]>(levelObject.chessmanList.map(cm => [cm, true]));
     const [moveHistories, setMoveHistories] = useState<MoveHistory[]>([]);
+    const [selectedCm, setSelectedCm] = useState<number | null>(null); // null means unselected
 
 
     // socket io events
@@ -128,6 +132,16 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
     }
 
+    function chessmanClicked(cmPlay: ChessmanPlay, index: number){
+        // do nothing if this chessman is used, or is already selected
+        if (!cmPlay[1] || selectedCm === index) return;
+
+        // set index for selectedCm
+        setSelectedCm(index);
+        
+
+    }
+
     function cellClicked(x: number, y: number){
         console.log(`x: ${x}  y: ${y}`);
     }
@@ -143,10 +157,29 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
                         <tr key={"row:" + y}>{
                             row.map((cellData: Cell, x: number) => (
                                 <td key={"cell: " + x}>
-                                    <div className="highlighter" 
+                                    <div 
                                     onClick={() => cellClicked(x, y)}>
-                                        {/* image if */}
-                                        <img src={cmImg["target"]} alt="" />
+                                        {
+                                            // is a target cell? : not a target cell
+                                            (gridData[y][x] === 1) ? (
+                                                <img src={cmImg["target"]} alt="target cell" />
+                                            ) : (gridData[y][x] === 2) ? (
+                                                // is unselected? : not selected
+                                                // (key provided to replay css popup animation)
+                                                (selectedCm === null) ? (
+                                                    <img alt="player cell"
+                                                    src={cmImg["unselected"]} 
+                                                    className="player-cell" 
+                                                    key={"player: "+selectedCm}/>
+                                                ) : (
+                                                    <img alt="player cell"
+                                                    src={cmImg[cmList[selectedCm][0]]} 
+                                                    className="player-cell"
+                                                    key={"player: "+selectedCm} />
+                                                )
+                                            ) : null
+                                        }
+                                        
                                     </div>
                                 </td>
                             ))
@@ -162,7 +195,17 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
             </div>
 
             <div id="chessman-container">
-                {(cmList.map((cmPlay, index) => <button key={index} disabled={!cmPlay[1]}>
+                {(cmList.map((cmPlay: ChessmanPlay, index: number) => <button 
+                key={index} 
+                disabled={!cmPlay[1]}
+                onClick={() => chessmanClicked(cmPlay, index)}
+                className={
+                    // selected class
+                    (selectedCm === index) ? "selected" :
+                    // unselected state & unused
+                    (selectedCm === null && cmPlay[1]) ? "blink" : ""
+                }
+                style={{animationDelay:`${index * 0.5}s`}}>
                     <img src={cmImg[cmPlay[0]]} alt="chessman" />
                 </button>))}
             </div>
