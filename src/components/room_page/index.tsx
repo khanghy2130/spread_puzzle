@@ -32,7 +32,6 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
     const [showResults, setShowResults] = useState<boolean>(false);
 
     useEffect(()=>{
-        console.log("room_page useEffect running"); ///////
         if (typeof window !== 'undefined') {
             // adding listeners
             socket.on("start-game", (receivedLevelObject : LevelObject) => {

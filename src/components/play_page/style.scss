@@ -20,12 +20,17 @@
                     background-color: $dark; // default color value
     
                     & > div {
+                        transition: all 0.2s;
+                        border: 0 transparent solid;
                         width: 90px;
                         height: 90px;
-                        &:hover {background-color: rgba(0, 250, 0, 0.3);}
-                        // when a move here is possible
-                        &.highlighted {
-                            border: 5px $main-purple solid;
+
+                        &.movable {
+                            cursor: pointer;
+                            background-color: transparentize($color: $support_blue, $amount: 0.5);
+                            &:hover {
+                                border: $green 0.3em solid;
+                            }
                         }
     
                         & > img {
@@ -126,7 +131,7 @@
                     background-color: transparent;
                 }
                 50% {
-                    background-color: $red;
+                    background-color: $support_blue;
                 }
             }
             &:hover {

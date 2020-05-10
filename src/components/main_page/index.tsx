@@ -25,7 +25,6 @@ const Main_Page = ({ socket }: propObject) => {
     const [joining, setJoining] = useState<boolean>(false);
 
     useEffect(()=>{
-        console.log("main_page useEffect running"); ///////
         if (typeof window !== 'undefined') {
             // adding listeners
             socket.on("join-success", (receivedRoom: RoomObject) => {
