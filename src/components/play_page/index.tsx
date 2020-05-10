@@ -21,6 +21,12 @@ interface propObject {
 };
 
 type Cell = 0 | 1 | 2; // 0: empty; 1: target; 2: player
+type Chessman = "pawn" | "rook" | "bishop" | "knight" | "queen" | "king";
+
+// [chessman type, availability]
+type ChessmanPlay = [Chessman, boolean];
+// [previous position, used-chessman index, just captured a target?]
+type MoveHistory = [[number, number], number, boolean]; 
 
 const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : propObject) => {
     const time_display = useRef<HTMLHeadingElement>(null);
@@ -32,9 +38,25 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
     const begin_countdown_display = useRef<HTMLHeadingElement>(null);
     let beginCountdownIntervalID: any; // ID of the begin countdown interval
 
+    // main game state status
     const [progress, setProgress] = useState<"preparing"|"playing"|"incomplete"|"complete">("preparing");
+    
+    // dictionary for image sources
+    const cmImg: {[key: string]: string} = {
+        "king": img_king,
+        "queen": img_queen,
+        "pawn": img_pawn,
+        "bishop": img_bishop,
+        "knight": img_knight,
+        "rook": img_rook,
+        "target": img_target
+    };
 
+    // play control data
     const [gridData, setGridData] = useState<Cell[][]>(levelObject.gridData);
+    const [cmList, setCmList] = useState<ChessmanPlay[]>(levelObject.chessmanList.map(cm => [cm, true]));
+    const [moveHistories, setMoveHistories] = useState<MoveHistory[]>([]);
+
 
     // socket io events
     useEffect(()=>{
@@ -64,7 +86,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
                 if (timeLeft.current.value > 0){
                     timeLeft.current.value--;
                     if (time_display && time_display.current){
-                        time_display.current.innerText = `Time Remaining: ${timeLeft.current.value} sec`;
+                        time_display.current.innerText = timeLeft.current.value;
                     }
                 } else {
                     setProgress("incomplete");
@@ -110,12 +132,13 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
         console.log(`x: ${x}  y: ${y}`);
     }
 
+    ////////////// win by setProgress("complete")
+
     return (
         <main id="play-page-main">
-            {/* <h3 ref={time_display}>Time Remaining: {timeLeft.current.value} sec</h3> */}
             
-            <div>
-                <table>
+            <div id="table-wrapper">
+                <table><tbody>
                     {gridData.map((row: Cell[], y: number) => (
                         <tr key={"row:" + y}>{
                             row.map((cellData: Cell, x: number) => (
@@ -123,21 +146,26 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
                                     <div className="highlighter" 
                                     onClick={() => cellClicked(x, y)}>
                                         {/* image if */}
-                                        <img src={img_bishop} alt="" />
+                                        <img src={cmImg["target"]} alt="" />
                                     </div>
                                 </td>
                             ))
                         }</tr>
                     ))}
-                </table>
+                </tbody></table>
 
+                <h3>Time left: &nbsp;<span ref={time_display}>{timeLeft.current.value}</span> seconds</h3>
+                <div id="buttons-div">
+                    <button>Reset</button>
+                    <button>Undo</button>
+                </div>
             </div>
 
-
-            {
-                (progress !== "playing" || true) ? null:
-                <button onClick={() => {setProgress("complete");}}>Click Me To Win</button>
-            }
+            <div id="chessman-container">
+                {(cmList.map((cmPlay, index) => <button key={index} disabled={!cmPlay[1]}>
+                    <img src={cmImg[cmPlay[0]]} alt="chessman" />
+                </button>))}
+            </div>
 
             {(progress === "playing") ? null : (
                 <div id="play-page-modal">

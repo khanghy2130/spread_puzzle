@@ -3,7 +3,7 @@ import LevelObject from './Level_Object';
 const PuzzleConstructor = require('./PuzzleConstructor').PuzzleConstructor;
 
 
-const TIME_FACTOR: number = 2;
+const TIME_FACTOR: number = 30; // 30
 
 // [key]roomID : RoomObjects
 const roomsList: {[key: string]:  RoomObject} = {}; 
