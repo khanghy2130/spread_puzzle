@@ -19,6 +19,7 @@ const Main_Page = ({ socket }: propObject) => {
     const fruits: string[] = ["Apple","Berry","Banana","Cherry","Coconut","Grape","Lemon","Mango","Peach","Pear"];
     
     const [nickname, setNickname] = useState<string>(rollNewName());
+    const nickname_input = useRef<HTMLInputElement>(null);
     const no_room_alert_text = useRef<HTMLParagraphElement>(null);
     const roomID_input = useRef<HTMLInputElement>(null);
     // joining => true when clicked create or join
@@ -85,7 +86,19 @@ const Main_Page = ({ socket }: propObject) => {
         const colors_index: number = ranNum(colors.length);
         const fruits_index: number = ranNum(fruits.length);
         
-        return colors[colors_index] + fruits[fruits_index] + ranNum(10) + ranNum(10);
+        return colors[colors_index] +"_"+ fruits[fruits_index];
+    }
+    function onNameChange(): void{
+        if (nickname_input && nickname_input.current) {
+            setNickname(nickname_input.current.value);
+        }
+    }
+    function newNameClicked(): void{
+        const newName: string = rollNewName();
+        setNickname(newName);
+        if (nickname_input && nickname_input.current) {
+            nickname_input.current.value = newName;
+        }
     }
 
     // called when user leaves room
@@ -115,8 +128,12 @@ const Main_Page = ({ socket }: propObject) => {
             <div id="contents-wrapper">
                 <div id="nickname-div">
                     <h2 className="main-page-header">Nickname</h2>
-                    <h3 id="nickname-display">{nickname}</h3>
-                    <button onClick={()=>setNickname(rollNewName())}>New name</button>
+                    <input ref={nickname_input} 
+                    onChange={onNameChange}
+                    type="text" 
+                    defaultValue={nickname} 
+                    maxLength={15} /><br/>
+                    <button onClick={newNameClicked}>New name</button>
                 </div>
                 <div id="create-room-div">
                     <h2 className="main-page-header">Create new room</h2>

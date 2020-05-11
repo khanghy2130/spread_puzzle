@@ -47,25 +47,21 @@
             color: $text_white;
         }
 
-        #nickname-display {
-            @extend .font-body;
-            color: $support_blue;
-        }
-
         #no-room-alert {
             color: $red;
             font-size: 0.9em;
         }
 
         input {
-            width: 80%;
+            @extend .font-body;
+            width: 85%;
             max-width: 200px;
             background-color: $black;
             color: $support_blue;
             border: none;
-            padding: 0.5em;
-            margin: 0.5em;
-            font-size: 0.8em;
+            padding: 0.4em;
+            margin: 0.3em;
+            font-size: 0.9em;
         }
 
         // all buttons

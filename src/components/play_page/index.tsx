@@ -128,7 +128,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
     }, [progress]);
 
     // called when play page starts
-    function initialize(){
+    function initialize(): void{
         // initiate begin-countdown
         let beginCountdownLeft = 3;
         beginCountdownIntervalID = setInterval(()=>{
@@ -166,15 +166,11 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
         }
 
         // cmList
-        levelObject.chessmanList.map(cm => [cm, true])
-        const newCmList: ChessmanPlay[] = [];
-        levelObject.chessmanList.forEach((cm: Chessman) => newCmList.push([cm, true]));
-        setCmList(newCmList);
-
+        setCmList(levelObject.chessmanList.map((cm: Chessman) => [cm, true]));
     }
 
     // update selectedCm and movableTiles
-    function chessmanClicked(cmPlay: ChessmanPlay, index: number){
+    function chessmanClicked(cmPlay: ChessmanPlay, index: number): void{
         // do nothing if this chessman is used, or is already selected
         if (!cmPlay[1] || selectedCm === index) return;
 
