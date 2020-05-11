@@ -61,7 +61,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
     // -- Control States --
     // gridData: 2d array containing each Cell data
-    const [gridData, setGridData] = useState<Cell[][]>([]);
+    const [gridData, setGridData] = useState<Cell[][]>([[1]]); // dummy value to fail checkWin()
     // playerPos: player's piece position
     const [playerPos, setPlayerPos] = useState<Position>([0, 0]); // dummy value
     // chessman List: list of chessman those which player will use
@@ -94,7 +94,21 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
         console.log("Just changed: " , progress);
         // after begin countdown is done
         if (progress === "preparing"){
-            initialize();
+            // initiate begin-countdown
+            let beginCountdownLeft = 3;
+            beginCountdownIntervalID = setInterval(()=>{
+                if (beginCountdownLeft > 0){
+                    beginCountdownLeft--; // decrease the timeLimit
+                    if (begin_countdown_display && begin_countdown_display.current){
+                        begin_countdown_display.current.innerText = "" + beginCountdownLeft;
+                    }
+                } else {
+                    window.clearInterval(beginCountdownIntervalID); // stop begin countdown
+                    setProgress("playing");
+                }
+            }, 800);
+
+            loadLevel();
         }
         else if (progress === "playing"){
             // start the time limit countdown
@@ -111,7 +125,6 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
         }
         // after puzzle is solved
         else if (progress === "complete"){
-            window.clearInterval(timeLimitIntervalID); // stop countdown interval
             socket.emit("play-report", roomID, levelObject.timeLimit - timeLeft.current.value);
         }
         // after time limit countdown is done
@@ -127,28 +140,25 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
     // eslint-disable-next-line
     }, [progress]);
 
-    // called when play page starts
-    function initialize(): void{
-        // initiate begin-countdown
-        let beginCountdownLeft = 3;
-        beginCountdownIntervalID = setInterval(()=>{
-            if (beginCountdownLeft > 0){
-                beginCountdownLeft--; // decrease the timeLimit
-                if (begin_countdown_display && begin_countdown_display.current){
-                    begin_countdown_display.current.innerText = "" + beginCountdownLeft;
-                }
-            } else {
-                window.clearInterval(beginCountdownIntervalID); // stop begin countdown
-                setProgress("playing");
-            }
-        }, 800);
+    // check win whenever gridData changes
+    useEffect(() => {
+        if (!gridData.flat(1).includes(1)){
+            setProgress("complete");
+        }
+    }, [gridData]);
 
+    // called when play page starts
+    function loadLevel(): void{
         // load game states (gridData, playerPos, cmList)
         // gridData
         const newGridData: Cell[][] = [];
         levelObject.gridData.forEach((row : Cell[]) => {
             const newRow: Cell[] = [];
-            row.forEach((cellData : Cell) => newRow.push(cellData));
+            row.forEach((cellData : Cell) => {
+                // no need player data in gridData
+                if (cellData === 2) newRow.push(0);
+                else newRow.push(cellData);
+            });
             newGridData.push(newRow);
         })
         setGridData(newGridData);
@@ -167,6 +177,10 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
         // cmList
         setCmList(levelObject.chessmanList.map((cm: Chessman) => [cm, true]));
+        // resetting moveHistories, selectedCm, and movableTiles 
+        setMoveHistories([]);
+        setSelectedCm(null);
+        setMovableTiles([]);
     }
 
     // update selectedCm and movableTiles
@@ -181,16 +195,94 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
             case "king":
                 setMovableTiles(cmMoves.king(gridData, playerPos));
                 break;
+            case "knight":
+                setMovableTiles(cmMoves.knight(gridData, playerPos));
+                break;
+            case "bishop":
+                setMovableTiles(cmMoves.bishop(gridData, playerPos));
+                break;
+            case "rook":
+                setMovableTiles(cmMoves.rook(gridData, playerPos));
+                break;
+            case "queen":
+                setMovableTiles(cmMoves.queen(gridData, playerPos));
+                break;
+            case "pawn":
+                setMovableTiles(cmMoves.pawnForward(gridData, playerPos));
+                break;
+            default:
+                setMovableTiles([]);
         }
-
-
     }
 
     function cellClicked(x: number, y: number){
-        console.log(`x: ${x}  y: ${y}`);
+        // the loop for for checking if the cell is a movable cell
+        for (let i=0; i < movableTiles.length; i++){
+            const movableCell: Position = movableTiles[i];
+            if (movableCell[0] === x && movableCell[1] === y){
+                // push new move history
+                const newMoveHistory: MoveHistory = [
+                    playerPos,
+                    selectedCm || 0, // selectedCm wouldn't be null right here
+                    gridData[y][x] === 1
+                ];
+                setMoveHistories([...moveHistories, newMoveHistory]);
+
+                // update gridData on prev pos
+                setGridData(gridData.map((row: Cell[], yIndex: number) => {
+                    if (yIndex !== y) return row;
+                    return row.map((cellData: Cell, xIndex: number) => {
+                        if (xIndex !== x) return cellData;
+                        return 0; // set the target cell to empty
+                    });
+                }));
+
+                // update cmList on selected cm
+                setCmList(cmList.map((cmPlay: ChessmanPlay, index: number) => {
+                    if (index === selectedCm){
+                        return [cmPlay[0], false];
+                    }
+                    else return cmPlay;
+                }));
+                
+                setSelectedCm(null); // reset selectedCm
+                setMovableTiles([]); // reset movableTiles
+                setPlayerPos(movableCell); // set new playerPos
+                
+                return;
+            }
+        }
     }
 
-    ////////////// win by setProgress("complete")
+    function undoClicked(): void {
+        const previousMove: MoveHistory = moveHistories[moveHistories.length - 1];
+
+        console.log(previousMove)
+
+        // set gridData (if was a capturing move)
+        if (previousMove[2]){
+            setGridData(gridData.map((row: Cell[], yIndex: number) => {
+                if (yIndex !== playerPos[1]) return row;
+                return row.map((cellData: Cell, xIndex: number) => {
+                    if (xIndex !== playerPos[0]) return cellData;
+                    return 1; // give back to target cell
+                });
+            }));
+        }
+
+        // set cmList
+        setCmList(cmList.map((cmPlay: ChessmanPlay, index: number) => {
+            if (index === previousMove[1]){
+                return [cmPlay[0], true];
+            }
+            else return cmPlay;
+        }));
+
+        // set playerPos
+        setPlayerPos(previousMove[0]);
+        // set moveHistories
+        setMoveHistories(moveHistories.filter(move => move !== previousMove));
+    }
 
     function renderCell(x: number, y: number){
         function isMovable(){
@@ -208,7 +300,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
                 // is a target cell? : not a target cell
                 (gridData[y][x] === 1) ? (
                     <img src={cmImg["target"]} alt="target cell" />
-                ) : (gridData[y][x] === 2) ? (
+                ) : (playerPos[0] === x && playerPos[1] === y) ? (
                     // key provided to replay css popup animation
                     <img alt="player cell"
                     className="player-cell" 
@@ -241,8 +333,16 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
                 <h3>Time left: &nbsp;<span ref={time_display}>{timeLeft.current.value}</span> seconds</h3>
                 <div id="buttons-div">
-                    <button>Reset</button>
-                    <button>Undo</button>
+                    <button 
+                    onClick={loadLevel} 
+                    disabled={moveHistories.length === 0}>
+                        Reset
+                    </button>
+                    <button
+                    onClick={undoClicked}
+                    disabled={moveHistories.length === 0}>
+                        Undo
+                    </button>
                 </div>
             </div>
 
@@ -281,7 +381,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
                     }
                 </div>
             )}
-            
+
         </main>
     );
 };

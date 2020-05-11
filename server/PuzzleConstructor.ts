@@ -2,9 +2,9 @@ import LevelObject from "./Level_Object";
 
 const PuzzleConstructor = function(this: LevelObject, moves: number, calculatedTime: number){
     this.gridData = [
-        [0, 0, 1, 1, 0],
+        [0, 0, 0, 1, 0],
         [0, 0, 0, 0, 0],
-        [1, 0, 0, 0, 0],
+        [1, 0, 1, 0, 0],
         [0, 1, 0, 2, 0],
         [0, 0, 0, 0, 0]
     ];

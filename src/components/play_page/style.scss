@@ -27,9 +27,9 @@
 
                         &.movable {
                             cursor: pointer;
-                            background-color: transparentize($color: $support_blue, $amount: 0.5);
+                            background-color: transparentize($color: $support_blue, $amount: 0.3);
                             &:hover {
-                                border: $green 0.3em solid;
+                                border: $main_purple 0.3em solid;
                             }
                         }
     
@@ -68,7 +68,7 @@
 
         // time left text
         & > h3 {
-            background-color: rgba($color: #000000, $alpha: 0.7);
+            background-color: rgba(0,0,0, 0.7);
             text-align: center;
             align-self: center;
             margin: 0.7em 0;
@@ -95,6 +95,11 @@
                 }
                 &:active {
                     background-color: $support_blue;
+                }
+                &:disabled {
+                    cursor: default;
+                    background: $dark !important;
+                    color: gray;
                 }
             }
         }
@@ -131,13 +136,15 @@
                     background-color: transparent;
                 }
                 50% {
-                    background-color: $support_blue;
+                    background-color: transparentize($color: $support_blue, $amount: 0.5);
                 }
             }
             &:hover {
                 background-color: rgb(20, 20, 20);
             }
             &:disabled {
+                cursor: default;
+                background-color: transparent !important;
                 img {
                     opacity: 0.1;
                 }
