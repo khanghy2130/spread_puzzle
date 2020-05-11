@@ -1,32 +1,32 @@
-type Position = [number, number];
+type _Position = [number, number];
 
-// each function will return an array with type: Position[] of movable positions
-type Output = (targets: Position[], playerPos: Position) => Position[];
-type Pawn_Output = (targets: Position[], playerPos: Position, capture: boolean) => Position[];
+// each function will return an array with type: _Position[] of movable positions
+type Output = (targets: _Position[], playerPos: _Position) => _Position[];
+type Pawn_Output = (targets: _Position[], playerPos: _Position, capture: boolean) => _Position[];
 
 // return false if the given position is out of the board
-function checkOnGrid(pos: Position): boolean{
+function checkOnGrid(pos: _Position): boolean{
     if (Math.min(pos[0], pos[1]) < 0) return false; // check min limit
     if (Math.max(pos[0], pos[1]) >= 5) return false; // check max limit
     return true;
 }
 
 // return true if the given position has target on it
-function hasTarget(targets: Position[], pos: Position){
-    return targets.some((targetPos: Position) => {
+function hasTarget(targets: _Position[], pos: _Position){
+    return targets.some((targetPos: _Position) => {
         return targetPos[0] === pos[0] && targetPos[1] === pos[1];
     });
 }
 
 // well actually all chessman at generation stage are blockable
 function blockableMoves(
-    targets: Position[], 
-    playerPos: Position, 
+    targets: _Position[], 
+    playerPos: _Position, 
     allVelocities: [number, number][]
-): Position[] {
-    const results: Position[] = [];
+): _Position[] {
+    const results: _Position[] = [];
     allVelocities.forEach((vel: [number, number]) => {
-        let nextPos: Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
+        let nextPos: _Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
         
         // on grid and no target there?
         while (checkOnGrid(nextPos) && !hasTarget(targets, nextPos)){
@@ -38,7 +38,7 @@ function blockableMoves(
     return results;
 }
 
-const king: Output = (targets: Position[], playerPos: Position) => {
+const king: Output = (targets: _Position[], playerPos: _Position) => {
     // king can move 1 step in each of the 8 directions | can't be blocked
 
     const allVelocities: [number, number][] = [
@@ -53,17 +53,17 @@ const king: Output = (targets: Position[], playerPos: Position) => {
     ];
     
     // map into Positions then filter out the off-grid and target ones
-    const results: Position[] = allVelocities.map(
+    const results: _Position[] = allVelocities.map(
         (vel: [number, number]) => {
-            const pos: Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
+            const pos: _Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
             return pos;
         }
-    ).filter((pos: Position) => (checkOnGrid(pos) && !hasTarget(targets, pos)));
+    ).filter((pos: _Position) => (checkOnGrid(pos) && !hasTarget(targets, pos)));
 
     return results;
 };
 
-const knight: Output = (targets: Position[], playerPos: Position) => {
+const knight: Output = (targets: _Position[], playerPos: _Position) => {
     // knight has 8 possible moves
 
     const allVelocities: [number, number][] = [
@@ -78,17 +78,17 @@ const knight: Output = (targets: Position[], playerPos: Position) => {
     ];
 
     // map into Positions then filter out the off-grid and target ones
-    const results: Position[] = allVelocities.map(
+    const results: _Position[] = allVelocities.map(
         (vel: [number, number]) => {
-            const pos: Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
+            const pos: _Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
             return pos;
         }
-    ).filter((pos: Position) => (checkOnGrid(pos) && !hasTarget(targets, pos)));
+    ).filter((pos: _Position) => (checkOnGrid(pos) && !hasTarget(targets, pos)));
 
     return results;
 };
 
-const bishop: Output = (targets: Position[], playerPos: Position) => {
+const bishop: Output = (targets: _Position[], playerPos: _Position) => {
     // bishop moves diagonally
 
     const allVelocities: [number, number][] = [
@@ -101,7 +101,7 @@ const bishop: Output = (targets: Position[], playerPos: Position) => {
     return blockableMoves(targets, playerPos, allVelocities);
 };
 
-const rook: Output = (targets: Position[], playerPos: Position) => {
+const rook: Output = (targets: _Position[], playerPos: _Position) => {
     // rook moves vertically and horizontall
 
     const allVelocities: [number, number][] = [
@@ -114,7 +114,7 @@ const rook: Output = (targets: Position[], playerPos: Position) => {
     return blockableMoves(targets, playerPos, allVelocities);
 };
 
-const queen: Output = (targets: Position[], playerPos: Position) => {
+const queen: Output = (targets: _Position[], playerPos: _Position) => {
     // queen has all moves bishop and rook have
     
     const allVelocities: [number, number][] = [
@@ -131,12 +131,12 @@ const queen: Output = (targets: Position[], playerPos: Position) => {
     return blockableMoves(targets, playerPos, allVelocities);
 };
 
-const pawn: Pawn_Output = (targets: Position[], playerPos: Position, capture: boolean) => {
+const pawn: Pawn_Output = (targets: _Position[], playerPos: _Position, capture: boolean) => {
     // pawn can move BACKWARD 1 step if is not a capture move
     // can move DOWN-DIAGONALLY 1 step if is a capture (onto current pos) move
 
-    const results: Position[] = [];
-    let nextPos: Position;
+    const results: _Position[] = [];
+    let nextPos: _Position;
     // backward
     nextPos = [playerPos[0], playerPos[1] + 1];
     if (checkOnGrid(nextPos) && !hasTarget(targets, nextPos) && !capture){
@@ -158,4 +158,6 @@ const pawn: Pawn_Output = (targets: Position[], playerPos: Position, capture: bo
 
 
 
-export default {king, knight, bishop, rook, queen, pawn}
+exports.cmMoves = {king, knight, bishop, rook, queen, pawn}
+
+export {}

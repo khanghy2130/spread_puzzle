@@ -80,9 +80,9 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
                 "save-options",
                 room.roomID,
                     // @ts-ignore 
-                option_moves_input.current.value,
+                Number(option_moves_input.current.value),
                     // @ts-ignore 
-                option_time_input.current.value
+                Number(option_time_input.current.value)
             );
         }
     }

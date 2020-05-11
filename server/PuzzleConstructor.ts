@@ -4,9 +4,11 @@
 - 3.Each capture point: Pick a random chessman to make a move. Do this until no more point.
 - 4.If picked chessman has no valid move, check it off and reroll new chessman.
 - 5.If all chessman have no valid move and there are still capture points, reroll at number 2.
+- 6.Randomize chessmanList order
 */
 
 import LevelObject from "./Level_Object";
+const cmMoves =  require("./Chessman_Moves_Generator").cmMoves;
 
 type Cell = 0 | 1; // 0: empty; 1: target
 type Position = [number, number];
@@ -25,49 +27,92 @@ function generateCapturePoints(moves: number): boolean[] {
     for (let i=0; i < moves; i++) capturePoints.push(true);
 
     let removeAmounts: number[] = [];
-    switch(moves){
-        case 3:
-            removeAmounts = [0, 1];
-            break;
-        case 4:
-            removeAmounts = [0, 1];
-            break;
-        case 5:
-            removeAmounts = [0, 1, 2];
-            break;
-        case 6:
-            removeAmounts = [1, 2, 3];
-            break;
-    } 
+    if (moves === 3) removeAmounts = [0, 1];
+    else if (moves === 4) removeAmounts = [0, 1];
+    else if (moves === 5) removeAmounts = [0, 1, 2];
+    else if (moves === 6) removeAmounts = [0, 1, 2, 3];
+
     let pickedRemoveAmount: number = removeAmounts[randomInt(0, removeAmounts.length)];
+
     while (pickedRemoveAmount > 0){
         // pick a random capture point to remove, but not the first (index 0)
-        const pickedCapturePointIndex = randomInt(1, moves); // moves = capturePoints.length
+        const pickedCpIndex = randomInt(1, moves); // moves = capturePoints.length
         // if not already removed -> remove and decrease amount
-        if (capturePoints[pickedCapturePointIndex] === true){
-            capturePoints[pickedCapturePointIndex] = false;
+        if (capturePoints[pickedCpIndex] === true){
+            capturePoints[pickedCpIndex] = false;
             pickedRemoveAmount--;
         }
-        else continue; // continue to pick again
     }
-
+    
     return capturePoints;
 }
 
 // return [gridData, playPos, chessmanList]
 // if process fails, return .success as false
 function createPuzzle(capturePoints: boolean[]): Generated_Puzzle{
-    // generate playerPos (would be the last position in the solution)
-    let playerPos: Position = [randomInt(0, 5), randomInt(0, 5)];
+    // outputs
+    let gridData: Cell[][] = [],
+        chessmanList: Chessman[] = [],
+        playerPos: Position = [randomInt(0, 5), randomInt(0, 5)];
+    
+    for (let y=0; y < 5; y++) {
+        const newRow: Cell[] = [];
+        for (let x=0; x < 5; x++) newRow.push(0);
+        gridData.push(newRow);
+    }
 
-    ////// do to
+    const targets: Position[] = [];
 
-    // fail output
+    for (let cpIndex: number = 0; cpIndex < capturePoints.length; cpIndex++){
+        const capture: boolean = capturePoints[cpIndex];
+        const chessmanPool: Chessman[] = ["king", "knight", "bishop", "rook", "queen", "pawn"];
+        let pickedCmIndex: number;
+
+        // while no move is made yet
+        while (chessmanList.length <= cpIndex) {
+            pickedCmIndex = randomInt(0, chessmanPool.length);
+            const pickedChessman: Chessman = chessmanPool[pickedCmIndex];
+
+            // Designing check: if is not knight or pawn then have a chance to reroll
+            if (pickedChessman !== "pawn" && pickedChessman !== "knight"){
+                if (randomInt(0, 10) < 5) continue;
+            }
+
+            const movableTiles: Position[] = cmMoves[pickedChessman](targets, playerPos, capture);
+            // has valid move(s)
+            if (movableTiles.length > 0){
+                chessmanList.push(pickedChessman); // add picked chessman
+
+                // current playerPos: place target if capture
+                if (capture) {
+                    gridData[playerPos[1]][playerPos[0]] = 1; // place a target
+                    targets.push([playerPos[0], playerPos[1]]);
+                }
+
+                // pick a random move for the next playerPos
+                const pickedMove = movableTiles[randomInt(0, movableTiles.length - 1)];
+                playerPos = pickedMove;
+            }
+            // has no valid moves
+            else {
+                chessmanPool.splice(pickedCmIndex, 1); // remove chessman from pool
+
+                // check to return fail
+                if (chessmanPool.length === 0) return {
+                    success: false,
+                    gridData: [],
+                    playerPos: [0,0],
+                    chessmanList: []
+                }
+            }
+        }
+    }
+
     return {
-        success: !false,
-        gridData: [],
-        playerPos: [0,0],
-        chessmanList: []
+        success: true, 
+        gridData,
+        playerPos,
+        chessmanList
     }
 }
 
@@ -79,22 +124,16 @@ function randomInt(start: number, end: number): number{
 const PuzzleConstructor = function(this: LevelObject, moves: number, calculatedTime: number){
     // generate capture points
     const capturePoints: boolean[] = generateCapturePoints(moves);
-
+    
     let newLevelData: Generated_Puzzle;
     do newLevelData = createPuzzle(capturePoints)
     while(!newLevelData.success); // not successfully created the puzzle?
 
+    ///////////////// randomize chessmanList
 
-    // final data
-    this.gridData = [
-        [0, 0, 0, 1, 0],
-        [0, 0, 0, 0, 0],
-        [1, 0, 1, 0, 0],
-        [0, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0]
-    ];
-    this.playerPos = [1, 0];
-    this.chessmanList = ["pawn", "bishop", "knight", "rook", "queen", "king"];
+    this.gridData = newLevelData.gridData;
+    this.playerPos = newLevelData.playerPos;
+    this.chessmanList = newLevelData.chessmanList;
     this.timeLimit = calculatedTime;
 } as any as { new (moves: number, calculatedTime: number): LevelObject; };
 

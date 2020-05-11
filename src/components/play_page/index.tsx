@@ -172,28 +172,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
         setSelectedCm(index); // selected!
 
         // find and set movableTiles
-        switch (cmPlay[0]){
-            case "king":
-                setMovableTiles(cmMoves.king(gridData, playerPos));
-                break;
-            case "knight":
-                setMovableTiles(cmMoves.knight(gridData, playerPos));
-                break;
-            case "bishop":
-                setMovableTiles(cmMoves.bishop(gridData, playerPos));
-                break;
-            case "rook":
-                setMovableTiles(cmMoves.rook(gridData, playerPos));
-                break;
-            case "queen":
-                setMovableTiles(cmMoves.queen(gridData, playerPos));
-                break;
-            case "pawn":
-                setMovableTiles(cmMoves.pawn(gridData, playerPos));
-                break;
-            default:
-                setMovableTiles([]);
-        }
+        setMovableTiles(cmMoves[cmPlay[0]](gridData, playerPos));
     }
 
     function cellClicked(x: number, y: number){
