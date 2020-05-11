@@ -27,9 +27,9 @@
 
                         &.movable {
                             cursor: pointer;
-                            background-color: transparentize($color: $support_blue, $amount: 0.3);
+                            background-color: transparentize($color: $main_purple, $amount: 0.2);
                             &:hover {
-                                border: $main_purple 0.3em solid;
+                                border: $green 0.3em solid;
                             }
                         }
     

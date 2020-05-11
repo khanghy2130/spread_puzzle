@@ -1,11 +1,10 @@
-type Cell = 0 | 1 | 2;
+type Cell = 0 | 1;
 type Grid_Data = Cell[][];
 type Position = [number, number];
 
 // each function will return an array with type: Position[]
 // gridData is used to locate targets, but king and knight won't use it
 type Output = (gridData: Grid_Data, playerPos: Position) => Position[];
-type Backward_Pawn_Output = (gridData: Grid_Data, playerPos: Position, capture: boolean) => Position[];
 
 // return false if the given position is out of the board
 function checkOnGrid(pos: Position): boolean{
@@ -24,7 +23,7 @@ function blockableMoves(
         let nextPos: Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
         
         // on grid?
-        while (checkOnGrid(nextPos)){
+        while (checkOnGrid(nextPos) && gridData[nextPos[1]][nextPos[0]] !== 1){
             results.push([nextPos[0], nextPos[1]]); // add pos
 
             // stop if this nextPos has a target
@@ -130,8 +129,7 @@ const queen: Output = (gridData: Grid_Data, playerPos: Position) => {
     return blockableMoves(gridData, playerPos, allVelocities);
 };
 
-// for gameplay
-const pawnForward: Output = (gridData: Grid_Data, playerPos: Position) => {
+const pawn: Output = (gridData: Grid_Data, playerPos: Position) => {
     // pawn can move forward 1 step if there is not target there
     // can move up-diagonally 1 step if there is a target there
 
@@ -156,11 +154,6 @@ const pawnForward: Output = (gridData: Grid_Data, playerPos: Position) => {
     return results;
 };
 
-// for puzzle generation
-const pawnBackward: Backward_Pawn_Output = (gridData: Grid_Data, playerPos: Position, capture: boolean) => {
-    return [[2,2]];
-};
 
 
-
-export default {king, knight, bishop, rook, queen, pawnForward, pawnBackward}
+export default {king, knight, bishop, rook, queen, pawn}

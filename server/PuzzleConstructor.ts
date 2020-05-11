@@ -38,11 +38,12 @@ function generateCapturePoints(moves: number): boolean[] {
 const PuzzleConstructor = function(this: LevelObject, moves: number, calculatedTime: number){
 
     // final data
+    this.playerPos = [1, 0];
     this.gridData = [
         [0, 0, 0, 1, 0],
         [0, 0, 0, 0, 0],
         [1, 0, 1, 0, 0],
-        [0, 1, 0, 2, 0],
+        [0, 1, 0, 0, 0],
         [0, 0, 0, 0, 0]
     ];
     this.chessmanList = ["pawn", "bishop", "knight", "rook", "queen", "king"];

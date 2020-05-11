@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import "./style.scss";
 import LevelObject from '../../../server/Level_Object';
 import RoomObject from '../../../server/Room_Object';
-import cmMoves from '../Chessman_Moves';
+import cmMoves from './Chessman_Moves';
 
 import img_king from './chess_pieces/king.svg';
 import img_queen from './chess_pieces/queen.svg';
@@ -23,7 +23,7 @@ interface propObject {
     nickname: string
 };
 
-type Cell = 0 | 1 | 2; // 0: empty; 1: target; 2: player
+type Cell = 0 | 1; // 0: empty; 1: target
 type Chessman = "pawn" | "rook" | "bishop" | "knight" | "queen" | "king";
 
 // [chessman type, availability]
@@ -151,29 +151,10 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
     function loadLevel(): void{
         // load game states (gridData, playerPos, cmList)
         // gridData
-        const newGridData: Cell[][] = [];
-        levelObject.gridData.forEach((row : Cell[]) => {
-            const newRow: Cell[] = [];
-            row.forEach((cellData : Cell) => {
-                // no need player data in gridData
-                if (cellData === 2) newRow.push(0);
-                else newRow.push(cellData);
-            });
-            newGridData.push(newRow);
-        })
-        setGridData(newGridData);
+        setGridData(levelObject.gridData);
 
         // playerPos
-        loopY:
-        for (let y=0; y < levelObject.gridData.length; y++){
-            //loopX:
-            for (let x=0; x < levelObject.gridData.length; x++){
-                if (levelObject.gridData[y][x] === 2){
-                    setPlayerPos([x, y]);
-                    break loopY; // breaks out of loopY
-                }
-            }
-        }
+        setPlayerPos(levelObject.playerPos);
 
         // cmList
         setCmList(levelObject.chessmanList.map((cm: Chessman) => [cm, true]));
@@ -208,7 +189,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
                 setMovableTiles(cmMoves.queen(gridData, playerPos));
                 break;
             case "pawn":
-                setMovableTiles(cmMoves.pawnForward(gridData, playerPos));
+                setMovableTiles(cmMoves.pawn(gridData, playerPos));
                 break;
             default:
                 setMovableTiles([]);
@@ -245,9 +226,9 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
                     else return cmPlay;
                 }));
                 
+                setPlayerPos(movableCell); // set new playerPos
                 setSelectedCm(null); // reset selectedCm
                 setMovableTiles([]); // reset movableTiles
-                setPlayerPos(movableCell); // set new playerPos
                 
                 return;
             }
@@ -276,10 +257,12 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
             else return cmPlay;
         }));
 
-        // set playerPos
-        setPlayerPos(previousMove[0]);
         // set moveHistories
         setMoveHistories(moveHistories.filter(move => move !== previousMove));
+        
+        setPlayerPos(previousMove[0]); // set playerPos
+        setSelectedCm(null); // set selectedCm
+        setMovableTiles([]); // reset movableTiles
     }
 
     function renderCell(x: number, y: number){
