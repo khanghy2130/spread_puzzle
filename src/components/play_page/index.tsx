@@ -166,7 +166,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
         // playerPos
         loopY:
         for (let y=0; y < levelObject.gridData.length; y++){
-            loopX:
+            //loopX:
             for (let x=0; x < levelObject.gridData.length; x++){
                 if (levelObject.gridData[y][x] === 2){
                     setPlayerPos([x, y]);
@@ -256,8 +256,6 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
     function undoClicked(): void {
         const previousMove: MoveHistory = moveHistories[moveHistories.length - 1];
-
-        console.log(previousMove)
 
         // set gridData (if was a capturing move)
         if (previousMove[2]){
