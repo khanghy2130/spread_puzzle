@@ -129,11 +129,17 @@ const PuzzleConstructor = function(this: LevelObject, moves: number, calculatedT
     do newLevelData = createPuzzle(capturePoints)
     while(!newLevelData.success); // not successfully created the puzzle?
 
-    ///////////////// randomize chessmanList
+    // randomize chessmanList
+    const randomizedCmList: Chessman[] = [];
+    while (newLevelData.chessmanList.length > 0){
+        const pickedCmIndex: number = randomInt(0, newLevelData.chessmanList.length);
+        randomizedCmList.push(newLevelData.chessmanList[pickedCmIndex]);
+        newLevelData.chessmanList.splice(pickedCmIndex, 1);
+    }
 
     this.gridData = newLevelData.gridData;
     this.playerPos = newLevelData.playerPos;
-    this.chessmanList = newLevelData.chessmanList;
+    this.chessmanList = randomizedCmList;
     this.timeLimit = calculatedTime;
 } as any as { new (moves: number, calculatedTime: number): LevelObject; };
 
