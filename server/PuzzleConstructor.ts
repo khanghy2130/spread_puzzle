@@ -30,7 +30,7 @@ function generateCapturePoints(moves: number): boolean[] {
     if (moves === 3) removeAmounts = [0, 1];
     else if (moves === 4) removeAmounts = [0, 1];
     else if (moves === 5) removeAmounts = [0, 1, 2];
-    else if (moves === 6) removeAmounts = [0, 1, 2, 3];
+    else if (moves === 6) removeAmounts = [0, 1, 2];
 
     let pickedRemoveAmount: number = removeAmounts[randomInt(0, removeAmounts.length)];
 
