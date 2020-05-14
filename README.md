@@ -12,7 +12,7 @@ Node.js, Express.js,
 Socket.io
 
 #### Scripts
-`npm run dev` Starts the app in development mode. The client React server is on port 5000, the custom Express server is on port 8080.
+`npm run dev` Starts the app in development mode. The client React server is on port 3000, the custom Express server is on port 8080.
 
 `npm run fakeprod` Starts the app in fake-production mode. The client will be built then served on the same port as the Express server.
 
