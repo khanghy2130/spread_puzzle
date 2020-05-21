@@ -4,10 +4,12 @@ type _Position = [number, number];
 type Output = (targets: _Position[], playerPos: _Position) => _Position[];
 type Pawn_Output = (targets: _Position[], playerPos: _Position, capture: boolean) => _Position[];
 
+const BOARD_SIZE: number = 6;
+
 // return false if the given position is out of the board
 function checkOnGrid(pos: _Position): boolean{
     if (Math.min(pos[0], pos[1]) < 0) return false; // check min limit
-    if (Math.max(pos[0], pos[1]) >= 5) return false; // check max limit
+    if (Math.max(pos[0], pos[1]) >= BOARD_SIZE) return false; // check max limit
     return true;
 }
 

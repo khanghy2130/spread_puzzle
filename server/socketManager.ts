@@ -3,7 +3,7 @@ import LevelObject from './Level_Object';
 const PuzzleConstructor = require('./PuzzleConstructor').PuzzleConstructor;
 
 
-const TIME_FACTOR: number = 30; // 30
+const TIME_FACTOR: number = 10; // 10
 
 // [key]roomID : RoomObjects
 const roomsList: {[key: string]:  RoomObject} = {}; 
@@ -122,7 +122,6 @@ function endGame(namespace: any, roomID: string){
 
 exports.manager = function(socket: any, namespace: any) : void {
 
-    ////////////////////////
     console.log(socket.id.slice(-4), "connected!");
     
     socket.on("disconnect", () => {
@@ -170,7 +169,7 @@ exports.manager = function(socket: any, namespace: any) : void {
                 roomID: newRoomID,
                 users: [],
                 option_moves: 3,
-                option_time: 2,
+                option_time: 3,
                 results: [],
                 timerID: null,
                 playingUsers: []

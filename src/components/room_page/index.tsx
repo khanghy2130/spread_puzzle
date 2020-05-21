@@ -16,6 +16,8 @@ interface propObject {
 
 
 const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObject) => {
+    const TIME_FACTOR: number = 10;
+
     // render room page (true) or play page (false)
     const [showRoom, setShowRoom] = useState<boolean>(true);
     const [levelObject, setLevelObject] = useState<LevelObject | null>(null);
@@ -57,7 +59,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
     function timeOnChange(){
         // check availablity
         if (!(option_time_display && option_time_display.current && option_time_input && option_time_input.current)) return;
-        option_time_display.current.innerText = "" + Number(option_time_input.current.value) * 30;
+        option_time_display.current.innerText = "" + Number(option_time_input.current.value) * TIME_FACTOR;
         option_time_display.current.className = "not-updated";
         setChanged(true);
     }
@@ -139,19 +141,19 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
                 </label>
                 {(isHost) ? 
                     <input ref={option_moves_input} 
-                    type="range" min={3} max={6} 
+                    type="range" min={3} max={7} 
                     defaultValue={room.option_moves}
                     onChange={movesOnChange} /> 
                 : null}
 
                 <label>
                     Time:&nbsp;&nbsp;
-                    <span className="updated" ref={option_time_display}>{room.option_time*30}</span>
+                    <span className="updated" ref={option_time_display}>{room.option_time*TIME_FACTOR}</span>
                     &nbsp;seconds
                 </label>
                 {(isHost) ? 
                     <input ref={option_time_input} 
-                    type="range" min={1} max={6} 
+                    type="range" min={1} max={10} 
                     defaultValue={room.option_time}
                     onChange={timeOnChange} /> 
                 : null}

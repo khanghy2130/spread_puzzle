@@ -21,6 +21,8 @@ interface Generated_Puzzle {
     chessmanList: Chessman[]
 }
 
+const BOARD_SIZE: number = 6;
+
 // first capture point is always true
 function generateCapturePoints(moves: number): boolean[] {
     const capturePoints: boolean[] = [];
@@ -29,8 +31,9 @@ function generateCapturePoints(moves: number): boolean[] {
     let removeAmounts: number[] = [];
     if (moves === 3) removeAmounts = [0, 1];
     else if (moves === 4) removeAmounts = [0, 1];
-    else if (moves === 5) removeAmounts = [0, 1, 2];
+    else if (moves === 5) removeAmounts = [0, 1];
     else if (moves === 6) removeAmounts = [0, 1, 2];
+    else if (moves === 7) removeAmounts = [0, 1, 2];
 
     let pickedRemoveAmount: number = removeAmounts[randomInt(0, removeAmounts.length)];
 
@@ -53,11 +56,11 @@ function createPuzzle(capturePoints: boolean[]): Generated_Puzzle{
     // outputs
     let gridData: Cell[][] = [],
         chessmanList: Chessman[] = [],
-        playerPos: Position = [randomInt(0, 5), randomInt(0, 5)];
+        playerPos: Position = [randomInt(0, BOARD_SIZE), randomInt(0, BOARD_SIZE)];
     
-    for (let y=0; y < 5; y++) {
+    for (let y=0; y < BOARD_SIZE; y++) {
         const newRow: Cell[] = [];
-        for (let x=0; x < 5; x++) newRow.push(0);
+        for (let x=0; x < BOARD_SIZE; x++) newRow.push(0);
         gridData.push(newRow);
     }
 
@@ -75,7 +78,7 @@ function createPuzzle(capturePoints: boolean[]): Generated_Puzzle{
 
             // Designing check: if is not knight or pawn then have a chance to reroll
             if (pickedChessman !== "pawn" && pickedChessman !== "knight"){
-                if (randomInt(0, 10) < 5) continue;
+                if (randomInt(0, 10) < 5.5) continue;
             }
 
             const movableTiles: Position[] = cmMoves[pickedChessman](targets, playerPos, capture);
