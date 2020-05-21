@@ -13,6 +13,7 @@ import img_knight from './chess_pieces/knight.svg';
 import img_rook from './chess_pieces/rook.svg';
 import img_target from './chess_pieces/target.svg';
 import img_unselected from './chess_pieces/unselected.svg';
+import img_blocker from './chess_pieces/blocker.svg';
 
 
 interface propObject {
@@ -23,7 +24,7 @@ interface propObject {
     nickname: string
 };
 
-type Cell = 0 | 1; // 0: empty; 1: target
+type Cell = 0 | 1 | 2; // 0: empty; 1: target; 2: blocker
 type Chessman = "pawn" | "rook" | "bishop" | "knight" | "queen" | "king";
 
 // [chessman type, availability]
@@ -56,7 +57,8 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
         "knight": img_knight,
         "rook": img_rook,
         "target": img_target,
-        "unselected": img_unselected
+        "unselected": img_unselected,
+        "blocker": img_blocker
     };
 
     // -- Control States --
@@ -257,10 +259,13 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
             onClick={() => cellClicked(x, y)}
             className={(isMovable())? "movable" : ""}>
             {
-                // is a target cell? : not a target cell
+                // is a target cell? : is a blocker? : is the player? : empty cell
                 (gridData[y][x] === 1) ? (
                     <img src={cmImg["target"]} alt="target cell" />
-                ) : (playerPos[0] === x && playerPos[1] === y) ? (
+                ) : (gridData[y][x] === 2) ? (
+                    <img src={cmImg["blocker"]} alt="blocker cell" />
+                )
+                : (playerPos[0] === x && playerPos[1] === y) ? (
                     // key provided to replay css popup animation
                     <img alt="player cell"
                     className="player-cell" 

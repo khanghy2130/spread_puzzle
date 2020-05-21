@@ -10,7 +10,7 @@
 import LevelObject from "./Level_Object";
 const cmMoves =  require("./Chessman_Moves_Generator").cmMoves;
 
-type Cell = 0 | 1; // 0: empty; 1: target
+type Cell = 0 | 1 | 2; // 0: empty; 1: target; 2: blocker
 type Position = [number, number];
 type Chessman = "pawn" | "rook" | "bishop" | "knight" | "queen" | "king";
 
@@ -58,14 +58,33 @@ function createPuzzle(capturePoints: boolean[]): Generated_Puzzle{
         chessmanList: Chessman[] = [],
         playerPos: Position = [randomInt(0, BOARD_SIZE), randomInt(0, BOARD_SIZE)];
     
+    // create blockers
+    const blockersAmount: number = randomInt(2, 4);
+    const blockers: Position[] = [];
+    while (blockers.length < blockersAmount) {
+        const newBlocker: Position = [randomInt(0, BOARD_SIZE), randomInt(0, BOARD_SIZE)];
+        // add to array if not collide with playerPos or other blockers
+        const notPlayerPos: boolean = newBlocker[0] !== playerPos[0] && newBlocker[1] !== playerPos[1];
+        const notOtherBlockers: boolean = blockers.every(b => newBlocker[0] !== b[0] && newBlocker[1] !== b[1]);
+        if (notPlayerPos && notOtherBlockers){
+            blockers.push(newBlocker);
+        }
+    }
+
+    // set up empty grid data with blockers
     for (let y=0; y < BOARD_SIZE; y++) {
         const newRow: Cell[] = [];
-        for (let x=0; x < BOARD_SIZE; x++) newRow.push(0);
+        for (let x=0; x < BOARD_SIZE; x++) {
+            const hasBlocker: boolean = blockers.some(blockerPos => blockerPos[0] === x && blockerPos[1] === y);
+            newRow.push((hasBlocker) ? 2 : 0);
+        }
         gridData.push(newRow);
     }
 
+    // this array changes as the main loop goes
     const targets: Position[] = [];
 
+    // main generation loop
     for (let cpIndex: number = 0; cpIndex < capturePoints.length; cpIndex++){
         const capture: boolean = capturePoints[cpIndex];
         const chessmanPool: Chessman[] = ["king", "knight", "bishop", "rook", "queen", "pawn"];
@@ -81,7 +100,7 @@ function createPuzzle(capturePoints: boolean[]): Generated_Puzzle{
                 if (randomInt(0, 10) < 5.5) continue;
             }
 
-            const movableTiles: Position[] = cmMoves[pickedChessman](targets, playerPos, capture);
+            const movableTiles: Position[] = cmMoves[pickedChessman](targets, blockers, playerPos, capture);
             // has valid move(s)
             if (movableTiles.length > 0){
                 chessmanList.push(pickedChessman); // add picked chessman

@@ -1,4 +1,4 @@
-type Cell = 0 | 1 | 2;
+type Cell = 0 | 1 | 2; // 0: empty; 1: target; 2: blocker
 type Grid_Data = Cell[][];
 type Position = [number, number];
 
@@ -15,6 +15,10 @@ function checkOnGrid(pos: Position): boolean{
     return true;
 }
 
+function hasBlocker(pos: Position, gridData: Grid_Data): boolean {
+    return gridData[pos[1]][pos[0]] === 2;
+}
+
 function blockableMoves(
     gridData: Grid_Data, 
     playerPos: Position, 
@@ -24,8 +28,8 @@ function blockableMoves(
     allVelocities.forEach((vel: [number, number]) => {
         let nextPos: Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
         
-        // on grid?
-        while (checkOnGrid(nextPos)){
+        // on grid and has no blocker?
+        while (checkOnGrid(nextPos) && !hasBlocker(nextPos, gridData)){
             results.push([nextPos[0], nextPos[1]]); // add pos
 
             // stop if this nextPos has a target
@@ -52,13 +56,13 @@ const king: Output = (gridData: Grid_Data, playerPos: Position) => {
         [-1, -1] // left up
     ];
     
-    // map into Positions then filter out the off-grid ones
+    // map into Positions then filter out the off-grid and blocker ones
     const results: Position[] = allVelocities.map(
         (vel: [number, number]) => {
             const pos: Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
             return pos;
         }
-    ).filter((pos: Position) => checkOnGrid(pos));
+    ).filter((pos: Position) => checkOnGrid(pos) && !hasBlocker(pos, gridData));
 
     return results;
 };
@@ -77,13 +81,13 @@ const knight: Output = (gridData: Grid_Data, playerPos: Position) => {
         [2, 1] // 330
     ];
 
-    // map into Positions then filter out the off-grid ones
+    // map into Positions then filter out the off-grid and blocker ones
     const results: Position[] = allVelocities.map(
         (vel: [number, number]) => {
             const pos: Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
             return pos;
         }
-    ).filter((pos: Position) => checkOnGrid(pos));
+    ).filter((pos: Position) => checkOnGrid(pos) && !hasBlocker(pos, gridData));
 
     return results;
 };
@@ -135,21 +139,27 @@ const pawn: Output = (gridData: Grid_Data, playerPos: Position) => {
     // pawn can move forward 1 step if there is not target there
     // can move up-diagonally 1 step if there is a target there
 
+    // returns true if this move is allowed
+    function allowThisMove(nextPos: Position, captureMove: boolean): boolean {
+        if (captureMove) return gridData[nextPos[1]][nextPos[0]] === 1;
+        else return gridData[nextPos[1]][nextPos[0]] !== 1;
+    }
+    
     const results: Position[] = [];
     let nextPos: Position;
     // forward
     nextPos = [playerPos[0], playerPos[1] - 1];
-    if (checkOnGrid(nextPos) && gridData[nextPos[1]][nextPos[0]] !== 1){
+    if (checkOnGrid(nextPos) && allowThisMove(nextPos, false) && !hasBlocker(nextPos, gridData)){
         results.push(nextPos);
     }
     // up left
     nextPos = [playerPos[0] - 1, playerPos[1] - 1];
-    if (checkOnGrid(nextPos) && gridData[nextPos[1]][nextPos[0]] === 1){
+    if (checkOnGrid(nextPos) && allowThisMove(nextPos, true) && !hasBlocker(nextPos, gridData)){
         results.push(nextPos);
     }
     // up right
     nextPos = [playerPos[0] + 1, playerPos[1] - 1];
-    if (checkOnGrid(nextPos) && gridData[nextPos[1]][nextPos[0]] === 1){
+    if (checkOnGrid(nextPos) && allowThisMove(nextPos, true) && !hasBlocker(nextPos, gridData)){
         results.push(nextPos);
     }
 

@@ -1,8 +1,8 @@
 type _Position = [number, number];
 
 // each function will return an array with type: _Position[] of movable positions
-type Output = (targets: _Position[], playerPos: _Position) => _Position[];
-type Pawn_Output = (targets: _Position[], playerPos: _Position, capture: boolean) => _Position[];
+type Output = (targets: _Position[], blockers: _Position[], playerPos: _Position) => _Position[];
+type Pawn_Output = (targets: _Position[], blockers: _Position[], playerPos: _Position, capture: boolean) => _Position[];
 
 const BOARD_SIZE: number = 6;
 
@@ -14,15 +14,24 @@ function checkOnGrid(pos: _Position): boolean{
 }
 
 // return true if the given position has target on it
-function hasTarget(targets: _Position[], pos: _Position){
-    return targets.some((targetPos: _Position) => {
+function hasTargetOrBlocker(targets: _Position[], blockers: _Position[], pos: _Position){
+    const hasTarget: boolean = targets.some((targetPos: _Position) => {
         return targetPos[0] === pos[0] && targetPos[1] === pos[1];
     });
+    if (hasTarget) return true;
+
+    const hasBlocker: boolean = blockers.some((blockerPos: _Position) => {
+        return blockerPos[0] === pos[0] && blockerPos[1] === pos[1];
+    });
+    if (hasBlocker) return true;
+
+    return false; // there is no target or block on this position
 }
 
 // well actually all chessman at generation stage are blockable
 function blockableMoves(
     targets: _Position[], 
+    blockers: _Position[], 
     playerPos: _Position, 
     allVelocities: [number, number][]
 ): _Position[] {
@@ -31,7 +40,7 @@ function blockableMoves(
         let nextPos: _Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
         
         // on grid and no target there?
-        while (checkOnGrid(nextPos) && !hasTarget(targets, nextPos)){
+        while (checkOnGrid(nextPos) && !hasTargetOrBlocker(targets, blockers, nextPos)){
             results.push([nextPos[0], nextPos[1]]); // add pos
             nextPos = [nextPos[0] + vel[0], nextPos[1] + vel[1]]; // set next one
         }
@@ -40,7 +49,7 @@ function blockableMoves(
     return results;
 }
 
-const king: Output = (targets: _Position[], playerPos: _Position) => {
+const king: Output = (targets: _Position[], blockers: _Position[], playerPos: _Position) => {
     // king can move 1 step in each of the 8 directions | can't be blocked
 
     const allVelocities: [number, number][] = [
@@ -60,12 +69,12 @@ const king: Output = (targets: _Position[], playerPos: _Position) => {
             const pos: _Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
             return pos;
         }
-    ).filter((pos: _Position) => (checkOnGrid(pos) && !hasTarget(targets, pos)));
+    ).filter((pos: _Position) => (checkOnGrid(pos) && !hasTargetOrBlocker(targets, blockers, pos)));
 
     return results;
 };
 
-const knight: Output = (targets: _Position[], playerPos: _Position) => {
+const knight: Output = (targets: _Position[], blockers: _Position[], playerPos: _Position) => {
     // knight has 8 possible moves
 
     const allVelocities: [number, number][] = [
@@ -85,12 +94,12 @@ const knight: Output = (targets: _Position[], playerPos: _Position) => {
             const pos: _Position = [playerPos[0] + vel[0], playerPos[1] + vel[1]];
             return pos;
         }
-    ).filter((pos: _Position) => (checkOnGrid(pos) && !hasTarget(targets, pos)));
+    ).filter((pos: _Position) => (checkOnGrid(pos) && !hasTargetOrBlocker(targets, blockers, pos)));
 
     return results;
 };
 
-const bishop: Output = (targets: _Position[], playerPos: _Position) => {
+const bishop: Output = (targets: _Position[], blockers: _Position[], playerPos: _Position) => {
     // bishop moves diagonally
 
     const allVelocities: [number, number][] = [
@@ -100,10 +109,10 @@ const bishop: Output = (targets: _Position[], playerPos: _Position) => {
         [1, -1] // right up
     ];
 
-    return blockableMoves(targets, playerPos, allVelocities);
+    return blockableMoves(targets, blockers, playerPos, allVelocities);
 };
 
-const rook: Output = (targets: _Position[], playerPos: _Position) => {
+const rook: Output = (targets: _Position[], blockers: _Position[], playerPos: _Position) => {
     // rook moves vertically and horizontall
 
     const allVelocities: [number, number][] = [
@@ -113,10 +122,10 @@ const rook: Output = (targets: _Position[], playerPos: _Position) => {
         [1, 0] // right
     ];
 
-    return blockableMoves(targets, playerPos, allVelocities);
+    return blockableMoves(targets, blockers, playerPos, allVelocities);
 };
 
-const queen: Output = (targets: _Position[], playerPos: _Position) => {
+const queen: Output = (targets: _Position[], blockers: _Position[], playerPos: _Position) => {
     // queen has all moves bishop and rook have
     
     const allVelocities: [number, number][] = [
@@ -130,10 +139,10 @@ const queen: Output = (targets: _Position[], playerPos: _Position) => {
         [1, 0] // right
     ];
 
-    return blockableMoves(targets, playerPos, allVelocities);
+    return blockableMoves(targets, blockers, playerPos, allVelocities);
 };
 
-const pawn: Pawn_Output = (targets: _Position[], playerPos: _Position, capture: boolean) => {
+const pawn: Pawn_Output = (targets: _Position[], blockers: _Position[], playerPos: _Position, capture: boolean) => {
     // pawn can move BACKWARD 1 step if is not a capture move
     // can move DOWN-DIAGONALLY 1 step if is a capture (onto current pos) move
 
@@ -141,17 +150,17 @@ const pawn: Pawn_Output = (targets: _Position[], playerPos: _Position, capture: 
     let nextPos: _Position;
     // backward
     nextPos = [playerPos[0], playerPos[1] + 1];
-    if (checkOnGrid(nextPos) && !hasTarget(targets, nextPos) && !capture){
+    if (checkOnGrid(nextPos) && !hasTargetOrBlocker(targets, blockers, nextPos) && !capture){
         results.push(nextPos);
     }
     // down left
     nextPos = [playerPos[0] - 1, playerPos[1] + 1];
-    if (checkOnGrid(nextPos) && !hasTarget(targets, nextPos) && capture){
+    if (checkOnGrid(nextPos) && !hasTargetOrBlocker(targets, blockers, nextPos) && capture){
         results.push(nextPos);
     }
     // down right
     nextPos = [playerPos[0] + 1, playerPos[1] + 1];
-    if (checkOnGrid(nextPos) && !hasTarget(targets, nextPos) && capture){
+    if (checkOnGrid(nextPos) && !hasTargetOrBlocker(targets, blockers, nextPos) && capture){
         results.push(nextPos);
     }
 
