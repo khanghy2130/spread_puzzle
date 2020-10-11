@@ -14,7 +14,7 @@ interface User {
 // options that the host sets
 interface Options {
     moves: number,
-    time: number
+    time: number // in second
 }
 
 export default interface RoomObject {

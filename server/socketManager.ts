@@ -48,7 +48,7 @@ function startGame(namespace: any, roomObj: RoomObject){
     namespace.to(roomObj.roomID).emit("start-game", level_object);
 
     // SET UP TIMEOUT FOR SERVER
-    // +10 extra seconds in case client responses are delayed or won't come
+    // +10 extra seconds in case client responses are delayed beyond time limit or won't come
     const EXTRA_TIME: number = 10; // in seconds
     roomObj.timerID = setTimeout(()=>{
         endGame(namespace, roomObj.roomID);
@@ -169,7 +169,7 @@ exports.manager = function(socket: any, namespace: any) : void {
                 // DEFAULT OPTIONS
                 options: {
                     moves: 3,
-                    time: 3
+                    time: 30
                 }
             };
             roomID = newRoomID;
@@ -217,17 +217,18 @@ exports.manager = function(socket: any, namespace: any) : void {
         if (!roomsList[roomID]) return;
 
         roomsList[roomID].options = newOptions; // update
-
         // update room for all clients except host
         socket.to(roomID).emit("update-room", roomsList[roomID]);
     });
 
-    socket.on("start-game", (roomID: string) => {
+    socket.on("start-game", (roomID: string, newOptions: RoomObject["options"]) => {
         if (!roomsList[roomID]) return;
         // if already started game but not ended yet -> don't start again
         if (roomsList[roomID].timerID !== null) return;
 
+        ///// emulating a little delay
         setTimeout(() => {
+            roomsList[roomID].options = newOptions; // update
             startGame(namespace, roomsList[roomID]);
         }, 2000)
              

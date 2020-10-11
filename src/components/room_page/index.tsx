@@ -16,7 +16,7 @@ interface propObject {
 
 
 const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObject) => {
-    const TIME_FACTOR: number = 10; // must match with the one in PuzzleConstructor
+    const TIME_FACTOR: number = 10;
 
     // render room page (true) or play page (false)
     const [showRoom, setShowRoom] = useState<boolean>(true);
@@ -24,15 +24,20 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
 
     const isHost: boolean = socket.id === room.users[0].id;
 
+    // input elements
     const option_moves_input = useRef<HTMLInputElement>(null);
-    const option_moves_display = useRef<HTMLInputElement>(null);
     const option_time_input = useRef<HTMLInputElement>(null);
-    const option_time_display = useRef<HTMLInputElement>(null);
-    // if changed then user can click save button
-    const [changed, setChanged] = useState<boolean>(false);
+
+    const [options, setOptions] = useState<RoomObject["options"]>(room.options);
+    // update options when room.options changes
+    useEffect(()=>{
+        if (typeof window !== 'undefined') {
+            setOptions(room.options);
+        }
+    }, [room.options])
+
     // if started then disable start button
     const [started, setStarted] = useState<boolean>(false);
-
     const [showResults, setShowResults] = useState<boolean>(false);
 
     useEffect(()=>{
@@ -51,46 +56,34 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
     // eslint-disable-next-line
     }, []);
 
-    function movesOnChange(){
-        // check availablity
-        if (!(option_moves_display && option_moves_display.current && option_moves_input && option_moves_input.current)) return;
-        option_moves_display.current.innerText = option_moves_input.current.value;
-        setChanged(true);
-    }
-    function timeOnChange(){
-        // check availablity
-        if (!(option_time_display && option_time_display.current && option_time_input && option_time_input.current)) return;
-        option_time_display.current.innerText = "" + Number(option_time_input.current.value) * TIME_FACTOR;
-        setChanged(true);
-    }
 
     // confirm leaving state
     const [leaving, setLeaving] = useState<boolean>(false);
     const [leavingTimerID, setLeavingTimerID] = useState<any>(null);
     const leave_button = useRef<HTMLButtonElement>(null);
 
-    function onSave(){
-        if (changed){
-            // local update for self
-            setChanged(false);
-                // @ts-ignore 
-            option_moves_display.current.className = "updated";
-                // @ts-ignore 
-            option_time_display.current.className = "updated";
-            
-            const newOptions: RoomObject["options"] = {
+    function onAnyInputChange(){
+        // if not already started
+        if (!started){
+            const newOptions : RoomObject["options"] = {
                 // @ts-ignore 
                 moves: Number(option_moves_input.current.value),
                 // @ts-ignore 
-                time: Number(option_time_input.current.value)
+                time: Number(option_time_input.current.value) * TIME_FACTOR
             };
+
+            setOptions(newOptions);
             socket.emit("save-options", room.roomID, newOptions);
         }
     }
 
     function onStart(){
         setStarted(true);
-        socket.emit("start-game", room.roomID);
+        socket.emit("start-game", room.roomID, options);
+    }
+
+    function onHelp(){
+
     }
 
     function onLeave(){
@@ -114,7 +107,6 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
         setRoom(receivedRoomObject);
         setShowRoom(true);
         setShowResults(true);
-        setChanged(false);
         setStarted(false);
     }
 
@@ -137,36 +129,34 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
 
                 <label>
                     Difficulty:&nbsp;&nbsp;
-                    <span ref={option_moves_display}>{room.options.moves}</span>
+                    <span>{options.moves}</span>
                     &nbsp;moves
                 </label>
-                {(isHost) ? 
-                    <input ref={option_moves_input} 
+                <input ref={option_moves_input} 
                     type="range" min={3} max={7} 
                     defaultValue={room.options.moves}
-                    onChange={movesOnChange} /> 
-                : null}
+                    onChange={onAnyInputChange}
+                    disabled={started}
+                    className={!isHost ? "hidden-input" : ""} />
 
                 <label>
                     Time:&nbsp;&nbsp;
-                    <span ref={option_time_display}>{room.options.time*TIME_FACTOR}</span>
+                    <span>{options.time}</span>
                     &nbsp;seconds
                 </label>
-                {(isHost) ? 
-                    <input ref={option_time_input} 
+                <input ref={option_time_input} 
                     type="range" min={1} max={10} 
-                    defaultValue={room.options.time}
-                    onChange={timeOnChange} /> 
-                : null}
+                    defaultValue={room.options.time / TIME_FACTOR}
+                    onChange={onAnyInputChange}
+                    disabled={started}
+                    className={!isHost ? "hidden-input" : ""} />
                 
-                <p id="save-reminder">{(isHost && changed) ? "Remember to press Save!" : ""}</p>
-
                 {/* Save and Start buttons */}
                 {
                     (isHost) ? 
                     <div id="host-buttons">
-                        <button id="save-button" disabled={!changed} onClick={onSave}>
-                            Save
+                        <button id="help-button" onClick={onHelp}>
+                            Help
                         </button>
                         <button id="start-button" disabled={started} onClick={onStart}>
                             {started ? "Starting..." : "Start"}

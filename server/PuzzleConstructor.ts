@@ -15,11 +15,10 @@ function randomInt(start: number, end: number): number{
 }
 
 const PuzzleConstructor = function(this: LevelObject, options: RoomObject["options"]){
-    const TIME_FACTOR: number = 10;
     // do generation
 
     // set to 'this' (returning LevelObject)
-    this.timeLimit = options.time * TIME_FACTOR;
+    this.timeLimit = options.time;
 } as any as { new (moves: number, calculatedTime: number): LevelObject; };
 
 exports.PuzzleConstructor = PuzzleConstructor;

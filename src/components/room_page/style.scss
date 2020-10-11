@@ -16,7 +16,7 @@
 
         margin: 1em;
         margin-top: 2em;
-        padding: 2em 1.5em;
+        padding: 2em 3em;
         max-width: 450px;
         width: 60%;
 
@@ -32,15 +32,13 @@
         input {
             margin-bottom: 2em;
         }
+        .hidden-input {
+            display: none;
+        }
 
         // highlighted option displays
         span {
             color: $green;
-        }
-
-        #save-reminder {
-            margin-top: 1em;
-            color: $support_blue;
         }
 
         #host-buttons {
@@ -50,8 +48,7 @@
 
             margin: 0.3em 0 1em;
 
-            #save-button, #start-button {
-                width: 50%;
+            #help-button, #start-button {
                 &:disabled {
                     cursor: default;
                     background-color: gray;
@@ -62,10 +59,12 @@
                     }
                 }
             }
-            #save-button {
+            #help-button {
                 background-color: $support_blue;
+                padding: 0 1em;
             }
             #start-button {
+                flex-grow: 1;
                 border-left: none;
                 background-color: $green;
             }
@@ -170,6 +169,7 @@
             border: $black 0.2em solid;
             overflow-y: scroll;
             height: 70%;
+            min-width: 14em; 
 
             h3 {
                 padding: 0.5em 1.2em;
@@ -195,6 +195,7 @@
 
         #options-div {
             width: 100vw;
+            padding: 2em 1em;
         }
 
         #players-div {

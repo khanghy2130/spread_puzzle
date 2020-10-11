@@ -53,13 +53,24 @@ const Main_Page = ({ socket }: propObject) => {
     }, []);
     
 
+    function noNickname():  boolean {
+        if (nickname.length === 0){
+            alert("Your nickname cannot be empty.");
+            return true;
+        }
+        return false;
+    }
     function createRoom(){
-        if (joining) return; // early exit
+        if (joining) return; // already joining
+        if (noNickname()) return;
+
         setJoining(true);
         socket.emit("enter-room", nickname, null); // null => create
     }
     function joinRoom(){
-        if (joining) return; //early exit
+        if (joining) return; // already joining
+        if (noNickname()) return;
+
         if (roomID_input && roomID_input.current){
             if (roomID_input.current.checkValidity()){
                 setAlertText(true); // hide alert

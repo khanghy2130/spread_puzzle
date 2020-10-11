@@ -4,5 +4,5 @@
 
 export default interface LevelObject{
     // other vars ...
-    timeLimit: number // number of exact seconds
+    timeLimit: number
 }

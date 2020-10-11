@@ -54,6 +54,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
         if (progress === "preparing"){
             // initiate begin-countdown
             let beginCountdownLeft = 3;
+            // eslint-disable-next-line
             beginCountdownIntervalID = setInterval(()=>{
                 if (beginCountdownLeft > 0){
                     beginCountdownLeft--; // decrease the timeLimit
