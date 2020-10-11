@@ -33,14 +33,14 @@
             margin-bottom: 2em;
         }
 
-        // option displays
+        // highlighted option displays
         span {
-            &.updated {
-                color: $green;
-            }
-            &.not-updated {
-                color: $red;
-            }
+            color: $green;
+        }
+
+        #save-reminder {
+            margin-top: 1em;
+            color: $support_blue;
         }
 
         #host-buttons {
@@ -48,13 +48,10 @@
             flex-direction: row;
             justify-content: space-around;
 
-            margin: 1.5em 0 1em;
+            margin: 0.3em 0 1em;
 
-            #save-button {
+            #save-button, #start-button {
                 width: 50%;
-                background-color: $support_blue;
-                animation: blinker 4.5s linear infinite;
-
                 &:disabled {
                     cursor: default;
                     background-color: gray;
@@ -65,19 +62,14 @@
                     }
                 }
             }
-            @keyframes blinker {
-                10% {
-                    color: $red;
-                }
-                20% {
-                    color: $black;
-                }
+            #save-button {
+                background-color: $support_blue;
             }
             #start-button {
-                width: 50%;
                 border-left: none;
                 background-color: $green;
             }
+            
         }
 
         #not-host-message {
@@ -92,7 +84,7 @@
 
         button {
             @extend .font-header;
-            padding: 0.2em 2em;
+            padding: 0.2em 0.5em;
             border: $black 0.2em solid;
             color: $black;
             transition: background-color 0.3s;
@@ -202,7 +194,7 @@
         align-items: center;
 
         #options-div {
-            width: auto;
+            width: 100vw;
         }
 
         #players-div {

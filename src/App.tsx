@@ -8,8 +8,6 @@ function App() {
   if (typeof window !== 'undefined' && !socket) { 
     // set up socket io connection
     socket = io("/server"); // namespace 'server'
-    console.log(socket);
-    
   }
 
   return <MAIN_PAGE socket={socket}  />;

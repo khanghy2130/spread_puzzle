@@ -3,8 +3,6 @@ import LevelObject from './Level_Object';
 const PuzzleConstructor = require('./PuzzleConstructor').PuzzleConstructor;
 
 
-const TIME_FACTOR: number = 10; // 10
-
 // [key]roomID : RoomObjects
 const roomsList: {[key: string]:  RoomObject} = {}; 
 
@@ -34,10 +32,7 @@ function leaveRoom(socket: any, roomID: string){
 
 function startGame(namespace: any, roomObj: RoomObject){
     // GENERATE THE LEVEL
-    const level_object : LevelObject = new PuzzleConstructor(
-        roomObj.option_moves,
-        roomObj.option_time * TIME_FACTOR
-    );
+    const level_object : LevelObject = new PuzzleConstructor(roomObj.options);
 
     // SET UP LIST OF PLAYING USERS
     const playingUsers: string[] = [];
@@ -54,9 +49,10 @@ function startGame(namespace: any, roomObj: RoomObject){
 
     // SET UP TIMEOUT FOR SERVER
     // +10 extra seconds in case client responses are delayed or won't come
+    const EXTRA_TIME: number = 10; // in seconds
     roomObj.timerID = setTimeout(()=>{
         endGame(namespace, roomObj.roomID);
-    }, (roomObj.option_time * TIME_FACTOR + 10) * 1000);
+    }, (level_object.timeLimit + EXTRA_TIME) * 1000);
 }
 
 // called when a report is received
@@ -101,8 +97,6 @@ function checkoffReport(namespace: any, socket: any, roomID: string, finishedTim
             }
         }
 
-        
-
         // check if all reports received
         if (playingUsers.length === 0) endGame(namespace, roomID);
     }
@@ -115,7 +109,7 @@ function endGame(namespace: any, roomID: string){
     roomsList[roomID].timerID = null; // reopen room
     
     setTimeout(()=>{
-        // EMIT TO ALL PLAYING USERS
+        // EMIT TO ALL PLAYING USERS (with a little delay so the last user won't see the game ends too quickly)
         namespace.to(roomID).emit("end-game", roomsList[roomID]);
     }, 2000);
 }
@@ -168,11 +162,15 @@ exports.manager = function(socket: any, namespace: any) : void {
             roomsList[newRoomID] = {
                 roomID: newRoomID,
                 users: [],
-                option_moves: 3,
-                option_time: 3,
                 results: [],
                 timerID: null,
-                playingUsers: []
+                playingUsers: [],
+
+                // DEFAULT OPTIONS
+                options: {
+                    moves: 3,
+                    time: 3
+                }
             };
             roomID = newRoomID;
         }
@@ -215,19 +213,24 @@ exports.manager = function(socket: any, namespace: any) : void {
         leaveRoom(socket, roomID);
     });
 
-    socket.on("save-options", (roomID: string, moves: number, time: number) => {
+    socket.on("save-options", (roomID: string, newOptions: RoomObject["options"]) => {
         if (!roomsList[roomID]) return;
 
-        roomsList[roomID].option_moves = moves;
-        roomsList[roomID].option_time = time;
+        roomsList[roomID].options = newOptions; // update
 
-        // update room for others
+        // update room for all clients except host
         socket.to(roomID).emit("update-room", roomsList[roomID]);
     });
 
     socket.on("start-game", (roomID: string) => {
         if (!roomsList[roomID]) return;
-        startGame(namespace, roomsList[roomID]);        
+        // if already started game but not ended yet -> don't start again
+        if (roomsList[roomID].timerID !== null) return;
+
+        setTimeout(() => {
+            startGame(namespace, roomsList[roomID]);
+        }, 2000)
+             
     });
 
     socket.on("play-report", (roomID: string, finishedTime: number) => {

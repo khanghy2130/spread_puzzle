@@ -16,7 +16,7 @@ interface propObject {
 
 
 const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObject) => {
-    const TIME_FACTOR: number = 10;
+    const TIME_FACTOR: number = 10; // must match with the one in PuzzleConstructor
 
     // render room page (true) or play page (false)
     const [showRoom, setShowRoom] = useState<boolean>(true);
@@ -30,6 +30,8 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
     const option_time_display = useRef<HTMLInputElement>(null);
     // if changed then user can click save button
     const [changed, setChanged] = useState<boolean>(false);
+    // if started then disable start button
+    const [started, setStarted] = useState<boolean>(false);
 
     const [showResults, setShowResults] = useState<boolean>(false);
 
@@ -53,14 +55,12 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
         // check availablity
         if (!(option_moves_display && option_moves_display.current && option_moves_input && option_moves_input.current)) return;
         option_moves_display.current.innerText = option_moves_input.current.value;
-        option_moves_display.current.className = "not-updated";
         setChanged(true);
     }
     function timeOnChange(){
         // check availablity
         if (!(option_time_display && option_time_display.current && option_time_input && option_time_input.current)) return;
         option_time_display.current.innerText = "" + Number(option_time_input.current.value) * TIME_FACTOR;
-        option_time_display.current.className = "not-updated";
         setChanged(true);
     }
 
@@ -78,18 +78,18 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
                 // @ts-ignore 
             option_time_display.current.className = "updated";
             
-            socket.emit(
-                "save-options",
-                room.roomID,
-                    // @ts-ignore 
-                Number(option_moves_input.current.value),
-                    // @ts-ignore 
-                Number(option_time_input.current.value)
-            );
+            const newOptions: RoomObject["options"] = {
+                // @ts-ignore 
+                moves: Number(option_moves_input.current.value),
+                // @ts-ignore 
+                time: Number(option_time_input.current.value)
+            };
+            socket.emit("save-options", room.roomID, newOptions);
         }
     }
 
     function onStart(){
+        setStarted(true);
         socket.emit("start-game", room.roomID);
     }
 
@@ -115,9 +115,10 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
         setShowRoom(true);
         setShowResults(true);
         setChanged(false);
+        setStarted(false);
     }
 
-    // joined room?
+    // play page?
     if (!showRoom && levelObject !== null) {
         return (<PLAY_PAGE 
             socket={socket} 
@@ -136,35 +137,40 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
 
                 <label>
                     Difficulty:&nbsp;&nbsp;
-                    <span className="updated" ref={option_moves_display}>{room.option_moves}</span>
+                    <span ref={option_moves_display}>{room.options.moves}</span>
                     &nbsp;moves
                 </label>
                 {(isHost) ? 
                     <input ref={option_moves_input} 
                     type="range" min={3} max={7} 
-                    defaultValue={room.option_moves}
+                    defaultValue={room.options.moves}
                     onChange={movesOnChange} /> 
                 : null}
 
                 <label>
                     Time:&nbsp;&nbsp;
-                    <span className="updated" ref={option_time_display}>{room.option_time*TIME_FACTOR}</span>
+                    <span ref={option_time_display}>{room.options.time*TIME_FACTOR}</span>
                     &nbsp;seconds
                 </label>
                 {(isHost) ? 
                     <input ref={option_time_input} 
                     type="range" min={1} max={10} 
-                    defaultValue={room.option_time}
+                    defaultValue={room.options.time}
                     onChange={timeOnChange} /> 
                 : null}
                 
+                <p id="save-reminder">{(isHost && changed) ? "Remember to press Save!" : ""}</p>
+
+                {/* Save and Start buttons */}
                 {
                     (isHost) ? 
                     <div id="host-buttons">
                         <button id="save-button" disabled={!changed} onClick={onSave}>
                             Save
                         </button>
-                        <button id="start-button" onClick={onStart}>Start!</button>
+                        <button id="start-button" disabled={started} onClick={onStart}>
+                            {started ? "Starting..." : "Start"}
+                        </button>
                     </div>
                     :
                     <p id="not-host-message">Only the host can start the game.</p>
@@ -175,6 +181,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
                 </button>
             </div>
 
+            {/* Players list */}
             <div id="players-div">
                 <h2>Players</h2>
                 {room.users.map(
@@ -188,6 +195,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
                 }
             </div>
             
+            {/* Results */}
             {
                 (!showResults) ? null :
                 <div id="results-wrapper">
