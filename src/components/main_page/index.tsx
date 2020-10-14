@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, Fragment} from 'react';
 
 import title_img from './title_img.png';
 import "./style.scss";
@@ -25,8 +25,34 @@ const Main_Page = ({ socket }: propObject) => {
     // joining => true when clicked create or join
     const [joining, setJoining] = useState<boolean>(false);
 
+    const [lang, setLang] = useState<any>(null); // json object
+    const langSelectorInput = useRef<HTMLSelectElement>(null);
+    const [selectedLang, setSelectedLang] = useState<string>("en");
+    function _setSelectedLang (){
+        if (langSelectorInput && langSelectorInput.current) {
+            setSelectedLang(langSelectorInput.current.value);
+        }
+    }
+    // get text in selected language with given tree of keys
+    function getText(tree: string[]): string {
+        if (!lang) return "";
+        let result: any = lang;
+        tree.forEach((key: string) => {
+            result = result[key]
+        });
+        // @ts-ignore
+        return (result[selectedLang] || result["en"]);
+    }
+
     useEffect(()=>{
         if (typeof window !== 'undefined') {
+            // load languages.json
+            fetch("/languages.json")
+                .then(res => res.json())
+                .then(languagesJSON => {
+                    setLang(languagesJSON);
+                });
+
             // adding listeners
             socket.on("join-success", (receivedRoom: RoomObject) => {
                 setRoom(receivedRoom);
@@ -119,95 +145,120 @@ const Main_Page = ({ socket }: propObject) => {
         setRoom(null);
     }
 
+    function footerComponent(){
+        return (
+        <footer>
+            <label>{getText(["language"])}</label>
+            <select ref={langSelectorInput} onChange={_setSelectedLang}>
+                {
+                    !lang ? null : (
+                        lang.langs_list.map((item: [string, string], i: number) => (
+                            <option key={i} value={item[1]}>{item[0]}</option>
+                        ))
+                    )
+                }
+            </select>
+        </footer>)
+    }
+
     // joined room?
     if (!showMain && room !== null) {
-        return (<ROOM_PAGE 
-            socket={socket} 
-            room={room} 
-            resetMainPage={resetMainPage} 
-            nickname={nickname}
-            setRoom={setRoom}
-        />);
+        return (
+        <Fragment>
+            <ROOM_PAGE 
+                socket={socket} 
+                room={room} 
+                resetMainPage={resetMainPage} 
+                nickname={nickname}
+                setRoom={setRoom}
+                getText={getText}
+            />
+            {footerComponent()}
+        </Fragment>
+        );
     }
     
     return (
-        <main id="main-page-main">
-            <div id="title-img-div">
-                <img src={title_img} alt="title" />
-            </div>
+        <Fragment>
+            <main id="main-page-main">
+                <div id="title-img-div">
+                    <img src={title_img} alt="title" />
+                </div>
 
-            <div id="contents-wrapper">
-                <div id="nickname-div">
-                    <h2 className="main-page-header">Nickname</h2>
-                    <input ref={nickname_input} 
-                    onChange={onNameChange}
-                    type="text" 
-                    defaultValue={nickname} 
-                    maxLength={15} /><br/>
-                    <button onClick={newNameClicked}>New name</button>
-                </div>
-                <div id="create-room-div">
-                    <h2 className="main-page-header">Create new room</h2>
-                    <button onClick={createRoom}>Create room</button>
-                </div>
-                <div id="join-room-div">
-                    <h2 className="main-page-header">Join room</h2>
-                    <p ref={no_room_alert_text} id="no-room-alert" hidden></p>
-                    <input 
-                        ref={roomID_input} 
+                <div id="contents-wrapper">
+                    <div id="nickname-div">
+                        <h2 className="main-page-header">{getText(["main_page", "nickname"])}</h2>
+                        <input ref={nickname_input} 
+                        onChange={onNameChange}
                         type="text" 
-                        pattern="[0-9]{4}" 
-                        placeholder="Room ID" 
-                        title="Room ID is a 4-digits number"
-                        required
-                        onKeyUp={(e) => {
-                            if (e.keyCode === 13) joinRoom();
-                        }}     
-                    />
-                    <br/><button onClick={joinRoom}>Join room</button>
+                        defaultValue={nickname} 
+                        maxLength={15} /><br/>
+                        <button onClick={newNameClicked}>{getText(["main_page", "randomize"])}</button>
+                    </div>
+                    <div id="create-room-div">
+                        <h2 className="main-page-header">Create new room</h2>
+                        <button onClick={createRoom}>Create room</button>
+                    </div>
+                    <div id="join-room-div">
+                        <h2 className="main-page-header">Join room</h2>
+                        <p ref={no_room_alert_text} id="no-room-alert" hidden></p>
+                        <input 
+                            ref={roomID_input} 
+                            type="text" 
+                            pattern="[0-9]{4}" 
+                            placeholder="Room ID" 
+                            title="Room ID is a 4-digits number"
+                            required
+                            onKeyUp={(e) => {
+                                if (e.keyCode === 13) joinRoom();
+                            }}     
+                        />
+                        <br/><button onClick={joinRoom}>Join room</button>
+                    </div>
                 </div>
-            </div>
 
-            <div id="info-wrapper">
-                <div id="tutorial-div">
-                    <h2 className="main-page-header">What is Chess Puzzle?</h2>
-                    <ul>
-                        <li>Chess Puzzle is a multiplayer game.</li>
-                        <li>To begin, create a new room or join an existing room.</li>
-                        <li>The room host can change the options and start the game.</li>
-                        <li>Turn your piece into any given chessman to make the move.</li>
-                        <li>Race with other players to capture all targets. Have fun!</li>
-                    </ul>
-                </div>
+                <div id="info-wrapper">
+                    <div id="tutorial-div">
+                        <h2 className="main-page-header">What is Chess Puzzle?</h2>
+                        <ul>
+                            <li>Chess Puzzle is a multiplayer game.</li>
+                            <li>To begin, create a new room or join an existing room.</li>
+                            <li>The room host can change the options and start the game.</li>
+                            <li>Turn your piece into any given chessman to make the move.</li>
+                            <li>Race with other players to capture all targets. Have fun!</li>
+                        </ul>
+                    </div>
 
-                <div id="credits-div">
-                    <h2 className="main-page-header">Credits</h2>
-                    <ul>
-                        <li>Chess Puzzle is made by&nbsp;
-                            <a target="_blank" 
-                            rel="noopener noreferrer" 
-                            href="https://www.hynguyen.info">
-                                Hy Nguyen
-                            </a>
-                        </li>
-                        <li>The game is inspired by&nbsp;
-                            <a target="_blank" 
-                            rel="noopener noreferrer" 
-                            href="https://play.google.com/store/apps/details?id=com.mythicowl.chessace&hl=en_US">
-                                Chess Ace
-                            </a>
-                        </li>
-                        <li>Chessman images by&nbsp;
-                            <a target="_blank" 
-                            rel="noopener noreferrer" 
-                            href="https://en.wikipedia.org/wiki/User:Cburnett">
-                                Colin Burnett
-                            </a>
-                        </li>
-                    </ul>
+                    <div id="credits-div">
+                        <h2 className="main-page-header">Credits</h2>
+                        <ul>
+                            <li>Chess Puzzle is made by&nbsp;
+                                <a target="_blank" 
+                                rel="noopener noreferrer" 
+                                href="https://www.hynguyen.info">
+                                    Hy Nguyen
+                                </a>
+                            </li>
+                            <li>The game is inspired by&nbsp;
+                                <a target="_blank" 
+                                rel="noopener noreferrer" 
+                                href="https://play.google.com/store/apps/details?id=com.mythicowl.chessace&hl=en_US">
+                                    Chess Ace
+                                </a>
+                            </li>
+                            <li>Chessman images by&nbsp;
+                                <a target="_blank" 
+                                rel="noopener noreferrer" 
+                                href="https://en.wikipedia.org/wiki/User:Cburnett">
+                                    Colin Burnett
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </main>
+            </main>
+            {footerComponent()}
+        </Fragment>
     );
 };
 

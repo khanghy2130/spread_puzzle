@@ -12,7 +12,9 @@ interface propObject {
     levelObject: LevelObject,
     resetRoomPage: (receivedLevelObject: RoomObject) => void,
     roomID: string,
-    nickname: string
+    nickname: string,
+    
+    getText: (tree: string[]) => string
 };
 
 const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : propObject) => {

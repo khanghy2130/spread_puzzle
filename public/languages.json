@@ -1,0 +1,66 @@
+{
+    "langs_list" : [
+        ["English", "en"],
+        ["Tiếng Việt", "vi"],
+        ["Italiano", "it"],
+        ["Español", "es"],
+        ["Português", "pt"]
+    ],
+
+    "language" : {
+        "en" : "Language",
+        "vi" : "Ngôn ngữ",
+        "it" : "Linguaggio",
+        "es" : "Idioma",
+        "pt" : "Língua"
+    },
+
+    "main_page" : {
+        "nickname" : {
+            "en" : "Nickname",
+            "vi" : "Biệt danh",
+            "it" : "Soprannome",
+            "es" : "Apodo",
+            "pt" : "Apelido"
+        },
+        "randomize" : {
+            "en" : "Randomize",
+            "vi" : "Ngẫu nhiên",
+            "it" : "",
+            "es" : "",
+            "pt" : ""
+        },
+        "create_room" : {
+            "en" : "Create room",
+            "vi" : "Tạo phòng",
+            "it" : "",
+            "es" : "",
+            "pt" : ""
+        },
+        "join_room" : {
+            "en" : "Create room",
+            "vi" : "Vào phòng",
+            "it" : "",
+            "es" : "",
+            "pt" : ""
+        }
+    },
+
+    "room_page" : {
+        "players" : {
+            "en" : "Players",
+            "vi" : "Các người chơi",
+            "it" : "",
+            "es" : "",
+            "pt" : "jogadoras"
+        }
+    },
+
+    "xxx" : {
+        "en" : "",
+        "vi" : "",
+        "it" : "",
+        "es" : "",
+        "pt" : ""
+    }
+}

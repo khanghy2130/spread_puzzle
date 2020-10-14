@@ -11,11 +11,12 @@ interface propObject {
     room: RoomObject,
     resetMainPage: () => void,
     nickname: string,
-    setRoom: (receivedRoomObject: RoomObject) => void
+    setRoom: (receivedRoomObject: RoomObject) => void,
+    getText: (tree: string[]) => string
 };
 
 
-const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObject) => {
+const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: propObject) => {
     const TIME_FACTOR: number = 10;
 
     // render room page (true) or play page (false)
@@ -83,7 +84,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
     }
 
     function onHelp(){
-
+        console.log("Help clicked");
     }
 
     function onLeave(){
@@ -117,7 +118,8 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
             levelObject={levelObject} 
             resetRoomPage={resetRoomPage} 
             roomID={room.roomID}
-            nickname={nickname} 
+            nickname={nickname}
+            getText={getText}
         />);
     }
 
@@ -173,7 +175,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom }: propObjec
 
             {/* Players list */}
             <div id="players-div">
-                <h2>Players</h2>
+                <h2>{getText(["room_page", "players"])}</h2>
                 {room.users.map(
                     (user, index) => <h4 className={(user.id === socket.id) ? "you" : ""} key={user.id}>{user.nickname}</h4>
                 )}
