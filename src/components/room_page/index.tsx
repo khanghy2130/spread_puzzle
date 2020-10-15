@@ -4,6 +4,7 @@ import "./style.scss";
 import RoomObject from '../../../server/Room_Object';
 import PLAY_PAGE from '../play_page/index'; 
 import LevelObject from '../../../server/Level_Object';
+import { AnyCnameRecord } from 'dns';
 
 
 interface propObject {
@@ -15,6 +16,13 @@ interface propObject {
     getText: (tree: string[]) => string
 };
 
+interface optionElements {
+    time: React.RefObject<HTMLInputElement>,
+    type: React.RefObject<HTMLSelectElement>,
+    figure_size: React.RefObject<HTMLInputElement>,
+    pieces_amount: React.RefObject<HTMLInputElement>,
+    lines_amount: React.RefObject<HTMLInputElement>
+}
 
 const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: propObject) => {
     const TIME_FACTOR: number = 10;
@@ -25,9 +33,14 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
 
     const isHost: boolean = socket.id === room.users[0].id;
 
-    // input elements
-    const option_moves_input = useRef<HTMLInputElement>(null);
-    const option_time_input = useRef<HTMLInputElement>(null);
+    // option elements
+    const optionsContainer : optionElements = {
+        time: useRef<HTMLInputElement>(null),
+        type: useRef<HTMLSelectElement>(null),
+        figure_size: useRef<HTMLInputElement>(null),
+        pieces_amount: useRef<HTMLInputElement>(null),
+        lines_amount: useRef<HTMLInputElement>(null)
+    }
 
     const [options, setOptions] = useState<RoomObject["options"]>(room.options);
     // update options when room.options changes
@@ -66,11 +79,18 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
     function onAnyInputChange(){
         // if not already started
         if (!started){
+            // @ts-ignore
             const newOptions : RoomObject["options"] = {
-                // @ts-ignore 
-                moves: Number(option_moves_input.current.value),
-                // @ts-ignore 
-                time: Number(option_time_input.current.value) * TIME_FACTOR
+                // @ts-ignore
+                time: Number(optionsContainer.time.current.value),
+                // @ts-ignore
+                type: optionsContainer.type.current.value,
+                // @ts-ignore
+                figure_size: Number(optionsContainer.figure_size.current.value),
+                // @ts-ignore
+                pieces_amount: Number(optionsContainer.pieces_amount.current.value),
+                // @ts-ignore
+                lines_amount: Number(optionsContainer.lines_amount.current.value)
             };
 
             setOptions(newOptions);
@@ -130,25 +150,55 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                 <h2>Room ID: {room.roomID}</h2>
 
                 <label>
-                    Difficulty:&nbsp;&nbsp;
-                    <span>{options.moves}</span>
-                    &nbsp;moves
+                    Tile type:&nbsp;&nbsp;
+                    <select ref={optionsContainer.type} 
+                        defaultValue={options.type}
+                        onChange={onAnyInputChange}
+                        disabled={started}
+                        className={!isHost ? "hidden-input" : ""} >
+                        <option value="square">square</option>
+                        <option value="triangle">triangle</option>
+                        <option value="hexagon">hexagon</option>
+                    </select>
+                    {isHost? null : <span>{options.type}</span>}
                 </label>
-                <input ref={option_moves_input} 
-                    type="range" min={3} max={7} 
-                    defaultValue={room.options.moves}
+
+                <label>
+                    Figure size: <span>{options.figure_size}</span>
+                </label>
+                <input ref={optionsContainer.figure_size} 
+                    type="range" min={25} max={50} 
+                    defaultValue={options.figure_size}
                     onChange={onAnyInputChange}
                     disabled={started}
                     className={!isHost ? "hidden-input" : ""} />
 
                 <label>
-                    Time:&nbsp;&nbsp;
-                    <span>{options.time}</span>
-                    &nbsp;seconds
+                    Number of pieces: <span>{options.pieces_amount}</span>
                 </label>
-                <input ref={option_time_input} 
-                    type="range" min={1} max={10} 
-                    defaultValue={room.options.time / TIME_FACTOR}
+                <input ref={optionsContainer.pieces_amount} 
+                    type="range" min={3} max={6} 
+                    defaultValue={options.pieces_amount}
+                    onChange={onAnyInputChange}
+                    disabled={started}
+                    className={!isHost ? "hidden-input" : ""} />
+
+                <label>
+                    Number of match lines: <span>{options.lines_amount}</span>
+                </label>
+                <input ref={optionsContainer.lines_amount} 
+                    type="range" min={0} max={3} 
+                    defaultValue={options.lines_amount}
+                    onChange={onAnyInputChange}
+                    disabled={started}
+                    className={!isHost ? "hidden-input" : ""} />
+                
+                <label>
+                    Time limit: <span>{Math.floor(options.time/60)}</span> min <span>{options.time%60}</span> sec
+                </label>
+                <input ref={optionsContainer.time} 
+                    type="range" min={30} max={600} step={15}
+                    defaultValue={options.time}
                     onChange={onAnyInputChange}
                     disabled={started}
                     className={!isHost ? "hidden-input" : ""} />

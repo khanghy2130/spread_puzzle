@@ -23,14 +23,18 @@
         // Room ID
         h2 {
             color: $support_blue;
-            margin-bottom: 1em;
+            margin-bottom: 0.5em;
         }
 
-        label {
-            margin-bottom: 0;
+        select {
+            @extend .font-body;
+            background-color: $black;
+            color: $green;
+            font-size: 1em;
+            align-self: center;
         }
-        input {
-            margin-bottom: 2em;
+        label {
+            margin-top: 0.5em;
         }
         .hidden-input {
             display: none;
@@ -46,7 +50,7 @@
             flex-direction: row;
             justify-content: space-around;
 
-            margin: 0.3em 0 1em;
+            margin: 1em 0;
 
             #help-button, #start-button {
                 &:disabled {

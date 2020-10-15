@@ -11,10 +11,15 @@ interface User {
     nickname: string
 }
 
+
+type TileType = "hexagon" | "triangle" | "square";
 // options that the host sets
 interface Options {
-    moves: number,
-    time: number // in second
+    time: number, // in second
+    type: TileType,
+    figure_size: number,
+    pieces_amount: number,
+    lines_amount: number
 }
 
 export default interface RoomObject {

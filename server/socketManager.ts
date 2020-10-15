@@ -168,8 +168,11 @@ exports.manager = function(socket: any, namespace: any) : void {
 
                 // DEFAULT OPTIONS
                 options: {
-                    moves: 3,
-                    time: 30
+                    time: 90, // in second
+                    type: "square",
+                    figure_size: 40,
+                    pieces_amount: 4,
+                    lines_amount: 2
                 }
             };
             roomID = newRoomID;
