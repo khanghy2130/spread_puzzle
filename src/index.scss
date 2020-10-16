@@ -1,6 +1,4 @@
 /* color vars */
-$main_purple: #a72ded;
-$secondary_purple: #663683;
 $support_blue: rgb(42, 157, 245);
 $dark: #2a2a2a;
 $text_white: #e3e3e3;
@@ -48,7 +46,6 @@ body {
 
 	@extend .font-body;
 	color: $text_white;
-	background-color: $secondary_purple;
 	font-size: 1em;
 }
 a {
@@ -82,7 +79,7 @@ input[type=number] {
 // MIT License
 
 $track-color: #eceff1 !default;
-$thumb-color: $main_purple !default;
+$thumb-color: $support_blue !default;
 
 $thumb-radius: 12px !default;
 $thumb-height: 27px !default;
@@ -127,7 +124,7 @@ $ie-bottom-track-color: darken($track-color, $contrast) !default;
   width: $thumb-width;
 
   &:hover {
-	background-color: $secondary_purple;
+	  background-color: darken($support_blue, 20%);
   }
 }
 

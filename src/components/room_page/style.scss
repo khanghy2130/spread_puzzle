@@ -27,10 +27,6 @@
         }
 
         select {
-            @extend .font-body;
-            background-color: $black;
-            color: $green;
-            font-size: 1em;
             align-self: center;
         }
         label {
@@ -107,7 +103,7 @@
             font-size: 0.9em;
             width: auto;
             padding: 0 0.5em;
-            border: $black 0.1em solid;
+            border: $black 0.2em solid;
             color: $black;
             background-color: $support_blue;
             transition: background-color 0.3s;
@@ -132,13 +128,13 @@
 
             // current player
             &.you {
-                color: $main_purple;
+                color: $green;
             }
 
             background-color: $dark;
             padding: 0.3em 0.7em;
             margin-bottom: 0.5em;
-            border: $black 0.1em solid;
+            border: $black 0.2em solid;
         }
     }
 

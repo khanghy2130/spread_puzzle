@@ -5,6 +5,9 @@
 main {
     min-height: 100vh;
     padding-bottom: 1em;
+
+    background: $dark url("background.jpg") no-repeat top center;
+    background-size: cover;   
 }
 footer {
     display: flex;
@@ -15,15 +18,15 @@ footer {
 
     label {
         color: $text_white;
-        font-size: 0.9em;
+        font-size: 1em;
         margin-right: 0.6em;
     }
-    select {
-        @extend .font-body;
-        font-size: 0.9em;
-        color: $dark;
-        background-color: $text_white;
-    }
+}
+select {
+    @extend .font-body;
+    background-color: $black;
+    color: $green;
+    font-size: 1em;
 }
 
 
@@ -103,9 +106,6 @@ footer {
 
             &:hover {
                 background-color: rgb(26, 26, 26);
-            }
-            &:active {
-                background-color: $main_purple;
             }
         }
     }
