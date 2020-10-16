@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
+import Sketch from "react-p5";
+import p5Types from "p5"; 
 
 import "./style.scss";
 import LevelObject from '../../../server/Level_Object';
@@ -17,6 +19,49 @@ interface propObject {
     getText: (tree: string[]) => string
 };
 
+
+interface CanvasVarsType {
+    x : number
+}
+function P5_Canvas(cv: CanvasVarsType, setCv: React.Dispatch<React.SetStateAction<CanvasVarsType>>) {
+    if (!cv) return null;
+
+    let alreadyPressing = false; // prevent multiple clicks in draw()
+    const y = 50;///////
+ 
+    const windowResized = (p: p5Types) => {
+        const SMALLEST_SIZE = p.min(document.documentElement.clientWidth, document.documentElement.clientHeight);
+        const CANVAS_SIZE = p.min(SMALLEST_SIZE, 500);
+        p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE);
+    }
+    const setup = (p: p5Types, canvasParentRef: Element) => {
+        p.createCanvas(500, 500).parent(canvasParentRef);
+        p.frameRate(30);
+        console.log("created canvas");
+    };
+ 
+    const draw = (p: p5Types) => {
+        p.background(0);
+        p.ellipse(cv.x, 20, 20, 20);
+        cv.x += 1;
+
+        // click by mouse, not touch
+        if (p.mouseIsPressed && !alreadyPressing && p.touches.length === 0){
+            alreadyPressing = true;
+            /////
+        }
+        else if (!p.mouseIsPressed && alreadyPressing){
+            alreadyPressing = false;
+        }
+
+        setCv(cv); // update cv
+    };
+    
+ 
+    return <Sketch setup={setup} draw={draw} windowResized={windowResized} />;
+};
+
+
 const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : propObject) => {
     const time_display = useRef<HTMLHeadingElement>(null);
     // store timeLeft as ref
@@ -28,15 +73,18 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
     let beginCountdownIntervalID: any; // ID of the begin countdown interval
 
     // main game state status
-    const [progress, setProgress] = useState<"preparing"|"playing"|"incomplete"|"complete">("preparing");
-    
-    // -- Control States --
-    ////// const [name, setName] = useState<type>(initialValue);
+    type progressType = "preparing"|"playing"|"incomplete"|"complete";
+    const [progress, setProgress] = useState<progressType>("preparing");
+
+    // setting up CV default
+    const [cv, setCv] = useState<CanvasVarsType>({
+        x: 50
+    });
 
     // socket io events
     useEffect(()=>{
         if (typeof window !== 'undefined') {
-            window.scrollTo(0, 0); // scroll to top when play page loaded
+            window.scrollTo(0, 0); // scroll to top when page loaded
 
             socket.on("end-game", (receivedRoomObject : RoomObject) => {
                 resetRoomPage(receivedRoomObject);
@@ -49,7 +97,6 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
     // eslint-disable-next-line
     }, []);
 
-    // progress status handler (when progress just changed)
     useLayoutEffect(()=>{
         console.log("Just changed: " , progress);
         // after begin countdown is done
@@ -68,8 +115,6 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
                     setProgress("playing");
                 }
             }, 800);
-
-            loadLevel();
         }
         else if (progress === "playing"){
             // start the time limit countdown
@@ -101,21 +146,6 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
     // eslint-disable-next-line
     }, [progress]);
 
-    /*
-    // check win whenever gridData changes
-    useEffect(() => {
-        if (!gridData.flat(1).includes(1)){
-            setProgress("complete");
-        }
-    }, [gridData]);
-    */
-
-    // called when play page starts
-    function loadLevel(): void{
-        // load game states
-        ///////////
-    }
-
 
     return (
         <main id="play-page-main">
@@ -146,6 +176,12 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
 
             <button onClick={() => {setProgress("complete")}}>Win</button>
             <button onClick={() => {setProgress("incomplete")}}>Lose</button>
+            <button onClick={() => {setCv({x: 0})}}>XXX</button>
+
+            {/* Canvas */}
+            <div id="canvas-parent">
+                {P5_Canvas(cv, setCv)}
+            </div>
 
         </main>
     );

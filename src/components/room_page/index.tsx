@@ -4,7 +4,6 @@ import "./style.scss";
 import RoomObject from '../../../server/Room_Object';
 import PLAY_PAGE from '../play_page/index'; 
 import LevelObject from '../../../server/Level_Object';
-import { AnyCnameRecord } from 'dns';
 
 
 interface propObject {
@@ -25,8 +24,6 @@ interface optionElements {
 }
 
 const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: propObject) => {
-    const TIME_FACTOR: number = 10;
-
     // render room page (true) or play page (false)
     const [showRoom, setShowRoom] = useState<boolean>(true);
     const [levelObject, setLevelObject] = useState<LevelObject | null>(null);
@@ -227,7 +224,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
             <div id="players-div">
                 <h2>{getText(["room_page", "players"])}</h2>
                 {room.users.map(
-                    (user, index) => <h4 className={(user.id === socket.id) ? "you" : ""} key={user.id}>{user.nickname}</h4>
+                    (user) => <h4 className={(user.id === socket.id) ? "you" : ""} key={user.id}>{user.nickname}</h4>
                 )}
                 {
                     (room.results.length === 0) ? null :

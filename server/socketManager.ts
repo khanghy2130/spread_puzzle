@@ -229,12 +229,8 @@ exports.manager = function(socket: any, namespace: any) : void {
         // if already started game but not ended yet -> don't start again
         if (roomsList[roomID].timerID !== null) return;
 
-        ///// emulating a little delay
-        setTimeout(() => {
-            roomsList[roomID].options = newOptions; // update
-            startGame(namespace, roomsList[roomID]);
-        }, 2000)
-             
+        roomsList[roomID].options = newOptions; // update
+        startGame(namespace, roomsList[roomID]);
     });
 
     socket.on("play-report", (roomID: string, finishedTime: number) => {

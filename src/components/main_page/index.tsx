@@ -148,16 +148,21 @@ const Main_Page = ({ socket }: propObject) => {
     function footerComponent(){
         return (
         <footer>
-            <label>{getText(["language"])}</label>
-            <select ref={langSelectorInput} onChange={_setSelectedLang}>
-                {
-                    !lang ? null : (
-                        lang.langs_list.map((item: [string, string], i: number) => (
-                            <option key={i} value={item[1]}>{item[0]}</option>
-                        ))
-                    )
-                }
-            </select>
+            <div>
+                <label>{getText(["main_page", "nickname"])}:  <span>{nickname}</span></label>
+            </div>
+            <div>
+                <label>{getText(["language"])}:</label>
+                <select ref={langSelectorInput} onChange={_setSelectedLang}>
+                    {
+                        !lang ? null : (
+                            lang.langs_list.map((item: [string, string], i: number) => (
+                                <option key={i} value={item[1]}>{item[0]}</option>
+                            ))
+                        )
+                    }
+                </select>
+            </div>
         </footer>)
     }
 
