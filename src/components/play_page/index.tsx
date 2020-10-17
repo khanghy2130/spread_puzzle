@@ -15,7 +15,7 @@ interface propObject {
     resetRoomPage: (receivedLevelObject: RoomObject) => void,
     roomID: string,
     nickname: string,
-    
+    convertToTime: (seconds: number) => string,
     getText: (tree: string[]) => string
 };
 
@@ -27,7 +27,6 @@ function P5_Canvas(cv: CanvasVarsType, setCv: React.Dispatch<React.SetStateActio
     if (!cv) return null;
 
     let alreadyPressing = false; // prevent multiple clicks in draw()
-    const y = 50;///////
  
     const windowResized = (p: p5Types) => {
         const SMALLEST_SIZE = p.min(document.documentElement.clientWidth, document.documentElement.clientHeight);
@@ -62,7 +61,7 @@ function P5_Canvas(cv: CanvasVarsType, setCv: React.Dispatch<React.SetStateActio
 };
 
 
-const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : propObject) => {
+const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname, convertToTime, getText} : propObject) => {
     const time_display = useRef<HTMLHeadingElement>(null);
     // store timeLeft as ref
     const timeLeft = useRef<any>({ value: levelObject.timeLimit });
@@ -85,6 +84,10 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
     useEffect(()=>{
         if (typeof window !== 'undefined') {
             window.scrollTo(0, 0); // scroll to top when page loaded
+            // set time left text
+            if (time_display && time_display.current){
+                time_display.current.innerText = convertToTime(timeLeft.current.value);
+            }
 
             socket.on("end-game", (receivedRoomObject : RoomObject) => {
                 resetRoomPage(receivedRoomObject);
@@ -96,6 +99,8 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
         }
     // eslint-disable-next-line
     }, []);
+
+    
 
     useLayoutEffect(()=>{
         console.log("Just changed: " , progress);
@@ -121,8 +126,9 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
             setTimeLimitIntervalID(setInterval(()=>{
                 if (timeLeft.current.value > 0){
                     timeLeft.current.value--;
+                    // set time left text
                     if (time_display && time_display.current){
-                        time_display.current.innerText = timeLeft.current.value;
+                        time_display.current.innerText = convertToTime(timeLeft.current.value);
                     }
                 } else {
                     setProgress("incomplete");
@@ -162,7 +168,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
                         (progress === "complete") ? (<div>
                             <h2 className="blue-color">Puzzle solved!</h2>
                             <h3>Your time:</h3>
-                            <h3 className="green-color">{levelObject.timeLimit - timeLeft.current.value} seconds</h3>
+                            <h3 className="green-color">{convertToTime(levelObject.timeLimit - timeLeft.current.value)}</h3>
                         </div>) :
                         (progress === "incomplete") ? (<div>
                             <h2 className="red-color">Game over!</h2>
@@ -172,7 +178,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname} : prop
             )}
 
             {/* Timer text */}
-            <h3 id="time-left-text">Time left: &nbsp;<span ref={time_display}>{timeLeft.current.value}</span> seconds</h3>
+            <h3 id="time-left-text">Time left:  <span ref={time_display}></span></h3>
 
             <button onClick={() => {setProgress("complete")}}>Win</button>
             <button onClick={() => {setProgress("incomplete")}}>Lose</button>

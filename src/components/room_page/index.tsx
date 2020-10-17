@@ -128,6 +128,14 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
         setStarted(false);
     }
 
+    // convert seconds to time format mm:ss
+    function convertToTime(seconds: number): string {
+        let text_minutes: string = "" + Math.floor(seconds / 60);
+        let text_seconds: string = "" + seconds % 60;
+        if (text_seconds.length < 2) text_seconds = "0" + text_seconds;
+        return `${text_minutes}:${text_seconds}`;
+    }
+
     // play page?
     if (!showRoom && levelObject !== null) {
         return (<PLAY_PAGE 
@@ -136,6 +144,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
             resetRoomPage={resetRoomPage} 
             roomID={room.roomID}
             nickname={nickname}
+            convertToTime={convertToTime}
             getText={getText}
         />);
     }
@@ -191,7 +200,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     className={!isHost ? "hidden-input" : ""} />
                 
                 <label>
-                    Time limit: <span>{Math.floor(options.time/60)}</span> min <span>{options.time%60}</span> sec
+                    Time limit: <span>{convertToTime(options.time)}</span>
                 </label>
                 <input ref={optionsContainer.time} 
                     type="range" min={30} max={600} step={15}
@@ -245,9 +254,9 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                         {room.results.map((result: any, index: number) => (
                             <h3 key={index}>
                                 {index+1}) &nbsp;
-                                {result.nickname}:&nbsp;
+                                {result.nickname} -&nbsp;
                                 <span className={(result.time !== null)? "":"dnf"}>
-                                    {(result.time !== null) ? result.time + " sec" : "DNF"}
+                                    {(result.time !== null) ? convertToTime(result.time) : "DNF"}
                                 </span>
                             </h3>
                         ))}
