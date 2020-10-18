@@ -17,7 +17,12 @@ import RoomObject from "./Room_Object";
 
 type Pos = [number, number];
 type DirectionDegree = 0 | 30 | 90 | 150 | 180 | 210 | 270 | 330;
-
+interface Borders {
+    left: number,
+    right: number,
+    top: number,
+    bottom: number,
+}
 
 // stringifying and parsing for Pos
 function stringifyPos(pos: Pos): string {
@@ -122,11 +127,18 @@ function getNeighbors(
     }
 }
 
+function updateBorders(
+    borders: Borders, 
+    tilePos: Pos, 
+    tileType: RoomObject["options"]["type"]
+) : void{
+
+}
 
 const PuzzleConstructor = function(this: LevelObject, options: RoomObject["options"]){
     // _________ STEP 1
     // borders of the base
-    const borders = {
+    const borders : Borders = {
         left: 0,
         right: 0,
         bottom: 0,
@@ -160,10 +172,11 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
             if (arrayHasTile(baseTiles, pickedNeighbor)){
                 neighborsList.splice(pickedNeighborIndex, 1); // remove this neighbor from list
             }
-            // AVAILABLE! Add new tile
+            // AVAILABLE! Add new tile and update border
             else {
                 activeBaseTiles.push(pickedNeighbor);
                 baseTiles.push(pickedNeighbor);
+                updateBorders(borders, pickedNeighbor, options.type);
                 break;
             }
         }
@@ -173,9 +186,9 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
     }
 
     // _________ STEP 2
-    console.log("baseTiles length:",baseTiles.length);
-    console.log("activeBaseTiles length:",(activeBaseTiles.length));
-    
+    //console.log("baseTiles length:",baseTiles.length);
+    //console.log("activeBaseTiles length:",(activeBaseTiles.length));
+    console.log(JSON.stringify(baseTiles))
 
     // set to 'this' (returning LevelObject)
     this.timeLimit = options.time;
@@ -188,3 +201,83 @@ function randomInt(start: number, end: number): number{
 
 exports.PuzzleConstructor = PuzzleConstructor;
 export {}
+
+
+// BACKUP
+/* 
+
+function setup() {
+  createCanvas(500, 500);
+  rectMode(CENTER);
+  background(0);
+  //noStroke();
+
+
+
+
+  getBaseTiles().forEach((pos) => {
+    renderTile(pos, "hexagon", (pos[0]+pos[1]) % 2 === 0)
+  })
+}
+
+// constants
+const SQRT_3 = Math.sqrt(3);
+const HALF_SQRT_3 = SQRT_3 / 2;
+
+// for base. Accessible globally
+let offset = [250, 250];
+let tileScale = 20;
+
+// offset is where the origin tile should be
+function renderTile(pos, type, isUpward) {
+  if (type === "square") {
+    rect(
+      offset[0] + pos[0] * tileScale,
+      offset[1] + pos[1] * tileScale,
+      tileScale,
+      tileScale
+    );
+  } else if (type === "hexagon") {
+    const HALF_SCALE = tileScale / 2;
+    const SCALED_SQRT = HALF_SQRT_3 * tileScale;
+    const x = offset[0] + pos[0] * tileScale * 3 / 2;
+    const y = offset[1] + (pos[1] * 2 + pos[0]) * SCALED_SQRT;
+    beginShape();
+    vertex(x + tileScale, y);
+    vertex(x + HALF_SCALE, y + SCALED_SQRT);
+    vertex(x - HALF_SCALE, y + SCALED_SQRT);
+    vertex(x - tileScale, y);
+    vertex(x - HALF_SCALE, y - SCALED_SQRT);
+    vertex(x + HALF_SCALE, y - SCALED_SQRT);
+    endShape(CLOSE);
+  } else if (type === "triangle") {
+    const SCALED_SQRT = HALF_SQRT_3 * tileScale;
+    const CENTER_Y = tileScale / (SQRT_3 * 2);
+    const yOffset = isUpward ? SCALED_SQRT - (CENTER_Y * 2) : 0;
+    const x = offset[0] + pos[0] * tileScale / 2;
+    const y = offset[1] + pos[1] * SCALED_SQRT + yOffset;
+    if (isUpward) {
+      triangle(
+        x,
+        y - (SCALED_SQRT - CENTER_Y),
+        x - tileScale / 2,
+        y + CENTER_Y,
+        x + tileScale / 2,
+        y + CENTER_Y
+      );
+    } else {
+      triangle(
+        x,
+        y + (SCALED_SQRT - CENTER_Y),
+        x - tileScale / 2,
+        y - CENTER_Y,
+        x + tileScale / 2,
+        y - CENTER_Y
+      );
+    }
+  }
+}
+
+function getBaseTiles()
+
+*/
