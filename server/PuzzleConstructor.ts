@@ -7,7 +7,6 @@ GENERATION STEPS:
     3. while expanding, update borders
 
 - STEP 2: Make mappings of pieces
-    1. make a parsed version of baseTileKeys
 
 -  
 */
@@ -27,6 +26,10 @@ function stringifyPos(pos: Pos): string {
 function parsePos(stringifiedPos: string): Pos{
     const l: string[] = stringifiedPos.split("_");
     return [Number(l[0]), Number(l[1])];
+}
+
+function arrayHasTile(arr: Pos[], tilePos: Pos): boolean{
+    return arr.some(pos => pos[0] === tilePos[0] && pos[1] === tilePos[1]);
 }
 
 function getNeighborPos(
@@ -129,13 +132,13 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
         bottom: 0,
         top: 0
     };
-    // a tile key is the tile position stringified in format of x_y (ex: 10_2 or 2_3)
-    const baseTileKeys : string[] = ["0_0"]
+    const ORIGIN_TILE: Pos = [0, 0];
+    const baseTiles : Pos[] = [ORIGIN_TILE]
     // activeBaseTiles is for randomly expansion of base, if a tile becomes unactive, remove it from this list
-    const activeBaseTiles : Pos[] = [[0, 0]];
+    const activeBaseTiles : Pos[] = [ORIGIN_TILE];
 
     // keep expanding until reach <options.figure_size> amount of tiles
-    while (activeBaseTiles.length < options.figure_size){
+    while (baseTiles.length < options.figure_size){
         // pick a random tile from activeBaseTiles
         const pickedTileIndex: number = randomInt(0, activeBaseTiles.length);
         const pickedTile: Pos = activeBaseTiles[pickedTileIndex];
@@ -154,13 +157,13 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
             const pickedNeighborIndex: number = randomInt(0, neighborsList.length);
             const pickedNeighbor: Pos = neighborsList[pickedNeighborIndex];
             // this neighbor IS taken?
-            if (baseTileKeys.includes(stringifyPos(pickedNeighbor))){
+            if (arrayHasTile(baseTiles, pickedNeighbor)){
                 neighborsList.splice(pickedNeighborIndex, 1); // remove this neighbor from list
             }
             // AVAILABLE! Add new tile
             else {
                 activeBaseTiles.push(pickedNeighbor);
-                baseTileKeys.push(stringifyPos(pickedNeighbor));
+                baseTiles.push(pickedNeighbor);
                 break;
             }
         }
@@ -170,10 +173,9 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
     }
 
     // _________ STEP 2
-    let parsedBaseList: Pos[] = baseTileKeys.map(key => parsePos(key));
-    // console.log(baseTileKeys);
-    // console.log(parsedBaseList);
-
+    console.log("baseTiles length:",baseTiles.length);
+    console.log("activeBaseTiles length:",(activeBaseTiles.length));
+    
 
     // set to 'this' (returning LevelObject)
     this.timeLimit = options.time;
