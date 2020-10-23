@@ -6,8 +6,9 @@ GENERATION STEPS:
     2. expand until the list has as many tiles as option.figure_size
     3. while expanding, update borders
 
-- STEP 2: Make mappings of pieces
-
+- STEP 2: 
+    1. find tileFactor
+    2. find offsetFactors (from origin tile to canvas center)
 -  
 */
 
@@ -93,9 +94,9 @@ function getNeighborPos(
 // returns all neighbor tile positions of the given tile (and type)
 function getNeighbors(
     tilePos: Pos, 
-    tileType: RoomObject["options"]["type"], 
-    isUpward?: boolean
+    tileType: RoomObject["options"]["type"]
 ): Pos[]{
+    const isUpward: boolean = (tilePos[0] + tilePos[1]) % 2 === 0;
     switch(tileType){
         case "square":
             return [
@@ -127,12 +128,58 @@ function getNeighbors(
     }
 }
 
+// NOTE: tileScale is just 1
 function updateBorders(
     borders: Borders, 
     tilePos: Pos, 
     tileType: RoomObject["options"]["type"]
 ) : void{
+    const b: Borders = {
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0
+    };
+    let x: number, y: number;
+    const HALF_SQRT_3 = Math.sqrt(3) / 2;
 
+    switch(tileType){
+        case "square":
+            x = tilePos[0];
+            y = tilePos[1];
+
+            b.left = x - 0.5;
+            b.right = x + 0.5;
+            b.top = y - 0.5;
+            b.bottom = y + 0.5;
+            break;
+
+        case "hexagon":
+            x = tilePos[0] * 3 / 2;
+            y = (tilePos[1] * 2 + tilePos[0]) * HALF_SQRT_3;
+
+            b.left = x - 1;
+            b.right = x + 1;
+            b.top = y - HALF_SQRT_3;
+            b.bottom = y + HALF_SQRT_3;
+            break;
+
+        case "triangle":
+            const CENTER_Y = 1 / (Math.sqrt(3) * 2);
+            x = tilePos[0] * 0.5;
+            y = tilePos[1] * HALF_SQRT_3;
+
+            b.left = x - 0.5;
+            b.right = x + 0.5;
+            b.top = y - CENTER_Y;
+            b.bottom = y + (HALF_SQRT_3 - CENTER_Y);
+            break;
+    }
+    // compare to update if out of current borders
+    borders.left = Math.min(borders.left, b.left);
+    borders.right = Math.max(borders.right, b.right);
+    borders.top = Math.min(borders.top, b.top);
+    borders.bottom = Math.max(borders.bottom, b.bottom);
 }
 
 const PuzzleConstructor = function(this: LevelObject, options: RoomObject["options"]){
@@ -145,9 +192,12 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
         top: 0
     };
     const ORIGIN_TILE: Pos = [0, 0];
-    const baseTiles : Pos[] = [ORIGIN_TILE]
+    const baseTiles : Pos[] = [ORIGIN_TILE];
     // activeBaseTiles is for randomly expansion of base, if a tile becomes unactive, remove it from this list
     const activeBaseTiles : Pos[] = [ORIGIN_TILE];
+
+    // update borders for origin tile
+    updateBorders(borders, ORIGIN_TILE, options.type);
 
     // keep expanding until reach <options.figure_size> amount of tiles
     while (baseTiles.length < options.figure_size){
@@ -159,8 +209,7 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
         // optionally passing isUpward (only takes effect if type is triangle)
         let neighborsList: Pos[] = getNeighbors(
             pickedTile, 
-            options.type, 
-            (pickedTile[0] + pickedTile[1]) % 2 === 0
+            options.type
         );
 
         // (repeatable) pick a random neighbor and check if it's available
@@ -186,9 +235,40 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
     }
 
     // _________ STEP 2
-    //console.log("baseTiles length:",baseTiles.length);
-    //console.log("activeBaseTiles length:",(activeBaseTiles.length));
-    console.log(JSON.stringify(baseTiles))
+    // find longest dimension (width or height) from borders
+    const BASE_WIDTH: number = borders.right - borders.left;
+    const BASE_HEIGHT: number = borders.bottom - borders.top;
+    const LONGEST_DIMENSION: number = Math.max(BASE_HEIGHT, BASE_WIDTH);
+    
+    // tileFactor (canvas size * tileFactor = tileScale)
+    const tileFactor: number = 1 / LONGEST_DIMENSION;
+    
+    // offsetFactors (canvas size * offsetFactor[y] = offset for y dimension)
+    let offsetFactors: [number, number];
+    // width is the longest?
+    if (BASE_WIDTH === LONGEST_DIMENSION){
+        const extraOffset: number = (LONGEST_DIMENSION - BASE_HEIGHT) / 2;
+        offsetFactors = [
+            getOffsetFactor(borders.left * -1),
+            getOffsetFactor(borders.top * -1 + extraOffset),
+        ];
+    } else {
+        const extraOffset: number = (LONGEST_DIMENSION - BASE_WIDTH) / 2;
+        offsetFactors = [
+            getOffsetFactor(borders.left * -1 + extraOffset),
+            getOffsetFactor(borders.top * -1)
+        ];
+    }
+    function getOffsetFactor(units: number): number{
+        return units / LONGEST_DIMENSION;
+    }
+
+    console.log(
+        `let setType = "${options.type}",` +
+        `tileScale = CANVAS_SIZE * ${tileFactor},` +
+        `offset = [${offsetFactors[0]} * CANVAS_SIZE, ${offsetFactors[1]} * CANVAS_SIZE],` +
+        `baseTiles = ${JSON.stringify(baseTiles)}`
+    )
 
     // set to 'this' (returning LevelObject)
     this.timeLimit = options.time;
@@ -205,18 +285,16 @@ export {}
 
 // BACKUP
 /* 
-
 function setup() {
   createCanvas(500, 500);
   rectMode(CENTER);
   background(0);
   //noStroke();
+  
+  // make borders ............
 
-
-
-
-  getBaseTiles().forEach((pos) => {
-    renderTile(pos, "hexagon", (pos[0]+pos[1]) % 2 === 0)
+  baseTiles.forEach((pos) => {
+    renderTile(pos, setType, (pos[0]+pos[1]) % 2 === 0)
   })
 }
 
@@ -224,9 +302,18 @@ function setup() {
 const SQRT_3 = Math.sqrt(3);
 const HALF_SQRT_3 = SQRT_3 / 2;
 
+
 // for base. Accessible globally
-let offset = [250, 250];
-let tileScale = 20;
+const CANVAS_SIZE = 500;
+// setType, tileScale, offset, baseTiles
+// let setType = "square"
+// let tileScale = CANVAS_SIZE * 0.1
+// let offset = [ 0, 0 ]
+// let baseTiles = []
+
+let setType = "triangle",tileScale = CANVAS_SIZE * 0.15384615384615385,offset = [0.46153846153846156 * CANVAS_SIZE, 0.6110288979210818 * CANVAS_SIZE],baseTiles = [[0,0],[-1,0],[-1,-1],[1,0],[-2,-1],[1,-1],[2,0],[-2,-2],[0,-1],[0,1],[-2,0],[1,1],[-3,0],[-3,-1],[2,1],[3,0],[-4,0],[-5,0],[-4,1],[0,-2],[-2,1],[-3,1],[4,0],[3,-1],[-1,1],[2,-1],[-4,-1],[1,2],[-5,1],[-3,2],[-3,-2],[5,0],[1,-2],[-1,2],[6,0],[1,-3],[-5,-1],[2,-3],[3,1],[0,2],[3,-3],[4,-1],[0,-3],[-5,2],[4,-2],[2,-2],[5,-1],[2,-4],[4,1],[-4,-2]]
+
+
 
 // offset is where the origin tile should be
 function renderTile(pos, type, isUpward) {
@@ -251,33 +338,33 @@ function renderTile(pos, type, isUpward) {
     vertex(x + HALF_SCALE, y - SCALED_SQRT);
     endShape(CLOSE);
   } else if (type === "triangle") {
+    const HALF_SCALE = tileScale / 2;
     const SCALED_SQRT = HALF_SQRT_3 * tileScale;
     const CENTER_Y = tileScale / (SQRT_3 * 2);
     const yOffset = isUpward ? SCALED_SQRT - (CENTER_Y * 2) : 0;
-    const x = offset[0] + pos[0] * tileScale / 2;
+    const x = offset[0] + pos[0] * HALF_SCALE;
     const y = offset[1] + pos[1] * SCALED_SQRT + yOffset;
     if (isUpward) {
       triangle(
         x,
         y - (SCALED_SQRT - CENTER_Y),
-        x - tileScale / 2,
+        x - HALF_SCALE,
         y + CENTER_Y,
-        x + tileScale / 2,
+        x + HALF_SCALE,
         y + CENTER_Y
       );
     } else {
       triangle(
         x,
         y + (SCALED_SQRT - CENTER_Y),
-        x - tileScale / 2,
+        x - HALF_SCALE,
         y - CENTER_Y,
-        x + tileScale / 2,
+        x + HALF_SCALE,
         y - CENTER_Y
       );
     }
   }
 }
 
-function getBaseTiles()
 
 */
