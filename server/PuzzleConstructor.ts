@@ -281,14 +281,8 @@ export {}
 function setup() {
   createCanvas(500, 500);
   rectMode(CENTER);
-  background(100, 50, 0);
   //noStroke();
   
-  // make borders ............
-
-  baseTiles.forEach((pos) => {
-    renderTile(pos, setType, (pos[0]+pos[1]) % 2 === 0)
-  })
 }
 
 // constants
@@ -296,32 +290,40 @@ const SQRT_3 = Math.sqrt(3);
 const HALF_SQRT_3 = SQRT_3 / 2;
 
 
+
 // for base. Accessible globally
 const CANVAS_SIZE = 500;
+////// the factors are kept to recalculate if resize
 // setType, tileScale, offset, baseTiles
 // let setType = "square"
 // let tileScale = CANVAS_SIZE * 0.1
 // let offset = [ 0, 0 ]
 // let baseTiles = []
 
-let setType = "triangle",tileScale = CANVAS_SIZE * 0.15384615384615385,offset = [0.46153846153846156 * CANVAS_SIZE, 0.6110288979210818 * CANVAS_SIZE],baseTiles = [[0,0],[-1,0],[-1,-1],[1,0],[-2,-1],[1,-1],[2,0],[-2,-2],[0,-1],[0,1],[-2,0],[1,1],[-3,0],[-3,-1],[2,1],[3,0],[-4,0],[-5,0],[-4,1],[0,-2],[-2,1],[-3,1],[4,0],[3,-1],[-1,1],[2,-1],[-4,-1],[1,2],[-5,1],[-3,2],[-3,-2],[5,0],[1,-2],[-1,2],[6,0],[1,-3],[-5,-1],[2,-3],[3,1],[0,2],[3,-3],[4,-1],[0,-3],[-5,2],[4,-2],[2,-2],[5,-1],[2,-4],[4,1],[-4,-2]]
+let setType = "triangle",tileScale = CANVAS_SIZE * 0.1,offset = [0.66 * CANVAS_SIZE, 0.54 * CANVAS_SIZE],baseTiles = [[0,0],[0,1],[1,0],[-1,1],[-1,0],[1,-1],[-2,0],[-1,2],[-3,0],[-4,0],[-1,-1],[-3,-1],[0,-1],[2,0],[-2,1],[-4,-1],[1,1],[-4,1],[-2,-1],[-5,-1],[-5,0],[-6,-1],[-2,-2],[0,-2],[3,0],[-1,-2],[-1,-3],[-6,0],[2,-1],[-3,1],[2,-2],[-6,1],[-7,-1],[-4,-2],[1,-2],[-7,0],[-3,2],[-8,0],[-6,-2],[0,2],[-9,0],[4,0],[-3,-2],[-5,1],[0,-3],[-2,2],[-5,-2],[4,1],[-8,-1],[-9,-1]]
 
+
+// these need to recalculate when resize too
+let HALF_SCALE = tileScale / 2;
+let SCALED_SQRT = HALF_SQRT_3 * tileScale;
 
 
 // offset is where the origin tile should be
-function renderTile(pos, type, isUpward) {
-  if (type === "square") {
+function renderTile(pos, isUpward) {
+  let x, y;
+  if (setType === "square") {
+    x = offset[0] + pos[0] * tileScale;
+    y = offset[1] + pos[1] * tileScale;
     rect(
-      offset[0] + pos[0] * tileScale,
-      offset[1] + pos[1] * tileScale,
+      x,
+      y,
       tileScale,
       tileScale
     );
-  } else if (type === "hexagon") {
-    const HALF_SCALE = tileScale / 2;
-    const SCALED_SQRT = HALF_SQRT_3 * tileScale;
-    const x = offset[0] + pos[0] * tileScale * 3 / 2;
-    const y = offset[1] + (pos[1] * 2 + pos[0]) * SCALED_SQRT;
+  } 
+  else if (setType === "hexagon") {
+    x = offset[0] + pos[0] * tileScale * 3 / 2;
+    y = offset[1] + (pos[1] * 2 + pos[0]) * SCALED_SQRT;
     beginShape();
     vertex(x + tileScale, y);
     vertex(x + HALF_SCALE, y + SCALED_SQRT);
@@ -330,13 +332,12 @@ function renderTile(pos, type, isUpward) {
     vertex(x - HALF_SCALE, y - SCALED_SQRT);
     vertex(x + HALF_SCALE, y - SCALED_SQRT);
     endShape(CLOSE);
-  } else if (type === "triangle") {
-    const HALF_SCALE = tileScale / 2;
-    const SCALED_SQRT = HALF_SQRT_3 * tileScale;
+  } 
+  else if (setType === "triangle") {
     const CENTER_Y = tileScale / (SQRT_3 * 2);
     const yOffset = isUpward ? SCALED_SQRT - (CENTER_Y * 2) : 0;
-    const x = offset[0] + pos[0] * HALF_SCALE;
-    const y = offset[1] + pos[1] * SCALED_SQRT + yOffset;
+    x = offset[0] + pos[0] * HALF_SCALE;
+    y = offset[1] + pos[1] * SCALED_SQRT + yOffset;
     if (isUpward) {
       triangle(
         x,
@@ -359,5 +360,70 @@ function renderTile(pos, type, isUpward) {
   }
 }
 
+// returns null if not a vaild tile
+function getHoveredTile(){
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return null;
+  let r = Math.round;
+  let result;
+  
+  if (setType === "square"){
+    result = [
+      r((mouseX - offset[0])/tileScale),
+      r((mouseY - offset[1])/tileScale),
+    ];
+  } 
+  else if (setType === "hexagon"){    
+    const xPos = (mouseX - offset[0])/tileScale/3*2;
+    const yPos = ((mouseY - offset[1])/SCALED_SQRT - xPos) / 2;
+    result = [r(xPos), r(yPos)];
+  } 
+  else if (setType === "triangle"){
+    // which triangle direction is vaild
+    let lookingForUpward = !!true;
+    const CENTER_Y = tileScale / (SQRT_3 * 2);
+    const yOffset = lookingForUpward ? SCALED_SQRT - (CENTER_Y * 2) : 0;
+    const xPos = (mouseX - offset[0]) / HALF_SCALE;
+    const yPos = (mouseY - offset[1] - yOffset) / SCALED_SQRT;
+    
+    // if is the other direction
+    if (getTDir([r(xPos), r(yPos)], true) !== lookingForUpward){
+      // more to the right?
+      if (Math.ceil(xPos) - r(xPos) > 0.5){
+        result = [r(xPos + 1), r(yPos)];
+      }
+      else result = [r(xPos - 1), r(yPos)];
+    }
+    else result = [r(xPos), r(yPos)];
+  }
+  
+  // return null if not a tile in baseTiles
+  if (arrayHasTile(baseTiles, result)) return result;
+  return null;
+}
 
+// return true if this triangle tile is upward
+function getTDir(pos, rootTileIsUpward){
+  if (rootTileIsUpward) return (pos[0] + pos[1]) % 2 === 0;
+  return (pos[0] + pos[1]) % 2 === 1;
+}
+
+function arrayHasTile(arr, tilePos){
+    return arr.some(pos => pos[0] === tilePos[0] && pos[1] === tilePos[1]);
+}
+  
+  
+function draw() {
+  background(100, 50, 0);
+  
+  baseTiles.forEach((pos) => {
+    renderTile(pos, getTDir(pos, true))
+  })
+  
+  let hoverPos = getHoveredTile();
+  if (hoverPos){
+    fill(255, 255, 0);
+    renderTile(hoverPos, getTDir(hoverPos, true))
+    fill(255);
+  }
+}
 */
