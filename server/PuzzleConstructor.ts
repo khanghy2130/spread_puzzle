@@ -236,29 +236,22 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
 
     // _________ STEP 2
     // find longest dimension (width or height) from borders
+    // it will be scaled up in order to create padding
     const BASE_WIDTH: number = borders.right - borders.left;
     const BASE_HEIGHT: number = borders.bottom - borders.top;
-    const LONGEST_DIMENSION: number = Math.max(BASE_HEIGHT, BASE_WIDTH);
+    const LONGEST_DIMENSION: number = Math.max(BASE_HEIGHT, BASE_WIDTH) * 1.04;
     
     // tileFactor (canvas size * tileFactor = tileScale)
     const tileFactor: number = 1 / LONGEST_DIMENSION;
     
     // offsetFactors (canvas size * offsetFactor[y] = offset for y dimension)
-    let offsetFactors: [number, number];
-    // width is the longest?
-    if (BASE_WIDTH === LONGEST_DIMENSION){
-        const extraOffset: number = (LONGEST_DIMENSION - BASE_HEIGHT) / 2;
-        offsetFactors = [
-            getOffsetFactor(borders.left * -1),
-            getOffsetFactor(borders.top * -1 + extraOffset),
-        ];
-    } else {
-        const extraOffset: number = (LONGEST_DIMENSION - BASE_WIDTH) / 2;
-        offsetFactors = [
-            getOffsetFactor(borders.left * -1 + extraOffset),
-            getOffsetFactor(borders.top * -1)
-        ];
-    }
+    const yOffset: number = (LONGEST_DIMENSION - BASE_HEIGHT) / 2;
+    const xOffset: number = (LONGEST_DIMENSION - BASE_WIDTH) / 2;
+    let offsetFactors: [number, number] = [
+        getOffsetFactor(borders.left * -1 + xOffset),
+        getOffsetFactor(borders.top * -1 + yOffset),
+    ];
+
     function getOffsetFactor(units: number): number{
         return units / LONGEST_DIMENSION;
     }
@@ -288,7 +281,7 @@ export {}
 function setup() {
   createCanvas(500, 500);
   rectMode(CENTER);
-  background(0);
+  background(100, 50, 0);
   //noStroke();
   
   // make borders ............
