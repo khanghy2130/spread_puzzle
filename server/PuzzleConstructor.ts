@@ -6,10 +6,12 @@ GENERATION STEPS:
     2. expand until the list has as many tiles as option.figure_size
     3. while expanding, update borders
 
-- STEP 2: 
+- STEP 2: Make factors for rendering
     1. find tileFactor
     2. find offsetFactors (from origin tile to canvas center)
--  
+- STEP 3: Make pieces
+    1. spawn all root pieces, high chance of rerolling if spawned next to each other
+    2. 
 */
 
 import LevelObject from "./Level_Object";
@@ -23,6 +25,15 @@ interface Borders {
     right: number,
     top: number,
     bottom: number,
+}
+
+
+interface MappingTile {
+    // other tile ...
+}
+interface PieceGroup {
+    rootTile: MappingTile,
+    posData: Pos[] // positions of tiles relative to base
 }
 
 // stringifying and parsing for Pos
@@ -263,6 +274,11 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
         `baseTiles = ${JSON.stringify(baseTiles)}`
     )
 
+    // _________ STEP 3
+    const allPieceGroups: Pos[][] = [];
+    
+
+
     // set to 'this' (returning LevelObject)
     this.timeLimit = options.time;
 } as any as { new (moves: number, calculatedTime: number): LevelObject; };
@@ -281,8 +297,7 @@ export {}
 function setup() {
   createCanvas(500, 500);
   rectMode(CENTER);
-  //noStroke();
-  
+  frameRate(30);
 }
 
 // constants
@@ -293,23 +308,19 @@ const HALF_SQRT_3 = SQRT_3 / 2;
 
 // for base. Accessible globally
 const CANVAS_SIZE = 500;
-////// the factors are kept to recalculate if resize
+const STROKE_COLOR = 0;
 // setType, tileScale, offset, baseTiles
-// let setType = "square"
-// let tileScale = CANVAS_SIZE * 0.1
-// let offset = [ 0, 0 ]
-// let baseTiles = []
 
-let setType = "triangle",tileScale = CANVAS_SIZE * 0.1,offset = [0.66 * CANVAS_SIZE, 0.54 * CANVAS_SIZE],baseTiles = [[0,0],[0,1],[1,0],[-1,1],[-1,0],[1,-1],[-2,0],[-1,2],[-3,0],[-4,0],[-1,-1],[-3,-1],[0,-1],[2,0],[-2,1],[-4,-1],[1,1],[-4,1],[-2,-1],[-5,-1],[-5,0],[-6,-1],[-2,-2],[0,-2],[3,0],[-1,-2],[-1,-3],[-6,0],[2,-1],[-3,1],[2,-2],[-6,1],[-7,-1],[-4,-2],[1,-2],[-7,0],[-3,2],[-8,0],[-6,-2],[0,2],[-9,0],[4,0],[-3,-2],[-5,1],[0,-3],[-2,2],[-5,-2],[4,1],[-8,-1],[-9,-1]]
+let setType = "hexagon",tileScale = CANVAS_SIZE * 0.08540684455467837,offset = [0.43594486658399123 * CANVAS_SIZE, 0.7588757396449703 * CANVAS_SIZE],baseTiles = [[0,0],[0,-1],[0,-2],[-1,-1],[0,-3],[1,-4],[1,-2],[1,-1],[-1,0],[2,-5],[2,-1],[-1,-2],[0,1],[-2,0],[1,-3],[-2,-1],[-2,1],[-1,1],[2,-2],[3,-2],[3,-6],[3,-5],[-1,-3],[0,-4],[1,0]]
 
 
-// these need to recalculate when resize too
+// RECALCULATE in a customSetup function that runs in setup() and resize()
 let HALF_SCALE = tileScale / 2;
 let SCALED_SQRT = HALF_SQRT_3 * tileScale;
 
 
 // offset is where the origin tile should be
-function renderTile(pos, isUpward) {
+function renderTile(pos, fromArray, isUpward) {
   let x, y;
   if (setType === "square") {
     x = offset[0] + pos[0] * tileScale;
@@ -407,23 +418,45 @@ function getTDir(pos, rootTileIsUpward){
   return (pos[0] + pos[1]) % 2 === 1;
 }
 
-function arrayHasTile(arr, tilePos){
-    return arr.some(pos => pos[0] === tilePos[0] && pos[1] === tilePos[1]);
-}
-  
+
   
 function draw() {
-  background(100, 50, 0);
+  background(30);
   
+  // outline
+  noFill();
+  stroke(STROKE_COLOR);
+  // special: hexagons are bigger in scale
+  strokeWeight(tileScale * (setType === "hexagon" ? 0.1 : 0.07));
   baseTiles.forEach((pos) => {
-    renderTile(pos, getTDir(pos, true))
+    renderTile(pos, baseTiles, getTDir(pos, true))
   })
+  
+  // inner colors
+  let tileColor = 60;
+  fill(tileColor);
+  stroke(tileColor);
+  strokeWeight(tileScale * 0.02);
+  baseTiles.forEach((pos) => {
+    renderTile(pos, baseTiles, getTDir(pos, true))
+  })
+  
   
   let hoverPos = getHoveredTile();
   if (hoverPos){
-    fill(255, 255, 0);
-    renderTile(hoverPos, getTDir(hoverPos, true))
-    fill(255);
+    let hoverColor = color("yellow");
+    fill(hoverColor);
+    stroke(hoverColor);
+    strokeWeight(tileScale * 0.02);
+    renderTile(hoverPos, baseTiles, getTDir(hoverPos, true));
   }
+  //console.log(frameRate());
+}
+ 
+
+//////// FROM PUZZLEGENERATOR
+
+function arrayHasTile(arr, tilePos){
+    return arr.some(pos => pos[0] === tilePos[0] && pos[1] === tilePos[1]);
 }
 */
