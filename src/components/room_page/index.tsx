@@ -19,8 +19,7 @@ interface optionElements {
     time: React.RefObject<HTMLInputElement>,
     type: React.RefObject<HTMLSelectElement>,
     figure_size: React.RefObject<HTMLInputElement>,
-    pieces_amount: React.RefObject<HTMLInputElement>,
-    lines_amount: React.RefObject<HTMLInputElement>
+    pieces_amount: React.RefObject<HTMLInputElement>
 }
 
 const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: propObject) => {
@@ -35,8 +34,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
         time: useRef<HTMLInputElement>(null),
         type: useRef<HTMLSelectElement>(null),
         figure_size: useRef<HTMLInputElement>(null),
-        pieces_amount: useRef<HTMLInputElement>(null),
-        lines_amount: useRef<HTMLInputElement>(null)
+        pieces_amount: useRef<HTMLInputElement>(null)
     }
 
     const [options, setOptions] = useState<RoomObject["options"]>(room.options);
@@ -85,9 +83,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                 // @ts-ignore
                 figure_size: Number(optionsContainer.figure_size.current.value),
                 // @ts-ignore
-                pieces_amount: Number(optionsContainer.pieces_amount.current.value),
-                // @ts-ignore
-                lines_amount: Number(optionsContainer.lines_amount.current.value)
+                pieces_amount: Number(optionsContainer.pieces_amount.current.value)
             };
 
             setOptions(newOptions);
@@ -185,16 +181,6 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                 <input ref={optionsContainer.pieces_amount} 
                     type="range" min={3} max={6} 
                     defaultValue={options.pieces_amount}
-                    onChange={onAnyInputChange}
-                    disabled={started}
-                    className={!isHost ? "hidden-input" : ""} />
-
-                <label>
-                    Number of match lines: <span>{options.lines_amount}</span>
-                </label>
-                <input ref={optionsContainer.lines_amount} 
-                    type="range" min={0} max={3} 
-                    defaultValue={options.lines_amount}
                     onChange={onAnyInputChange}
                     disabled={started}
                     className={!isHost ? "hidden-input" : ""} />

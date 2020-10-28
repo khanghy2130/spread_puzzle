@@ -55,10 +55,6 @@ interface PieceGroupOutput {
     color: string,
     rootIsUpward?: boolean // triangle only
 }
-interface MatchLineOutput  {
-    pos: Pos, // tile position
-    lines: DirectionDegree[] // directions for lines on that tile
-}
 
 
 // global

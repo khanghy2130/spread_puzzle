@@ -18,8 +18,7 @@ interface Options {
     time: number, // in second
     type: TileType,
     figure_size: number,
-    pieces_amount: number,
-    lines_amount: number
+    pieces_amount: number
 }
 
 export default interface RoomObject {

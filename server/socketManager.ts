@@ -171,8 +171,7 @@ exports.manager = function(socket: any, namespace: any) : void {
                     time: 90, // in second
                     type: "square",
                     figure_size: 40,
-                    pieces_amount: 4,
-                    lines_amount: 2
+                    pieces_amount: 4
                 }
             };
             roomID = newRoomID;
