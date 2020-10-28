@@ -20,6 +20,8 @@ import RoomObject from "./Room_Object";
 
 type Pos = [number, number];
 type DirectionDegree = 0 | 30 | 90 | 150 | 180 | 210 | 270 | 330;
+
+// types for generator
 interface Borders {
     left: number,
     right: number,
@@ -29,12 +31,39 @@ interface Borders {
 
 
 interface MappingTile {
-    // other tile ...
+    pos: Pos,
+    children: ({
+        dir: DirectionDegree,
+        child: MappingTile
+    })[]
 }
 interface PieceGroup {
-    rootTile: MappingTile,
+    rootMappingTile: MappingTile,
     posData: Pos[] // positions of tiles relative to base
 }
+
+// types for final output to client
+interface BaseOutput {
+    tileType: RoomObject["options"]["type"],
+    tileFactor: number,
+    offsetFactors: [number, number],
+    posData: Pos[]
+}
+interface PieceGroupOutput {
+    rootPosOnBase: Pos[], // solution position
+    posDataArray: Pos[][], // all rotations posData
+    color: string,
+    rootIsUpward?: boolean // triangle only
+}
+interface MatchLineOutput  {
+    pos: Pos, // tile position
+    lines: DirectionDegree[] // directions for lines on that tile
+}
+
+
+// global
+let globalOptions: RoomObject["options"];
+
 
 // stringifying and parsing for Pos
 function stringifyPos(pos: Pos): string {
@@ -50,13 +79,12 @@ function arrayHasTile(arr: Pos[], tilePos: Pos): boolean{
 }
 
 function getNeighborPos(
-    tilePos: Pos, 
-    tileType: RoomObject["options"]["type"], 
+    tilePos: Pos,
     dir: DirectionDegree
 ): Pos{
     const x: number = tilePos[0];
     const y: number = tilePos[1];
-    switch (tileType){
+    switch (globalOptions.type){
         case "square":
             switch (dir){
                 case 0: // "right"
@@ -104,46 +132,34 @@ function getNeighborPos(
 
 // returns all neighbor tile positions of the given tile (and type)
 function getNeighbors(
-    tilePos: Pos, 
-    tileType: RoomObject["options"]["type"]
+    tilePos: Pos
 ): Pos[]{
     const isUpward: boolean = (tilePos[0] + tilePos[1]) % 2 === 0;
-    switch(tileType){
+    let neighborDirs: DirectionDegree[];
+
+    switch(globalOptions.type){
         case "square":
-            return [
-                getNeighborPos(tilePos, tileType, 0),
-                getNeighborPos(tilePos, tileType, 90),
-                getNeighborPos(tilePos, tileType, 180),
-                getNeighborPos(tilePos, tileType, 270)
-            ];
+            neighborDirs = [0, 90, 180, 270];
+            break;
         case "hexagon":
-            return [
-                getNeighborPos(tilePos, tileType, 30),
-                getNeighborPos(tilePos, tileType, 90),
-                getNeighborPos(tilePos, tileType, 150),
-                getNeighborPos(tilePos, tileType, 210),
-                getNeighborPos(tilePos, tileType, 270),
-                getNeighborPos(tilePos, tileType, 330)
-            ];
+            neighborDirs = [30, 90, 150, 210, 270, 330];
+            break;
         case "triangle":
-            if (isUpward) return [
-                getNeighborPos(tilePos, tileType, 30),
-                getNeighborPos(tilePos, tileType, 150),
-                getNeighborPos(tilePos, tileType, 270)
-            ];
-            else return [
-                getNeighborPos(tilePos, tileType, 90),
-                getNeighborPos(tilePos, tileType, 210),
-                getNeighborPos(tilePos, tileType, 330)
-            ];
+            if (isUpward) neighborDirs = [30, 150, 270];
+            else neighborDirs = [90, 210, 330];
     }
+
+    let neighborPosList: Pos[] = [];
+    neighborDirs.forEach((dir) => {
+        neighborPosList.push(getNeighborPos(tilePos, dir));
+    });
+    return neighborPosList;
 }
 
 // NOTE: tileScale is just 1
 function updateBorders(
     borders: Borders, 
-    tilePos: Pos, 
-    tileType: RoomObject["options"]["type"]
+    tilePos: Pos
 ) : void{
     const b: Borders = {
         left: 0,
@@ -154,7 +170,7 @@ function updateBorders(
     let x: number, y: number;
     const HALF_SQRT_3 = Math.sqrt(3) / 2;
 
-    switch(tileType){
+    switch(globalOptions.type){
         case "square":
             x = tilePos[0];
             y = tilePos[1];
@@ -194,6 +210,8 @@ function updateBorders(
 }
 
 const PuzzleConstructor = function(this: LevelObject, options: RoomObject["options"]){
+    globalOptions = options;
+
     // _________ STEP 1
     // borders of the base
     const borders : Borders = {
@@ -208,7 +226,7 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
     const activeBaseTiles : Pos[] = [ORIGIN_TILE];
 
     // update borders for origin tile
-    updateBorders(borders, ORIGIN_TILE, options.type);
+    updateBorders(borders, ORIGIN_TILE);
 
     // keep expanding until reach <options.figure_size> amount of tiles
     while (baseTiles.length < options.figure_size){
@@ -218,10 +236,7 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
 
         // fetch the neighbor tiles of this tile
         // optionally passing isUpward (only takes effect if type is triangle)
-        let neighborsList: Pos[] = getNeighbors(
-            pickedTile, 
-            options.type
-        );
+        let neighborsList: Pos[] = getNeighbors(pickedTile);
 
         // (repeatable) pick a random neighbor and check if it's available
         // if no neighbor is available then remove the picked tile from activeBaseTiles
@@ -236,7 +251,7 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
             else {
                 activeBaseTiles.push(pickedNeighbor);
                 baseTiles.push(pickedNeighbor);
-                updateBorders(borders, pickedNeighbor, options.type);
+                updateBorders(borders, pickedNeighbor);
                 break;
             }
         }
@@ -267,16 +282,55 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
         return units / LONGEST_DIMENSION;
     }
 
-    console.log(
-        `let setType = "${options.type}",` +
-        `tileScale = CANVAS_SIZE * ${tileFactor},` +
-        `offset = [${offsetFactors[0]} * CANVAS_SIZE, ${offsetFactors[1]} * CANVAS_SIZE],` +
-        `baseTiles = ${JSON.stringify(baseTiles)}`
-    )
-
     // _________ STEP 3
-    const allPieceGroups: Pos[][] = [];
+    // spawn root tiles
+    const rootTiles: Pos[] = [];
+    makeRootTiles:
+    while (rootTiles.length < options.pieces_amount){
+        let pickedPos: Pos = randomPos(baseTiles);
+        // deny if this position already has another root tile
+        for (let j=0; j < rootTiles.length; j++){
+            if (pickedPos === rootTiles[j]){
+                continue makeRootTiles;
+            }
+        }
+        // check if pickedPos is a neighbor of any other root tile
+        for (let j=0; j < rootTiles.length; j++){
+            const neighbors: Pos[] = getNeighbors(rootTiles[j]);
+            for (let n=0; n < neighbors.length; n++){
+                const neighborPos: Pos = neighbors[n];
+                if (pickedPos[0] === neighborPos[0] && pickedPos[1] === neighborPos[1]){
+                    // high chance to deny
+                    if (Math.random() < 0.95) continue makeRootTiles;
+                }
+            }
+        }
+        rootTiles.push(pickedPos);
+    }
+
+    // set up piece groups
+    const pieceGroupsList: PieceGroup[] = [];
+    for (let i=0; i < rootTiles.length; i++) {
+        pieceGroupsList.push({
+            rootMappingTile: {
+                pos: rootTiles[i],
+                children: []
+            },
+            posData: []
+        });
+    }
     
+    // spread
+
+
+
+    console.log(
+        `let setType="${options.type}",` +
+        `tileScale=CANVAS_SIZE*${tileFactor},` +
+        `offset=[${offsetFactors[0]}*CANVAS_SIZE, ${offsetFactors[1]}*CANVAS_SIZE],` +
+        `baseTiles=${JSON.stringify(baseTiles)},` + 
+        `rootTiles=${JSON.stringify(rootTiles)}`
+    )
 
 
     // set to 'this' (returning LevelObject)
@@ -286,6 +340,10 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
 // return a random integer, including start but not end
 function randomInt(start: number, end: number): number{
     return Math.floor(Math.random() * (end - start)) + start;
+}
+// returns a random position from given posData
+function randomPos(posData: Pos[]): Pos{
+    return posData[randomInt(0, posData.length)];
 }
 
 exports.PuzzleConstructor = PuzzleConstructor;
@@ -311,7 +369,7 @@ const CANVAS_SIZE = 500;
 const STROKE_COLOR = 0;
 // setType, tileScale, offset, baseTiles
 
-let setType = "hexagon",tileScale = CANVAS_SIZE * 0.08540684455467837,offset = [0.43594486658399123 * CANVAS_SIZE, 0.7588757396449703 * CANVAS_SIZE],baseTiles = [[0,0],[0,-1],[0,-2],[-1,-1],[0,-3],[1,-4],[1,-2],[1,-1],[-1,0],[2,-5],[2,-1],[-1,-2],[0,1],[-2,0],[1,-3],[-2,-1],[-2,1],[-1,1],[2,-2],[3,-2],[3,-6],[3,-5],[-1,-3],[0,-4],[1,0]]
+let setType = "hexagon",tileScale = CANVAS_SIZE * 0.08,offset = [0.43 * CANVAS_SIZE, 0.76 * CANVAS_SIZE],baseTiles = [[0,0],[0,-1],[0,-2],[-1,-1],[0,-3],[1,-4],[1,-2],[1,-1],[-1,0],[2,-5],[2,-1],[-1,-2],[0,1],[-2,0],[1,-3],[-2,-1],[-2,1],[-1,1],[2,-2],[3,-2],[3,-6],[3,-5],[-1,-3],[0,-4],[1,0]]
 
 
 // RECALCULATE in a customSetup function that runs in setup() and resize()
@@ -436,7 +494,7 @@ function draw() {
   let tileColor = 60;
   fill(tileColor);
   stroke(tileColor);
-  strokeWeight(tileScale * 0.02);
+  strokeWeight(tileScale * 0.03);
   baseTiles.forEach((pos) => {
     renderTile(pos, baseTiles, getTDir(pos, true))
   })
@@ -447,7 +505,7 @@ function draw() {
     let hoverColor = color("yellow");
     fill(hoverColor);
     stroke(hoverColor);
-    strokeWeight(tileScale * 0.02);
+    strokeWeight(tileScale * 0.03);
     renderTile(hoverPos, baseTiles, getTDir(hoverPos, true));
   }
   //console.log(frameRate());
