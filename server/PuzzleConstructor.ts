@@ -9,9 +9,13 @@ GENERATION STEPS:
 - STEP 2: Make factors for rendering
     1. find tileFactor
     2. find offsetFactors (from origin tile to canvas center)
+
 - STEP 3: Make pieces
     1. spawn all root pieces, high chance of rerolling if spawned next to each other
-    2. 
+    2. pick a random active tile to spread, remove tile from list if no longer active
+
+- STEP 4: Make piece data for all rotations
+
 */
 
 import LevelObject from "./Level_Object";
@@ -21,6 +25,12 @@ import RoomObject from "./Room_Object";
 type Pos = [number, number];
 type DirectionDegree = 0 | 30 | 90 | 150 | 180 | 210 | 270 | 330;
 
+const SQUARE_DIRS: DirectionDegree[] = [0, 90, 180, 270];
+const HEXAGON_DIRS: DirectionDegree[] = [30, 90, 150, 210, 270, 330];
+const UPWARD_TRIANGLE_DIRS: DirectionDegree[] = [30, 150, 270];
+const DOWNWARD_TRIANLGE_DIRS: DirectionDegree[] = [90, 210, 330];
+const PIECE_SIZE_LIMIT_FACTOR: number = 0.7;
+
 // types for generator
 interface Borders {
     left: number,
@@ -29,17 +39,13 @@ interface Borders {
     bottom: number,
 }
 
-
 interface MappingTile {
+    pieceIndex: number,
     pos: Pos,
     children: ({
         dir: DirectionDegree,
         child: MappingTile
     })[]
-}
-interface PieceGroup {
-    rootMappingTile: MappingTile,
-    posData: Pos[] // positions of tiles relative to base
 }
 
 // types for final output to client
@@ -60,24 +66,11 @@ interface PieceGroupOutput {
 // global
 let globalOptions: RoomObject["options"];
 
-
-// stringifying and parsing for Pos
-function stringifyPos(pos: Pos): string {
-    return `${pos[0]}_${pos[1]}`;
-}
-function parsePos(stringifiedPos: string): Pos{
-    const l: string[] = stringifiedPos.split("_");
-    return [Number(l[0]), Number(l[1])];
-}
-
 function arrayHasTile(arr: Pos[], tilePos: Pos): boolean{
     return arr.some(pos => pos[0] === tilePos[0] && pos[1] === tilePos[1]);
 }
 
-function getNeighborPos(
-    tilePos: Pos,
-    dir: DirectionDegree
-): Pos{
+function getNeighborPos(tilePos: Pos, dir: DirectionDegree): Pos{
     const x: number = tilePos[0];
     const y: number = tilePos[1];
     switch (globalOptions.type){
@@ -126,24 +119,24 @@ function getNeighborPos(
     throw "something went wrong in getNeighborPos()";
 }
 
-// returns all neighbor tile positions of the given tile (and type)
-function getNeighbors(
-    tilePos: Pos
-): Pos[]{
+// returns all possible directions to neighbors of the given tilePos
+function getNeighborDirs(tilePos: Pos): DirectionDegree[] {
     const isUpward: boolean = (tilePos[0] + tilePos[1]) % 2 === 0;
-    let neighborDirs: DirectionDegree[];
-
     switch(globalOptions.type){
         case "square":
-            neighborDirs = [0, 90, 180, 270];
-            break;
+            return SQUARE_DIRS;
         case "hexagon":
-            neighborDirs = [30, 90, 150, 210, 270, 330];
-            break;
+            return HEXAGON_DIRS;
         case "triangle":
-            if (isUpward) neighborDirs = [30, 150, 270];
-            else neighborDirs = [90, 210, 330];
+            if (isUpward) return UPWARD_TRIANGLE_DIRS;
+            else return DOWNWARD_TRIANLGE_DIRS;
     }
+}
+
+// returns all neighbor tile positions of the given tile (and type)
+function getNeighbors(tilePos: Pos): Pos[]{
+    const isUpward: boolean = (tilePos[0] + tilePos[1]) % 2 === 0;
+    let neighborDirs: DirectionDegree[] = getNeighborDirs(tilePos);
 
     let neighborPosList: Pos[] = [];
     neighborDirs.forEach((dir) => {
@@ -279,54 +272,140 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
     }
 
     // _________ STEP 3
-    // spawn root tiles
-    const rootTiles: Pos[] = [];
-    makeRootTiles:
-    while (rootTiles.length < options.pieces_amount){
-        let pickedPos: Pos = randomPos(baseTiles);
-        // deny if this position already has another root tile
-        for (let j=0; j < rootTiles.length; j++){
-            if (pickedPos === rootTiles[j]){
-                continue makeRootTiles;
-            }
-        }
-        // check if pickedPos is a neighbor of any other root tile
-        for (let j=0; j < rootTiles.length; j++){
-            const neighbors: Pos[] = getNeighbors(rootTiles[j]);
-            for (let n=0; n < neighbors.length; n++){
-                const neighborPos: Pos = neighbors[n];
-                if (pickedPos[0] === neighborPos[0] && pickedPos[1] === neighborPos[1]){
-                    // high chance to deny
-                    if (Math.random() < 0.95) continue makeRootTiles;
+    let resultRootTiles: MappingTile[]; // contains only the mapped root tiles
+    // wrapped in a while loop to check if any piece is too big then regenerate
+    let regenerateCount: number = 0;
+    while (true){
+
+        // spawn root tiles
+        const mappedRootTiles: MappingTile[] = [];
+        let rootTilesCounter: number = 0;
+        makeRootTiles:
+        while (rootTilesCounter < options.pieces_amount){
+            let pickedPos: Pos = baseTiles[randomInt(0, baseTiles.length)];
+            // deny if this position already has another root tile
+            for (let j=0; j < mappedRootTiles.length; j++){
+                if (pickedPos === mappedRootTiles[j].pos){
+                    continue makeRootTiles;
                 }
             }
-        }
-        rootTiles.push(pickedPos);
-    }
-
-    // set up piece groups
-    const pieceGroupsList: PieceGroup[] = [];
-    for (let i=0; i < rootTiles.length; i++) {
-        pieceGroupsList.push({
-            rootMappingTile: {
-                pos: rootTiles[i],
+            // check if pickedPos is a neighbor of any other root tile
+            for (let j=0; j < mappedRootTiles.length; j++){
+                const neighbors: Pos[] = getNeighbors(mappedRootTiles[j].pos);
+                for (let n=0; n < neighbors.length; n++){
+                    const neighborPos: Pos = neighbors[n];
+                    if (pickedPos[0] === neighborPos[0] && pickedPos[1] === neighborPos[1]){
+                        // high chance to deny
+                        if (Math.random() < 0.95) continue makeRootTiles;
+                    }
+                }
+            }
+            // accepted position, add to list
+            mappedRootTiles.push({
+                pieceIndex: rootTilesCounter,
+                pos: pickedPos,
                 children: []
-            },
-            posData: []
-        });
-    }
+            });
+            rootTilesCounter++;
+        }
     
-    // spread
+        // transfer root tiles to this 2 lists
+        const allPieceTiles: MappingTile[] = [];
+        const activePieceTiles: MappingTile[] = [];
+        mappedRootTiles.forEach((mappedRootTile) => {
+            allPieceTiles.push(mappedRootTile);
+            activePieceTiles.push(mappedRootTile);
+        });
+        
+        let spawningCount: number = options.pieces_amount; // to check if it's all done
+        // pick a random active tile to spread
+        while (spawningCount < options.figure_size){
+            // pat = picked active tile
+            let patIndex: number = randomInt(0, activePieceTiles.length);
+            let pat: MappingTile = activePieceTiles[patIndex];
+    
+            const neighbors: Pos[] = getNeighbors(pat.pos);
+            const correspondingDirs: DirectionDegree[] = getNeighborDirs(pat.pos);
+    
+            interface ConnectedNeighbor {nPos: Pos, dir: DirectionDegree} 
+            let connectedNeighbors: ConnectedNeighbor[] = neighbors.map(
+                (nPos, i) => ({nPos: nPos, dir: correspondingDirs[i]})
+            );
+
+            // only keep neighbors that are in baseTiles and not already in allPieceTiles
+            connectedNeighbors = connectedNeighbors.filter((connectedNeighbor) => {
+                const nPos: Pos = connectedNeighbor.nPos;
+                // not in baseTiles? remove neighbor
+                if (!arrayHasTile(baseTiles, nPos)) return false;
+                // is already in allPieceTiles? remove neighbor
+                for (let i=0; i < allPieceTiles.length; i++){
+                    const addedPos: Pos = allPieceTiles[i].pos;
+                    if (addedPos[0] === nPos[0] && addedPos[1] === nPos[1]) return false;
+                }
+                return true; // passed both checks
+            });
+    
+            // deactivate tile if no more available neighbors
+            if (connectedNeighbors.length === 0){
+                activePieceTiles.splice(patIndex, 1);
+                continue;
+            }
+    
+            // create a mapping tile with random available neighbor
+            const pickedSpreadIndex: number = randomInt(0, connectedNeighbors.length);
+            const newMappedTile: MappingTile = {
+                pieceIndex: pat.pieceIndex,
+                pos: connectedNeighbors[pickedSpreadIndex].nPos,
+                children: []
+            };
+            
+            // finally: add to the parent tile and the other 2 lists
+            pat.children.push({
+                dir: connectedNeighbors[pickedSpreadIndex].dir,
+                child: newMappedTile
+            });
+            allPieceTiles.push(newMappedTile);
+            activePieceTiles.push(newMappedTile);
+            spawningCount++;
+        }
+
+        // check if any piece is too big
+        let somePieceIsTooBig: boolean = false;
+        const tilesCountLimit: number = allPieceTiles.length / (mappedRootTiles.length * PIECE_SIZE_LIMIT_FACTOR);
+        for (let i=0; i < mappedRootTiles.length; i++){
+            const tilesCount: number = allPieceTiles.filter(mappedTile => mappedTile.pieceIndex === i).length;
+            if (tilesCount > tilesCountLimit) {
+                somePieceIsTooBig = true;
+                break;
+            }
+        }
+
+        // accepted? exists loop
+        if (!somePieceIsTooBig){
+            resultRootTiles = mappedRootTiles;
+
+            const pd:any = [];
+            for (let i=0; i < mappedRootTiles.length; i++){
+                const gp = allPieceTiles.filter(mappedTile => mappedTile.pieceIndex === i);
+                pd.push(gp.map(mt => mt.pos));
+            }
+            console.log("regenerate count:", regenerateCount);
+            console.log(
+                `let setType="${options.type}",` +
+                `tileScale=CANVAS_SIZE*${tileFactor},` +
+                `offset=[${offsetFactors[0]}*CANVAS_SIZE, ${offsetFactors[1]}*CANVAS_SIZE],` +
+                `baseTiles=${JSON.stringify(baseTiles)},` + 
+                `piecesData=${JSON.stringify(pd)}`
+            )
+
+            break;
+        } else regenerateCount++;
+    }
+
+    // _________ STEP 4
 
 
-
-    console.log(
-        `let setType="${options.type}",` +
-        `tileScale=CANVAS_SIZE*${tileFactor},` +
-        `offset=[${offsetFactors[0]}*CANVAS_SIZE, ${offsetFactors[1]}*CANVAS_SIZE],` +
-        `baseTiles=${JSON.stringify(baseTiles)},` + 
-        `rootTiles=${JSON.stringify(rootTiles)}`
-    )
+    
 
 
     // set to 'this' (returning LevelObject)
@@ -337,10 +416,7 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
 function randomInt(start: number, end: number): number{
     return Math.floor(Math.random() * (end - start)) + start;
 }
-// returns a random position from given posData
-function randomPos(posData: Pos[]): Pos{
-    return posData[randomInt(0, posData.length)];
-}
+
 
 exports.PuzzleConstructor = PuzzleConstructor;
 export {}
@@ -351,10 +427,12 @@ export {}
 function setup() {
   createCanvas(500, 500);
   rectMode(CENTER);
+  strokeCap(SQUARE);
   frameRate(30);
 }
 
 // constants
+const pieceColors = ["red", "lime", "blue", "yellow", "pink", "orange"];
 const SQRT_3 = Math.sqrt(3);
 const HALF_SQRT_3 = SQRT_3 / 2;
 
@@ -362,10 +440,9 @@ const HALF_SQRT_3 = SQRT_3 / 2;
 
 // for base. Accessible globally
 const CANVAS_SIZE = 500;
-const STROKE_COLOR = 0;
+const STROKE_COLOR = 20;
 // setType, tileScale, offset, baseTiles
-
-let setType = "hexagon",tileScale = CANVAS_SIZE * 0.08,offset = [0.43 * CANVAS_SIZE, 0.76 * CANVAS_SIZE],baseTiles = [[0,0],[0,-1],[0,-2],[-1,-1],[0,-3],[1,-4],[1,-2],[1,-1],[-1,0],[2,-5],[2,-1],[-1,-2],[0,1],[-2,0],[1,-3],[-2,-1],[-2,1],[-1,1],[2,-2],[3,-2],[3,-6],[3,-5],[-1,-3],[0,-4],[1,0]]
+let setType="hexagon",tileScale=CANVAS_SIZE*0.07692307692307693,offset=[0.3269230769230769*CANVAS_SIZE, 0.4333826612473508*CANVAS_SIZE],baseTiles=[[0,0],[1,-1],[-1,0],[0,-1],[2,-1],[2,0],[1,0],[-1,1],[3,0],[0,1],[3,-1],[1,1],[1,2],[4,-1],[0,2],[-1,2],[2,1],[-2,1],[1,-2],[-2,0],[5,-1],[0,3],[-1,-1],[-2,2],[0,-2]],piecesData=[[[0,3],[1,2],[0,2],[2,1],[1,1]],[[-1,2],[-2,2],[0,1],[-1,1]],[[1,0],[2,0],[0,0],[2,-1]],[[3,0],[4,-1],[3,-1],[5,-1]],[[-2,1],[-2,0],[-1,0]],[[1,-2],[0,-2],[1,-1],[0,-1],[-1,-1]]]
 
 
 // RECALCULATE in a customSetup function that runs in setup() and resize()
@@ -374,7 +451,7 @@ let SCALED_SQRT = HALF_SQRT_3 * tileScale;
 
 
 // offset is where the origin tile should be
-function renderTile(pos, fromArray, isUpward) {
+function renderTile(pos, isUpward) {
   let x, y;
   if (setType === "square") {
     x = offset[0] + pos[0] * tileScale;
@@ -477,32 +554,38 @@ function getTDir(pos, rootTileIsUpward){
 function draw() {
   background(30);
   
-  // outline
-  noFill();
-  stroke(STROKE_COLOR);
-  // special: hexagons are bigger in scale
-  strokeWeight(tileScale * (setType === "hexagon" ? 0.1 : 0.07));
+  // BASE
+  let baseColor = 60;
+  fill(baseColor);
+  stroke(70);
+  strokeWeight(tileScale * 0.02);
   baseTiles.forEach((pos) => {
-    renderTile(pos, baseTiles, getTDir(pos, true))
-  })
-  
-  // inner colors
-  let tileColor = 60;
-  fill(tileColor);
-  stroke(tileColor);
-  strokeWeight(tileScale * 0.03);
-  baseTiles.forEach((pos) => {
-    renderTile(pos, baseTiles, getTDir(pos, true))
+    renderTile(pos, getTDir(pos, true))
   })
   
   
+  // PIECES TILES
+  //return
+  piecesData.forEach((pd, i) => {
+    //if (i > 4) return;
+    let tileColor = pieceColors[i];
+    fill(tileColor);
+    stroke(STROKE_COLOR);
+    strokeWeight(tileScale * 0.04);
+    pd.forEach((pos) => {
+      renderTile(pos, getTDir(pos, true))
+    })
+  });
+  
+  
+  
+  // HOVERED
   let hoverPos = getHoveredTile();
   if (hoverPos){
-    let hoverColor = color("yellow");
+    let hoverColor = color("white");
     fill(hoverColor);
-    stroke(hoverColor);
-    strokeWeight(tileScale * 0.03);
-    renderTile(hoverPos, baseTiles, getTDir(hoverPos, true));
+    noStroke();
+    renderTile(hoverPos, getTDir(hoverPos, true));
   }
   //console.log(frameRate());
 }
