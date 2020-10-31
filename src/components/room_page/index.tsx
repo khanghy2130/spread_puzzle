@@ -179,7 +179,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     Number of pieces: <span>{options.pieces_amount}</span>
                 </label>
                 <input ref={optionsContainer.pieces_amount} 
-                    type="range" min={3} max={6} 
+                    type="range" min={4} max={6} 
                     defaultValue={options.pieces_amount}
                     onChange={onAnyInputChange}
                     disabled={started}
@@ -216,14 +216,20 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
             </div>
 
             {/* Players list */}
-            <div id="players-div">
+            <div id="left-div">
                 <h2>{getText(["room_page", "players"])}</h2>
-                {room.users.map(
-                    (user) => <h4 className={(user.id === socket.id) ? "you" : ""} key={user.id}>{user.nickname}</h4>
-                )}
+                <div id="players-div">
+                    {room.users.map(
+                        (user) => <h4 className={(user.id === socket.id) ? "you" : ""} key={user.id}>{user.nickname}</h4>
+                    )}
+                </div>
+                
+                <button onClick={()=>{console.log("chat clicked")}}>
+                    Chat
+                </button>
                 {
                     (room.results.length === 0) ? null :
-                    <button id="results-button" onClick={()=>{setShowResults(true)}}>
+                    <button onClick={()=>{setShowResults(true)}}>
                         See Results
                     </button>
                 }

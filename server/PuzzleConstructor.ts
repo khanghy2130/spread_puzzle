@@ -15,7 +15,7 @@ GENERATION STEPS:
     2. pick a random active tile to spread, remove tile from list if no longer active
 
 - STEP 4: Make piece data for all rotations
-
+    1. iterate through all possible rotations to make posData from original mapping
 */
 
 import LevelObject from "./Level_Object";
@@ -369,19 +369,19 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
             spawningCount++;
         }
 
-        // check if any piece is too big
-        let somePieceIsTooBig: boolean = false;
+        // check if any piece is too big or just one tile
+        let gerationRejected: boolean = false;
         const tilesCountLimit: number = allPieceTiles.length / (mappedRootTiles.length * PIECE_SIZE_LIMIT_FACTOR);
         for (let i=0; i < mappedRootTiles.length; i++){
             const tilesCount: number = allPieceTiles.filter(mappedTile => mappedTile.pieceIndex === i).length;
-            if (tilesCount > tilesCountLimit) {
-                somePieceIsTooBig = true;
+            if (tilesCount > tilesCountLimit || tilesCount === 1) {
+                gerationRejected = true;
                 break;
             }
         }
 
-        // accepted? exists loop
-        if (!somePieceIsTooBig){
+        // accepted or already 1000+ regenerations? exists loop
+        if (!gerationRejected || regenerateCount > 1000){
             resultRootTiles = mappedRootTiles;
 
             const pd:any = [];
@@ -432,7 +432,7 @@ function setup() {
 }
 
 // constants
-const pieceColors = ["red", "lime", "blue", "yellow", "pink", "orange"];
+const pieceColors = ["crimson", "lime", "blue", "yellow", "darkviolet", "aqua"];
 const SQRT_3 = Math.sqrt(3);
 const HALF_SQRT_3 = SQRT_3 / 2;
 
@@ -442,12 +442,22 @@ const HALF_SQRT_3 = SQRT_3 / 2;
 const CANVAS_SIZE = 500;
 const STROKE_COLOR = 20;
 // setType, tileScale, offset, baseTiles
-let setType="hexagon",tileScale=CANVAS_SIZE*0.07692307692307693,offset=[0.3269230769230769*CANVAS_SIZE, 0.4333826612473508*CANVAS_SIZE],baseTiles=[[0,0],[1,-1],[-1,0],[0,-1],[2,-1],[2,0],[1,0],[-1,1],[3,0],[0,1],[3,-1],[1,1],[1,2],[4,-1],[0,2],[-1,2],[2,1],[-2,1],[1,-2],[-2,0],[5,-1],[0,3],[-1,-1],[-2,2],[0,-2]],piecesData=[[[0,3],[1,2],[0,2],[2,1],[1,1]],[[-1,2],[-2,2],[0,1],[-1,1]],[[1,0],[2,0],[0,0],[2,-1]],[[3,0],[4,-1],[3,-1],[5,-1]],[[-2,1],[-2,0],[-1,0]],[[1,-2],[0,-2],[1,-1],[0,-1],[-1,-1]]]
+let setType="hexagon",tileScale=CANVAS_SIZE*0.055,offset=[0.6*CANVAS_SIZE, 0.41987179487179493*CANVAS_SIZE],baseTiles=[[0,0],[0,1],[1,0],[-1,0],[1,1],[1,2],[0,2],[-1,2],[-1,1],[-1,-1],[-2,2],[-3,2],[2,2],[0,3],[-2,0],[3,2],[-2,3],[2,3],[-2,1],[1,-1],[2,0],[-3,1],[-4,1],[1,3],[-1,3],[3,3],[0,-1],[-2,-1],[2,-1],[-4,2],[2,1],[-3,-1],[-3,3],[-5,2],[-3,0],[-3,4],[-2,-2],[2,-2],[-4,3],[0,-2],[1,4],[-4,4],[-4,-1],[2,4],[-5,3],[-5,1],[-5,-1],[3,-2],[3,4],[3,-3]],piecesData=[[[-4,3],[-4,2],[-5,2],[-5,1],[-3,3],[-5,3],[-3,4],[-4,4]],[[3,-3],[3,-2],[2,-2],[2,-1],[1,-1],[0,-1],[0,-2]],[[-1,-1],[-2,-1],[-3,-1],[-1,0],[-4,-1],[-5,-1],[-3,0],[-2,-2]],[[1,3],[0,3],[1,4],[2,4],[3,4],[2,3],[3,3]],[[2,0],[2,1],[1,1],[1,0],[0,1],[1,2],[0,2],[0,0],[-1,2],[2,2],[3,2]],[[-3,2],[-3,1],[-2,2],[-2,1],[-4,1],[-2,0],[-1,1],[-2,3],[-1,3]]]
 
 
 // RECALCULATE in a customSetup function that runs in setup() and resize()
 let HALF_SCALE = tileScale / 2;
 let SCALED_SQRT = HALF_SQRT_3 * tileScale;
+function getStrokeWeight(){
+  switch(setType){
+    case "square":
+      return 0.08;
+    case "hexagon":
+      return 0.11;
+    case "triangle":
+      return 0.05;
+  }
+}
 
 
 // offset is where the origin tile should be
@@ -571,7 +581,7 @@ function draw() {
     let tileColor = pieceColors[i];
     fill(tileColor);
     stroke(STROKE_COLOR);
-    strokeWeight(tileScale * 0.04);
+    strokeWeight(tileScale * getStrokeWeight());
     pd.forEach((pos) => {
       renderTile(pos, getTDir(pos, true))
     })
