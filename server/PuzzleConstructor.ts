@@ -9,6 +9,7 @@ GENERATION STEPS:
 - STEP 2: Make factors for rendering
     1. find tileFactor
     2. find offsetFactors (from origin tile to canvas center)
+    3. make output base object
 
 - STEP 3: Make pieces
     1. spawn all root pieces, high chance of rerolling if spawned next to each other
@@ -30,6 +31,7 @@ const HEXAGON_DIRS: DirectionDegree[] = [30, 90, 150, 210, 270, 330];
 const UPWARD_TRIANGLE_DIRS: DirectionDegree[] = [30, 150, 270];
 const DOWNWARD_TRIANLGE_DIRS: DirectionDegree[] = [90, 210, 330];
 const PIECE_SIZE_LIMIT_FACTOR: number = 0.7;
+const PIECE_COLORS: string[] = ["crimson", "lime", "blue", "yellow", "darkviolet", "aqua"];
 
 // types for generator
 interface Borders {
@@ -41,10 +43,10 @@ interface Borders {
 
 interface MappingTile {
     pieceIndex: number,
-    pos: Pos,
+    pos: Pos, // for pieces generation only
     children: ({
         dir: DirectionDegree,
-        child: MappingTile
+        mappedTile: MappingTile
     })[]
 }
 
@@ -56,7 +58,7 @@ interface BaseOutput {
     posData: Pos[]
 }
 interface PieceGroupOutput {
-    rootPosOnBase: Pos[], // solution position
+    rootPosOnBase: Pos, // solution position
     posDataArray: Pos[][], // all rotations posData
     color: string,
     rootIsUpward?: boolean // triangle only
@@ -120,14 +122,15 @@ function getNeighborPos(tilePos: Pos, dir: DirectionDegree): Pos{
 }
 
 // returns all possible directions to neighbors of the given tilePos
+// triangle type: by default root is upward
 function getNeighborDirs(tilePos: Pos): DirectionDegree[] {
-    const isUpward: boolean = (tilePos[0] + tilePos[1]) % 2 === 0;
     switch(globalOptions.type){
         case "square":
             return SQUARE_DIRS;
         case "hexagon":
             return HEXAGON_DIRS;
         case "triangle":
+            const isUpward: boolean = (tilePos[0] + tilePos[1]) % 2 === 0;
             if (isUpward) return UPWARD_TRIANGLE_DIRS;
             else return DOWNWARD_TRIANLGE_DIRS;
     }
@@ -135,7 +138,6 @@ function getNeighborDirs(tilePos: Pos): DirectionDegree[] {
 
 // returns all neighbor tile positions of the given tile (and type)
 function getNeighbors(tilePos: Pos): Pos[]{
-    const isUpward: boolean = (tilePos[0] + tilePos[1]) % 2 === 0;
     let neighborDirs: DirectionDegree[] = getNeighborDirs(tilePos);
 
     let neighborPosList: Pos[] = [];
@@ -146,10 +148,7 @@ function getNeighbors(tilePos: Pos): Pos[]{
 }
 
 // NOTE: tileScale is just 1
-function updateBorders(
-    borders: Borders, 
-    tilePos: Pos
-) : void{
+function updateBorders(borders: Borders, tilePos: Pos) : void{
     const b: Borders = {
         left: 0,
         right: 0,
@@ -196,6 +195,37 @@ function updateBorders(
     borders.right = Math.max(borders.right, b.right);
     borders.top = Math.min(borders.top, b.top);
     borders.bottom = Math.max(borders.bottom, b.bottom);
+}
+
+
+// recursive function that starts with the root tile of a piece group
+// add position to posData, then invoke for each child (with their calculated pos)
+function traverseMappedTile(
+    mappedTile: MappingTile, 
+    pos: Pos, 
+    posData: Pos[], 
+    degs: DirectionDegree[],
+    rotateAmount: number
+): void {
+    posData.push(pos); // add current tile position
+
+    // for each child
+    mappedTile.children.forEach((child) => {
+        // calculate new dir
+        let currentDirIndex: number = degs.indexOf(child.dir), newDir: DirectionDegree;
+        if (currentDirIndex + rotateAmount < degs.length) {
+            newDir = degs[currentDirIndex + rotateAmount];
+        } else newDir = degs[rotateAmount - (degs.length - currentDirIndex)];
+
+        // calculate child pos and recursively invoke this function
+        traverseMappedTile(
+            child.mappedTile, 
+            getNeighborPos(pos, newDir), 
+            posData, 
+            degs,
+            rotateAmount
+        );
+    });
 }
 
 const PuzzleConstructor = function(this: LevelObject, options: RoomObject["options"]){
@@ -256,20 +286,24 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
     const BASE_HEIGHT: number = borders.bottom - borders.top;
     const LONGEST_DIMENSION: number = Math.max(BASE_HEIGHT, BASE_WIDTH) * 1.04;
     
-    // tileFactor (canvas size * tileFactor = tileScale)
-    const tileFactor: number = 1 / LONGEST_DIMENSION;
-    
     // offsetFactors (canvas size * offsetFactor[y] = offset for y dimension)
     const yOffset: number = (LONGEST_DIMENSION - BASE_HEIGHT) / 2;
     const xOffset: number = (LONGEST_DIMENSION - BASE_WIDTH) / 2;
-    let offsetFactors: [number, number] = [
-        getOffsetFactor(borders.left * -1 + xOffset),
-        getOffsetFactor(borders.top * -1 + yOffset),
-    ];
-
     function getOffsetFactor(units: number): number{
         return units / LONGEST_DIMENSION;
     }
+
+    // output base object
+    const outputBase: BaseOutput = {
+        tileType: options.type,
+        tileFactor: getOffsetFactor(1), // tileFactor (canvas size * tileFactor = tileScale)
+        offsetFactors: [
+            getOffsetFactor(borders.left * -1 + xOffset),
+            getOffsetFactor(borders.top * -1 + yOffset),
+        ],
+        posData: baseTiles
+    };
+    
 
     // _________ STEP 3
     let resultRootTiles: MappingTile[]; // contains only the mapped root tiles
@@ -362,7 +396,7 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
             // finally: add to the parent tile and the other 2 lists
             pat.children.push({
                 dir: connectedNeighbors[pickedSpreadIndex].dir,
-                child: newMappedTile
+                mappedTile: newMappedTile
             });
             allPieceTiles.push(newMappedTile);
             activePieceTiles.push(newMappedTile);
@@ -383,28 +417,61 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
         // accepted or already 1000+ regenerations? exists loop
         if (!gerationRejected || regenerateCount > 1000){
             resultRootTiles = mappedRootTiles;
-
-            const pd:any = [];
-            for (let i=0; i < mappedRootTiles.length; i++){
-                const gp = allPieceTiles.filter(mappedTile => mappedTile.pieceIndex === i);
-                pd.push(gp.map(mt => mt.pos));
-            }
-            console.log("regenerate count:", regenerateCount);
-            console.log(
-                `let setType="${options.type}",` +
-                `tileScale=CANVAS_SIZE*${tileFactor},` +
-                `offset=[${offsetFactors[0]}*CANVAS_SIZE, ${offsetFactors[1]}*CANVAS_SIZE],` +
-                `baseTiles=${JSON.stringify(baseTiles)},` + 
-                `piecesData=${JSON.stringify(pd)}`
-            )
-
             break;
         } else regenerateCount++;
     }
 
     // _________ STEP 4
+    let degs: DirectionDegree[];
+    if (globalOptions.type === "square") degs = SQUARE_DIRS;
+    else degs = HEXAGON_DIRS; // for both hexagon and triangle
 
+    let availablePieceColors: string[] = PIECE_COLORS.slice(); // shallow copy
 
+    const outputPieces: PieceGroupOutput[] = [];
+    // for each piece
+    resultRootTiles.forEach((mappedRootTile) => {
+        const pickedColorIndex: number = randomInt(0, availablePieceColors.length);
+        const pickedColor: string = availablePieceColors[pickedColorIndex];
+        availablePieceColors.splice(pickedColorIndex, 1); // remove picked color
+        
+        // default piece group
+        const newPieceGroup: PieceGroupOutput = {
+            rootPosOnBase: mappedRootTile.pos,
+            posDataArray: [],
+            color: pickedColor,
+            rootIsUpward: (mappedRootTile.pos[0] + mappedRootTile.pos[1]) % 2 === 0
+        };
+        outputPieces.push(newPieceGroup); // add to output array
+        
+        // for each rotation => create posData's for posDataArray
+        for (let rotateAmount = 0; rotateAmount < degs.length; rotateAmount++){
+            const newPosData: Pos[] = [];
+            newPieceGroup.posDataArray.push(newPosData);
+            
+            traverseMappedTile(
+                mappedRootTile,
+                [0, 0],
+                newPosData,
+                degs,
+                rotateAmount
+            );
+        }
+    });
+
+    console.log("regenerate count:", regenerateCount);
+    // console.log(
+    //     `let setType="${options.type}",` +
+    //     `tileScale=CANVAS_SIZE*${tileFactor},` +
+    //     `offset=[${offsetFactors[0]}*CANVAS_SIZE, ${offsetFactors[1]}*CANVAS_SIZE],` +
+    //     `baseTiles=${JSON.stringify(baseTiles)}`
+    // )
+
+    console.log("let output=" + JSON.stringify({
+        base: outputBase, pieces: outputPieces
+    }));
+
+    
     
 
 
@@ -424,6 +491,12 @@ export {}
 
 // BACKUP
 /* 
+let output={"base":{"tileType":"triangle","tileFactor":0.1923076923076923,"offsetFactors":[0.40384615384615385,0.3889711020789181],"posData":[[0,0],[0,1],[-1,0],[-2,0],[1,0],[-2,1],[1,1],[2,0],[-3,0],[-1,1],[-3,1],[1,-1],[-1,-1],[-1,2],[3,0],[4,0],[2,1],[5,0],[3,1],[5,-1],[0,-1],[-3,-1],[3,-1],[4,-1],[1,2]]},"pieces":[{"rootPosOnBase":[1,-1],"posDataArray":[[[0,0],[-1,0],[-2,0],[0,1],[1,1]],[[0,0],[-1,0],[-1,1],[1,0],[2,0]],[[0,0],[0,1],[1,1],[1,0],[1,-1]],[[0,0],[1,0],[2,0],[0,-1],[-1,-1]],[[0,0],[1,0],[1,-1],[-1,0],[-2,0]],[[0,0],[0,-1],[-1,-1],[-1,0],[-1,1]]],"color":"aqua","rootIsUpward":true},{"rootPosOnBase":[-1,1],"posDataArray":[[[0,0],[1,0],[2,0],[2,1],[3,0],[4,0],[0,1]],[[0,0],[0,-1],[1,-1],[2,-1],[1,-2],[2,-2],[1,0]],[[0,0],[-1,0],[-1,-1],[0,-1],[-2,-1],[-2,-2],[1,0]],[[0,0],[-1,0],[-2,0],[-2,-1],[-3,0],[-4,0],[0,-1]],[[0,0],[0,1],[-1,1],[-2,1],[-1,2],[-2,2],[-1,0]],[[0,0],[1,0],[1,1],[0,1],[2,1],[2,2],[-1,0]]],"color":"lime","rootIsUpward":true},{"rootPosOnBase":[-2,0],"posDataArray":[[[0,0],[1,0],[2,0],[0,1],[-1,1],[-1,0],[-1,-1]],[[0,0],[0,-1],[1,-1],[1,0],[1,1],[-1,0],[-2,0]],[[0,0],[-1,0],[-1,-1],[1,0],[2,0],[0,1],[-1,1]],[[0,0],[-1,0],[-2,0],[0,-1],[1,-1],[1,0],[1,1]],[[0,0],[0,1],[-1,1],[-1,0],[-1,-1],[1,0],[2,0]],[[0,0],[1,0],[1,1],[-1,0],[-2,0],[0,-1],[1,-1]]],"color":"blue","rootIsUpward":true},{"rootPosOnBase":[4,0],"posDataArray":[[[0,0],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]],[[0,0],[-1,0],[-2,0],[-2,-1],[-1,-1],[0,-1]],[[0,0],[0,1],[-1,1],[-2,1],[-2,0],[-1,0]],[[0,0],[1,0],[1,1],[0,1],[-1,1],[-1,0]],[[0,0],[1,0],[2,0],[2,1],[1,1],[0,1]],[[0,0],[0,-1],[1,-1],[2,-1],[2,0],[1,0]]],"color":"yellow","rootIsUpward":true}]}
+
+
+
+
+
 function setup() {
   createCanvas(500, 500);
   rectMode(CENTER);
@@ -441,8 +514,12 @@ const HALF_SQRT_3 = SQRT_3 / 2;
 // for base. Accessible globally
 const CANVAS_SIZE = 500;
 const STROKE_COLOR = 20;
+
 // setType, tileScale, offset, baseTiles
-let setType="hexagon",tileScale=CANVAS_SIZE*0.055,offset=[0.6*CANVAS_SIZE, 0.41987179487179493*CANVAS_SIZE],baseTiles=[[0,0],[0,1],[1,0],[-1,0],[1,1],[1,2],[0,2],[-1,2],[-1,1],[-1,-1],[-2,2],[-3,2],[2,2],[0,3],[-2,0],[3,2],[-2,3],[2,3],[-2,1],[1,-1],[2,0],[-3,1],[-4,1],[1,3],[-1,3],[3,3],[0,-1],[-2,-1],[2,-1],[-4,2],[2,1],[-3,-1],[-3,3],[-5,2],[-3,0],[-3,4],[-2,-2],[2,-2],[-4,3],[0,-2],[1,4],[-4,4],[-4,-1],[2,4],[-5,3],[-5,1],[-5,-1],[3,-2],[3,4],[3,-3]],piecesData=[[[-4,3],[-4,2],[-5,2],[-5,1],[-3,3],[-5,3],[-3,4],[-4,4]],[[3,-3],[3,-2],[2,-2],[2,-1],[1,-1],[0,-1],[0,-2]],[[-1,-1],[-2,-1],[-3,-1],[-1,0],[-4,-1],[-5,-1],[-3,0],[-2,-2]],[[1,3],[0,3],[1,4],[2,4],[3,4],[2,3],[3,3]],[[2,0],[2,1],[1,1],[1,0],[0,1],[1,2],[0,2],[0,0],[-1,2],[2,2],[3,2]],[[-3,2],[-3,1],[-2,2],[-2,1],[-4,1],[-2,0],[-1,1],[-2,3],[-1,3]]]
+let setType = output.base.tileType,
+    tileScale = output.base.tileFactor * CANVAS_SIZE,
+    offset = output.base.offsetFactors.map(f => f * CANVAS_SIZE),
+    baseTiles = output.base.posData
 
 
 // RECALCULATE in a customSetup function that runs in setup() and resize()
@@ -554,9 +631,9 @@ function getHoveredTile(){
 }
 
 // return true if this triangle tile is upward
-function getTDir(pos, rootTileIsUpward){
-  if (rootTileIsUpward) return (pos[0] + pos[1]) % 2 === 0;
-  return (pos[0] + pos[1]) % 2 === 1;
+function getTDir(pos, rootIsUpward){
+  if (rootIsUpward) return (pos[0] + pos[1]) % 2 === 0;
+  return Math.abs((pos[0] + pos[1]) % 2) === 1;
 }
 
 
@@ -575,15 +652,28 @@ function draw() {
   
   
   // PIECES TILES
-  //return
-  piecesData.forEach((pd, i) => {
-    //if (i > 4) return;
-    let tileColor = pieceColors[i];
-    fill(tileColor);
+  
+  output.pieces.forEach((pieceGroup, ii) => {
+    if (ii !== 3) return;
+    
+    fill(pieceGroup.color);
     stroke(STROKE_COLOR);
     strokeWeight(tileScale * getStrokeWeight());
-    pd.forEach((pos) => {
-      renderTile(pos, getTDir(pos, true))
+    
+    let rotateIndex = Math.floor((frameCount * 0.05) % pieceGroup.posDataArray.length);
+    //rotateIndex = 0;
+    
+    pieceGroup.posDataArray[rotateIndex].forEach((pos) => {
+      const renderPos = [
+        pos[0] + pieceGroup.rootPosOnBase[0],
+        pos[1] + pieceGroup.rootPosOnBase[1]
+      ];
+      // is root upward for current rotation?
+      const currentRootIsUpward = rotateIndex % 2 === 0;
+      renderTile(
+        renderPos, 
+        getTDir(pos, pieceGroup.rootIsUpward && currentRootIsUpward)
+      );
     })
   });
   
