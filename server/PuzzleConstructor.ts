@@ -50,20 +50,6 @@ interface MappingTile {
     })[]
 }
 
-// types for final output to client
-interface BaseOutput {
-    tileType: RoomObject["options"]["type"],
-    tileFactor: number,
-    offsetFactors: [number, number],
-    posData: Pos[]
-}
-interface PieceGroupOutput {
-    rootPosOnBase: Pos, // solution position
-    posDataArray: Pos[][], // all rotations posData
-    color: string,
-    rootIsUpward?: boolean // triangle only
-}
-
 
 // global
 let globalOptions: RoomObject["options"];
@@ -294,7 +280,7 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
     }
 
     // output base object
-    const outputBase: BaseOutput = {
+    const outputBase: LevelObject["base"] = {
         tileType: options.type,
         tileFactor: getOffsetFactor(1), // tileFactor (canvas size * tileFactor = tileScale)
         offsetFactors: [
@@ -428,7 +414,7 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
 
     let availablePieceColors: string[] = PIECE_COLORS.slice(); // shallow copy
 
-    const outputPieces: PieceGroupOutput[] = [];
+    const outputPieces: LevelObject["pieces"] = [];
     // for each piece
     resultRootTiles.forEach((mappedRootTile) => {
         const pickedColorIndex: number = randomInt(0, availablePieceColors.length);
@@ -436,7 +422,7 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
         availablePieceColors.splice(pickedColorIndex, 1); // remove picked color
         
         // default piece group
-        const newPieceGroup: PieceGroupOutput = {
+        const newPieceGroup: LevelObject["pieces"][0] = {
             rootPosOnBase: mappedRootTile.pos,
             posDataArray: [],
             color: pickedColor,
@@ -477,6 +463,8 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
 
     // set to 'this' (returning LevelObject)
     this.timeLimit = options.time;
+    this.base = outputBase;
+    this.pieces = outputPieces;
 } as any as { new (moves: number, calculatedTime: number): LevelObject; };
 
 // return a random integer, including start but not end

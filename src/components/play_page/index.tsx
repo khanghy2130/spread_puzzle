@@ -92,6 +92,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname, conver
             socket.on("end-game", (receivedRoomObject : RoomObject) => {
                 resetRoomPage(receivedRoomObject);
             });
+            console.log(levelObject);
         }
 
         return () => {
