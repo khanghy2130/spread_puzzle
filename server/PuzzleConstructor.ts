@@ -31,7 +31,7 @@ const HEXAGON_DIRS: DirectionDegree[] = [30, 90, 150, 210, 270, 330];
 const UPWARD_TRIANGLE_DIRS: DirectionDegree[] = [30, 150, 270];
 const DOWNWARD_TRIANLGE_DIRS: DirectionDegree[] = [90, 210, 330];
 const PIECE_SIZE_LIMIT_FACTOR: number = 0.7;
-const PIECE_COLORS: string[] = ["crimson", "lime", "blue", "yellow", "darkviolet", "aqua"];
+const PIECE_COLORS: string[] = ["crimson", "lime", "blue", "yellow", "violet", "aqua"];
 
 // types for generator
 interface Borders {
@@ -479,29 +479,30 @@ export {}
 
 // BACKUP
 /* 
-let output={"base":{"tileType":"triangle","tileFactor":0.1923076923076923,"offsetFactors":[0.40384615384615385,0.3889711020789181],"posData":[[0,0],[0,1],[-1,0],[-2,0],[1,0],[-2,1],[1,1],[2,0],[-3,0],[-1,1],[-3,1],[1,-1],[-1,-1],[-1,2],[3,0],[4,0],[2,1],[5,0],[3,1],[5,-1],[0,-1],[-3,-1],[3,-1],[4,-1],[1,2]]},"pieces":[{"rootPosOnBase":[1,-1],"posDataArray":[[[0,0],[-1,0],[-2,0],[0,1],[1,1]],[[0,0],[-1,0],[-1,1],[1,0],[2,0]],[[0,0],[0,1],[1,1],[1,0],[1,-1]],[[0,0],[1,0],[2,0],[0,-1],[-1,-1]],[[0,0],[1,0],[1,-1],[-1,0],[-2,0]],[[0,0],[0,-1],[-1,-1],[-1,0],[-1,1]]],"color":"aqua","rootIsUpward":true},{"rootPosOnBase":[-1,1],"posDataArray":[[[0,0],[1,0],[2,0],[2,1],[3,0],[4,0],[0,1]],[[0,0],[0,-1],[1,-1],[2,-1],[1,-2],[2,-2],[1,0]],[[0,0],[-1,0],[-1,-1],[0,-1],[-2,-1],[-2,-2],[1,0]],[[0,0],[-1,0],[-2,0],[-2,-1],[-3,0],[-4,0],[0,-1]],[[0,0],[0,1],[-1,1],[-2,1],[-1,2],[-2,2],[-1,0]],[[0,0],[1,0],[1,1],[0,1],[2,1],[2,2],[-1,0]]],"color":"lime","rootIsUpward":true},{"rootPosOnBase":[-2,0],"posDataArray":[[[0,0],[1,0],[2,0],[0,1],[-1,1],[-1,0],[-1,-1]],[[0,0],[0,-1],[1,-1],[1,0],[1,1],[-1,0],[-2,0]],[[0,0],[-1,0],[-1,-1],[1,0],[2,0],[0,1],[-1,1]],[[0,0],[-1,0],[-2,0],[0,-1],[1,-1],[1,0],[1,1]],[[0,0],[0,1],[-1,1],[-1,0],[-1,-1],[1,0],[2,0]],[[0,0],[1,0],[1,1],[-1,0],[-2,0],[0,-1],[1,-1]]],"color":"blue","rootIsUpward":true},{"rootPosOnBase":[4,0],"posDataArray":[[[0,0],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]],[[0,0],[-1,0],[-2,0],[-2,-1],[-1,-1],[0,-1]],[[0,0],[0,1],[-1,1],[-2,1],[-2,0],[-1,0]],[[0,0],[1,0],[1,1],[0,1],[-1,1],[-1,0]],[[0,0],[1,0],[2,0],[2,1],[1,1],[0,1]],[[0,0],[0,-1],[1,-1],[2,-1],[2,0],[1,0]]],"color":"yellow","rootIsUpward":true}]}
+let output={"base":{"tileType":"hexagon","tileFactor":0.08540684455467837,"offsetFactors":[0.43594486658399123,0.5369822485207101],"posData":[[0,0],[1,0],[-1,0],[-2,0],[-1,1],[1,-1],[0,-1],[-2,-1],[-1,-1],[-1,-2],[0,1],[2,0],[1,1],[3,-1],[-1,2],[0,2],[2,-1],[-2,2],[1,-2],[-2,1],[-1,3],[1,2],[0,-2],[-2,-2],[1,-3]]},"pieces":[{"rootPosOnBase":[1,-2],"posDataArray":[[[0,0],[-1,1],[-1,2],[-2,1],[0,1]],[[0,0],[0,1],[1,1],[-1,2],[1,0]],[[0,0],[1,0],[2,-1],[1,1],[1,-1]],[[0,0],[1,-1],[1,-2],[2,-1],[0,-1]],[[0,0],[0,-1],[-1,-1],[1,-2],[-1,0]],[[0,0],[-1,0],[-2,1],[-1,-1],[-1,1]]],"color":"violet","rootIsUpward":false},{"rootPosOnBase":[1,2],"posDataArray":[[[0,0],[-1,0]],[[0,0],[-1,1]],[[0,0],[0,1]],[[0,0],[1,0]],[[0,0],[1,-1]],[[0,0],[0,-1]]],"color":"yellow","rootIsUpward":false},{"rootPosOnBase":[-1,0],"posDataArray":[[[0,0],[-1,0],[-1,1]],[[0,0],[-1,1],[0,1]],[[0,0],[0,1],[1,0]],[[0,0],[1,0],[1,-1]],[[0,0],[1,-1],[0,-1]],[[0,0],[0,-1],[-1,0]]],"color":"lime","rootIsUpward":false},{"rootPosOnBase":[-2,2],"posDataArray":[[[0,0],[1,-1],[2,-1],[1,0],[1,1]],[[0,0],[0,-1],[1,-2],[1,-1],[2,-1]],[[0,0],[-1,0],[-1,-1],[0,-1],[1,-2]],[[0,0],[-1,1],[-2,1],[-1,0],[-1,-1]],[[0,0],[0,1],[-1,2],[-1,1],[-2,1]],[[0,0],[1,0],[1,1],[0,1],[-1,2]]],"color":"aqua","rootIsUpward":true},{"rootPosOnBase":[2,0],"posDataArray":[[[0,0],[1,-1],[0,-1],[-1,1],[-1,0]],[[0,0],[0,-1],[-1,0],[0,1],[-1,1]],[[0,0],[-1,0],[-1,1],[1,0],[0,1]],[[0,0],[-1,1],[0,1],[1,-1],[1,0]],[[0,0],[0,1],[1,0],[0,-1],[1,-1]],[[0,0],[1,0],[1,-1],[-1,0],[0,-1]]],"color":"blue","rootIsUpward":true},{"rootPosOnBase":[-2,-1],"posDataArray":[[[0,0],[1,-1],[2,-1],[3,-2],[0,-1]],[[0,0],[0,-1],[1,-2],[1,-3],[-1,0]],[[0,0],[-1,0],[-1,-1],[-2,-1],[-1,1]],[[0,0],[-1,1],[-2,1],[-3,2],[0,1]],[[0,0],[0,1],[-1,2],[-1,3],[1,0]],[[0,0],[1,0],[1,1],[2,1],[1,-1]]],"color":"crimson","rootIsUpward":false}]}
 
 
 
 
 
 function setup() {
-  createCanvas(500, 500);
+  createCanvas(CANVAS_SIZE, CANVAS_SIZE);
+  angleMode(DEGREES);
+  imageMode(CENTER);
   rectMode(CENTER);
   strokeCap(SQUARE);
   frameRate(30);
+  
+  loadData();
 }
 
 // constants
-const pieceColors = ["crimson", "lime", "blue", "yellow", "darkviolet", "aqua"];
+const CANVAS_SIZE = 500;
+const STROKE_COLOR = 20;
+const BG_COLOR = 28;
 const SQRT_3 = Math.sqrt(3);
 const HALF_SQRT_3 = SQRT_3 / 2;
 
-
-
-// for base. Accessible globally
-const CANVAS_SIZE = 500;
-const STROKE_COLOR = 20;
 
 // setType, tileScale, offset, baseTiles
 let setType = output.base.tileType,
@@ -526,17 +527,13 @@ function getStrokeWeight(){
 
 
 // offset is where the origin tile should be
-function renderTile(pos, isUpward) {
+// rootPieceIndex can be null if not a root piece, used to set center position to capture image
+function renderTile(pos, rootPieceIndex, isUpward) {
   let x, y;
   if (setType === "square") {
     x = offset[0] + pos[0] * tileScale;
     y = offset[1] + pos[1] * tileScale;
-    rect(
-      x,
-      y,
-      tileScale,
-      tileScale
-    );
+    rect(x, y, tileScale, tileScale);
   } 
   else if (setType === "hexagon") {
     x = offset[0] + pos[0] * tileScale * 3 / 2;
@@ -574,6 +571,10 @@ function renderTile(pos, isUpward) {
         y - CENTER_Y
       );
     }
+  }
+  
+  if (rootPieceIndex !== null){
+    pieceImageObjects[rootPieceIndex].pos = [x, y];
   }
 }
 
@@ -625,9 +626,10 @@ function getTDir(pos, rootIsUpward){
 }
 
 
-  
-function draw() {
-  background(30);
+let baseImageObject = {image: null, size: null}, pieceImageObjects, dataLoaded = false;
+function loadData(){
+  const CS = width;
+  background(BG_COLOR);
   
   // BASE
   let baseColor = 60;
@@ -635,37 +637,72 @@ function draw() {
   stroke(70);
   strokeWeight(tileScale * 0.02);
   baseTiles.forEach((pos) => {
-    renderTile(pos, getTDir(pos, true))
-  })
+    renderTile(pos, null, getTDir(pos, true))
+  });
+  baseImageObject.image = get(0, 0, CS, CS);
+  baseImageObject.size = CS * 2;
   
-  
-  // PIECES TILES
-  
-  output.pieces.forEach((pieceGroup, ii) => {
-    if (ii !== 3) return;
-    
+  // PIECES
+  pieceImageObjects = [];
+  output.pieces.forEach((pieceGroup, pieceIndex) => {
     fill(pieceGroup.color);
     stroke(STROKE_COLOR);
     strokeWeight(tileScale * getStrokeWeight());
     
-    let rotateIndex = Math.floor((frameCount * 0.05) % pieceGroup.posDataArray.length);
-    //rotateIndex = 0;
-    
-    pieceGroup.posDataArray[rotateIndex].forEach((pos) => {
+    // make an empty object
+    pieceImageObjects.push({image: null, pos: null});
+    clear();
+    // render tiles in this piece group
+    pieceGroup.posDataArray[0].forEach((pos, tileIndex) => {
       const renderPos = [
         pos[0] + pieceGroup.rootPosOnBase[0],
         pos[1] + pieceGroup.rootPosOnBase[1]
       ];
-      // is root upward for current rotation?
-      const currentRootIsUpward = rotateIndex % 2 === 0;
+      
+      const rootPieceIndex = (tileIndex === 0 ? pieceIndex : null);
       renderTile(
-        renderPos, 
-        getTDir(pos, pieceGroup.rootIsUpward && currentRootIsUpward)
+        renderPos,
+        rootPieceIndex,
+        getTDir(pos, pieceGroup.rootIsUpward)
       );
     })
+    // save image
+    pieceImageObjects[pieceIndex].image = get(
+      pieceImageObjects[pieceIndex].pos[0] - CS,
+      pieceImageObjects[pieceIndex].pos[1] - CS,
+      CS * 2,
+      CS * 2
+    );
   });
+
+  dataLoaded = true;
+  background(BG_COLOR);
+}
+
   
+function draw() {
+  background(BG_COLOR);
   
+
+  image(
+    baseImageObject.image, 
+    width/2, width/2,
+    baseImageObject.size/2,
+    baseImageObject.size/2
+  );
+  pieceImageObjects.forEach(imgObj => {
+    push();
+    translate(imgObj.pos[0], imgObj.pos[1]);
+    rotate(frameCount * 1.2);
+    image(
+      imgObj.image,
+      0, 0,
+      baseImageObject.size, 
+      baseImageObject.size
+    );
+    pop();
+  });
+ 
   
   // HOVERED
   let hoverPos = getHoveredTile();
@@ -673,7 +710,7 @@ function draw() {
     let hoverColor = color("white");
     fill(hoverColor);
     noStroke();
-    renderTile(hoverPos, getTDir(hoverPos, true));
+    renderTile(hoverPos, null, getTDir(hoverPos, true));
   }
   //console.log(frameRate());
 }

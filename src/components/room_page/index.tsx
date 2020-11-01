@@ -189,7 +189,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     Time limit: <span>{convertToTime(options.time)}</span>
                 </label>
                 <input ref={optionsContainer.time} 
-                    type="range" min={30} max={600} step={15}
+                    type="range" min={30} max={600} step={30}
                     defaultValue={options.time}
                     onChange={onAnyInputChange}
                     disabled={started}
