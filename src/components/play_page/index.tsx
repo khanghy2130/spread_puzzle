@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
-import Sketch from "react-p5";
-import p5Types from "p5"; 
+import React, { useEffect, useState, useRef } from 'react';
 
 import "./style.scss";
 import LevelObject from '../../../server/Level_Object';
 import RoomObject from '../../../server/Room_Object';
+import CanvasVars from './CanvasVars';
 
+import P5_Canvas from './CanvasComponent';
 
 // timeout or give up: setProgress("incomplete");   win: setProgress("complete");
 
@@ -14,54 +14,12 @@ interface propObject {
     levelObject: LevelObject,
     resetRoomPage: (receivedLevelObject: RoomObject) => void,
     roomID: string,
-    nickname: string,
     convertToTime: (seconds: number) => string,
     getText: (tree: string[]) => string
 };
 
 
-interface CanvasVarsType {
-    x : number
-}
-function P5_Canvas(cv: CanvasVarsType, setCv: React.Dispatch<React.SetStateAction<CanvasVarsType>>) {
-    if (!cv) return null;
-
-    let alreadyPressing = false; // prevent multiple clicks in draw()
- 
-    const windowResized = (p: p5Types) => {
-        const SMALLEST_SIZE = p.min(document.documentElement.clientWidth, document.documentElement.clientHeight);
-        const CANVAS_SIZE = p.min(SMALLEST_SIZE, 500);
-        p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE);
-    }
-    const setup = (p: p5Types, canvasParentRef: Element) => {
-        p.createCanvas(500, 500).parent(canvasParentRef);
-        p.frameRate(30);
-        console.log("created canvas");
-    };
- 
-    const draw = (p: p5Types) => {
-        p.background(0);
-        p.ellipse(cv.x, 20, 20, 20);
-        cv.x += 1;
-
-        // click by mouse, not touch
-        if (p.mouseIsPressed && !alreadyPressing && p.touches.length === 0){
-            alreadyPressing = true;
-            /////
-        }
-        else if (!p.mouseIsPressed && alreadyPressing){
-            alreadyPressing = false;
-        }
-
-        setCv(cv); // update cv
-    };
-    
- 
-    return <Sketch setup={setup} draw={draw} windowResized={windowResized} />;
-};
-
-
-const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname, convertToTime, getText} : propObject) => {
+const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, getText} : propObject) => {
     const time_display = useRef<HTMLHeadingElement>(null);
     // store timeLeft as ref
     const timeLeft = useRef<any>({ value: levelObject.timeLimit });
@@ -76,8 +34,19 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname, conver
     const [progress, setProgress] = useState<progressType>("preparing");
 
     // setting up CV default
-    const [cv, setCv] = useState<CanvasVarsType>({
-        x: 50
+    const [cv, setCv] = useState<CanvasVars>({
+        imagesContainer: {
+            loaded: false,
+            coverOpacity: 255,
+    
+            baseImg: null,
+            baseSize: 0,
+            pieceImages: []
+        },
+    
+        selectedPieceIndex: 0,
+        placedPieces: [],
+        occupiedTiles: []
     });
 
     // socket io events
@@ -103,7 +72,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname, conver
 
     
 
-    useLayoutEffect(()=>{
+    useEffect(()=>{
         console.log("Just changed: " , progress);
         // after begin countdown is done
         if (progress === "preparing"){
@@ -183,11 +152,10 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, nickname, conver
 
             <button onClick={() => {setProgress("complete")}}>Win</button>
             <button onClick={() => {setProgress("incomplete")}}>Lose</button>
-            <button onClick={() => {setCv({x: 0})}}>XXX</button>
 
             {/* Canvas */}
             <div id="canvas-parent">
-                {P5_Canvas(cv, setCv)}
+                {P5_Canvas(levelObject, cv, setCv)}
             </div>
 
         </main>

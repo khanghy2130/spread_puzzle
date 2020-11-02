@@ -139,7 +139,6 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
             levelObject={levelObject} 
             resetRoomPage={resetRoomPage} 
             roomID={room.roomID}
-            nickname={nickname}
             convertToTime={convertToTime}
             getText={getText}
         />);
