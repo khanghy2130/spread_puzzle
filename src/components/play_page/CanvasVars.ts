@@ -11,10 +11,7 @@ export default interface CanvasVars {
 
         baseImg: p5Types.Image | null,
         baseSize: number,
-        pieceImages: ({
-            image: p5Types.Image | null,
-            pos: Pos | null
-        })[]
+        pieceImages: p5Types.Image[]
     },
 
     selectedPieceIndex: number,

@@ -468,9 +468,7 @@ export {}
 
 // BACKUP
 /* 
-let output={"base":{"tileType":"hexagon","tileFactor":0.08540684455467837,"offsetFactors":[0.43594486658399123,0.5369822485207101],"posData":[[0,0],[1,0],[-1,0],[-2,0],[-1,1],[1,-1],[0,-1],[-2,-1],[-1,-1],[-1,-2],[0,1],[2,0],[1,1],[3,-1],[-1,2],[0,2],[2,-1],[-2,2],[1,-2],[-2,1],[-1,3],[1,2],[0,-2],[-2,-2],[1,-3]]},"pieces":[{"rootPosOnBase":[1,-2],"posDataArray":[[[0,0],[-1,1],[-1,2],[-2,1],[0,1]],[[0,0],[0,1],[1,1],[-1,2],[1,0]],[[0,0],[1,0],[2,-1],[1,1],[1,-1]],[[0,0],[1,-1],[1,-2],[2,-1],[0,-1]],[[0,0],[0,-1],[-1,-1],[1,-2],[-1,0]],[[0,0],[-1,0],[-2,1],[-1,-1],[-1,1]]],"color":"violet","rootIsUpward":false},{"rootPosOnBase":[1,2],"posDataArray":[[[0,0],[-1,0]],[[0,0],[-1,1]],[[0,0],[0,1]],[[0,0],[1,0]],[[0,0],[1,-1]],[[0,0],[0,-1]]],"color":"yellow","rootIsUpward":false},{"rootPosOnBase":[-1,0],"posDataArray":[[[0,0],[-1,0],[-1,1]],[[0,0],[-1,1],[0,1]],[[0,0],[0,1],[1,0]],[[0,0],[1,0],[1,-1]],[[0,0],[1,-1],[0,-1]],[[0,0],[0,-1],[-1,0]]],"color":"lime","rootIsUpward":false},{"rootPosOnBase":[-2,2],"posDataArray":[[[0,0],[1,-1],[2,-1],[1,0],[1,1]],[[0,0],[0,-1],[1,-2],[1,-1],[2,-1]],[[0,0],[-1,0],[-1,-1],[0,-1],[1,-2]],[[0,0],[-1,1],[-2,1],[-1,0],[-1,-1]],[[0,0],[0,1],[-1,2],[-1,1],[-2,1]],[[0,0],[1,0],[1,1],[0,1],[-1,2]]],"color":"aqua","rootIsUpward":true},{"rootPosOnBase":[2,0],"posDataArray":[[[0,0],[1,-1],[0,-1],[-1,1],[-1,0]],[[0,0],[0,-1],[-1,0],[0,1],[-1,1]],[[0,0],[-1,0],[-1,1],[1,0],[0,1]],[[0,0],[-1,1],[0,1],[1,-1],[1,0]],[[0,0],[0,1],[1,0],[0,-1],[1,-1]],[[0,0],[1,0],[1,-1],[-1,0],[0,-1]]],"color":"blue","rootIsUpward":true},{"rootPosOnBase":[-2,-1],"posDataArray":[[[0,0],[1,-1],[2,-1],[3,-2],[0,-1]],[[0,0],[0,-1],[1,-2],[1,-3],[-1,0]],[[0,0],[-1,0],[-1,-1],[-2,-1],[-1,1]],[[0,0],[-1,1],[-2,1],[-3,2],[0,1]],[[0,0],[0,1],[-1,2],[-1,3],[1,0]],[[0,0],[1,0],[1,1],[2,1],[1,-1]]],"color":"crimson","rootIsUpward":false}]}
-
-
+let output={"base":{"tileType":"triangle","tileFactor":0.18504816320180312,"offsetFactors":[0.36121387759864765,0.39316239316239315],"posData":[[0,0],[0,1],[1,0],[1,1],[-1,0],[1,-1],[2,-1],[1,2],[2,-2],[2,1],[3,-1],[2,2],[0,2],[3,2],[-1,1],[-1,2],[-2,2],[2,0],[-2,1],[3,0],[4,2],[5,2],[2,3],[3,-2],[0,3]]},"pieces":[{"rootPosOnBase":[-2,1],"posDataArray":[[[0,0],[1,0],[2,0],[2,-1],[1,-1],[1,1],[0,1]],[[0,0],[1,0],[1,-1],[0,-1],[-1,-1],[2,0],[2,1]],[[0,0],[0,-1],[-1,-1],[-2,-1],[-2,0],[1,-1],[2,-1]],[[0,0],[-1,0],[-2,0],[-2,1],[-1,1],[-1,-1],[0,-1]],[[0,0],[-1,0],[-1,1],[0,1],[1,1],[-2,0],[-2,-1]],[[0,0],[0,1],[1,1],[2,1],[2,0],[-1,1],[-2,1]]],"color":"blue","rootIsUpward":false},{"rootPosOnBase":[2,-2],"posDataArray":[[[0,0],[0,1],[-1,1],[-1,2],[1,1],[1,2],[1,0]],[[0,0],[1,0],[1,1],[2,1],[2,0],[3,0],[0,-1]],[[0,0],[1,0],[2,0],[3,0],[1,-1],[2,-1],[-1,0]],[[0,0],[0,-1],[1,-1],[1,-2],[-1,-1],[-1,-2],[-1,0]],[[0,0],[-1,0],[-1,-1],[-2,-1],[-2,0],[-3,0],[0,1]],[[0,0],[-1,0],[-2,0],[-3,0],[-1,1],[-2,1],[1,0]]],"color":"crimson","rootIsUpward":true},{"rootPosOnBase":[2,1],"posDataArray":[[[0,0],[-1,0],[0,-1]],[[0,0],[0,1],[-1,0]],[[0,0],[1,0],[-1,0]],[[0,0],[1,0],[0,1]],[[0,0],[0,-1],[1,0]],[[0,0],[-1,0],[1,0]]],"color":"yellow","rootIsUpward":false},{"rootPosOnBase":[5,2],"posDataArray":[[[0,0],[-1,0],[-2,0],[-3,0],[-3,1],[-4,0],[-5,0],[-5,1]],[[0,0],[0,1],[-1,1],[-1,2],[0,2],[-2,2],[-2,3],[-1,3]],[[0,0],[1,0],[1,1],[2,1],[3,1],[2,2],[3,2],[4,2]],[[0,0],[1,0],[2,0],[3,0],[3,-1],[4,0],[5,0],[5,-1]],[[0,0],[0,-1],[1,-1],[1,-2],[0,-2],[2,-2],[2,-3],[1,-3]],[[0,0],[-1,0],[-1,-1],[-2,-1],[-3,-1],[-2,-2],[-3,-2],[-4,-2]]],"color":"violet","rootIsUpward":false}]}
 
 
 
@@ -493,40 +491,23 @@ const SQRT_3 = Math.sqrt(3);
 const HALF_SQRT_3 = SQRT_3 / 2;
 
 
-// setType, tileScale, offset, baseTiles
-let setType = output.base.tileType,
+let tileType = output.base.tileType,
     tileScale = output.base.tileFactor * CANVAS_SIZE,
     offset = output.base.offsetFactors.map(f => f * CANVAS_SIZE),
     baseTiles = output.base.posData
+const HALF_SCALE = tileScale / 2;
+const SCALED_SQRT = HALF_SQRT_3 * tileScale;
 
 
-// RECALCULATE in a customSetup function that runs in setup() and resize()
-let HALF_SCALE = tileScale / 2;
-let SCALED_SQRT = HALF_SQRT_3 * tileScale;
-function getStrokeWeight(){
-  switch(setType){
-    case "square":
-      return 0.08;
-    case "hexagon":
-      return 0.11;
-    case "triangle":
-      return 0.05;
-  }
-}
-
-
-// offset is where the origin tile should be
-// rootPieceIndex can be null if not a root piece, used to set center position to capture image
-function renderTile(pos, rootPieceIndex, isUpward) {
-  let x, y;
-  if (setType === "square") {
-    x = offset[0] + pos[0] * tileScale;
-    y = offset[1] + pos[1] * tileScale;
+function renderTile(pos, isUpward) {
+  const renderPos = calculateRenderPos(pos, isUpward);
+  const x = renderPos[0];
+  const y = renderPos[1];
+  
+  if (tileType === "square") {
     rect(x, y, tileScale, tileScale);
   } 
-  else if (setType === "hexagon") {
-    x = offset[0] + pos[0] * tileScale * 3 / 2;
-    y = offset[1] + (pos[1] * 2 + pos[0]) * SCALED_SQRT;
+  else if (tileType === "hexagon") {
     beginShape();
     vertex(x + tileScale, y);
     vertex(x + HALF_SCALE, y + SCALED_SQRT);
@@ -536,11 +517,8 @@ function renderTile(pos, rootPieceIndex, isUpward) {
     vertex(x + HALF_SCALE, y - SCALED_SQRT);
     endShape(CLOSE);
   } 
-  else if (setType === "triangle") {
+  else if (tileType === "triangle") {
     const CENTER_Y = tileScale / (SQRT_3 * 2);
-    const yOffset = isUpward ? SCALED_SQRT - (CENTER_Y * 2) : 0;
-    x = offset[0] + pos[0] * HALF_SCALE;
-    y = offset[1] + pos[1] * SCALED_SQRT + yOffset;
     if (isUpward) {
       triangle(
         x,
@@ -561,10 +539,6 @@ function renderTile(pos, rootPieceIndex, isUpward) {
       );
     }
   }
-  
-  if (rootPieceIndex !== null){
-    pieceImageObjects[rootPieceIndex].pos = [x, y];
-  }
 }
 
 // returns null if not a vaild tile
@@ -573,18 +547,18 @@ function getHoveredTile(){
   let r = Math.round;
   let result;
   
-  if (setType === "square"){
+  if (tileType === "square"){
     result = [
       r((mouseX - offset[0])/tileScale),
       r((mouseY - offset[1])/tileScale),
     ];
   } 
-  else if (setType === "hexagon"){    
+  else if (tileType === "hexagon"){    
     const xPos = (mouseX - offset[0])/tileScale/3*2;
     const yPos = ((mouseY - offset[1])/SCALED_SQRT - xPos) / 2;
     result = [r(xPos), r(yPos)];
   } 
-  else if (setType === "triangle"){
+  else if (tileType === "triangle"){
     // which triangle direction is vaild
     let lookingForUpward = !!true;
     const CENTER_Y = tileScale / (SQRT_3 * 2);
@@ -608,14 +582,10 @@ function getHoveredTile(){
   return null;
 }
 
-// return true if this triangle tile is upward
-function getTDir(pos, rootIsUpward){
-  if (rootIsUpward) return (pos[0] + pos[1]) % 2 === 0;
-  return Math.abs((pos[0] + pos[1]) % 2) === 1;
-}
 
 
-let baseImageObject = {image: null, size: null}, pieceImageObjects, dataLoaded = false;
+
+let baseImage, baseSize, pieceImages, dataLoaded = false;
 function loadData(){
   const CS = width;
   background(BG_COLOR);
@@ -624,44 +594,45 @@ function loadData(){
   let baseColor = 60;
   fill(baseColor);
   stroke(70);
-  strokeWeight(tileScale * 0.02);
+  strokeWeight(tileScale * 0.05);
   baseTiles.forEach((pos) => {
-    renderTile(pos, null, getTDir(pos, true))
+    renderTile(pos, getTDir(pos, true))
   });
-  baseImageObject.image = get(0, 0, CS, CS);
-  baseImageObject.size = CS * 2;
+  baseImage = get(0, 0, CS, CS);
+  baseSize = CS * 2;
   
   // PIECES
-  pieceImageObjects = [];
+  pieceImages = [];
   output.pieces.forEach((pieceGroup, pieceIndex) => {
     fill(pieceGroup.color);
     stroke(STROKE_COLOR);
     strokeWeight(tileScale * getStrokeWeight());
     
-    // make an empty object
-    pieceImageObjects.push({image: null, pos: null});
     clear();
-    // render tiles in this piece group
-    pieceGroup.posDataArray[0].forEach((pos, tileIndex) => {
-      const renderPos = [
+    // render tiles (original rotation) in this piece group
+    pieceGroup.posDataArray[0].forEach((pos) => {
+      const originalPos = [
         pos[0] + pieceGroup.rootPosOnBase[0],
         pos[1] + pieceGroup.rootPosOnBase[1]
       ];
       
-      const rootPieceIndex = (tileIndex === 0 ? pieceIndex : null);
       renderTile(
-        renderPos,
-        rootPieceIndex,
-        getTDir(pos, pieceGroup.rootIsUpward)
+        originalPos,
+        getTDir(originalPos, true)
       );
     })
+    
     // save image
-    pieceImageObjects[pieceIndex].image = get(
-      pieceImageObjects[pieceIndex].pos[0] - CS,
-      pieceImageObjects[pieceIndex].pos[1] - CS,
+    const renderPos = calculateRenderPos(
+      pieceGroup.rootPosOnBase,
+      getTDir(pieceGroup.rootPosOnBase, true)
+    );
+    pieceImages.push(get(
+      renderPos[0] - CS,
+      renderPos[1] - CS,
       CS * 2,
       CS * 2
-    );
+    ));
   });
 
   dataLoaded = true;
@@ -674,23 +645,44 @@ function draw() {
   
 
   image(
-    baseImageObject.image, 
+    baseImage, 
     width/2, width/2,
-    baseImageObject.size/2,
-    baseImageObject.size/2
+    baseSize/2,
+    baseSize/2
   );
-  pieceImageObjects.forEach(imgObj => {
+  
+  pieceImages.forEach((pieceImage, i) => {
     push();
-    translate(imgObj.pos[0], imgObj.pos[1]);
-    rotate(frameCount * 1.2);
+    const rootPos = output.pieces[i].rootPosOnBase;
+    const renderPos = calculateRenderPos(
+      rootPos,
+      getTDir(rootPos, true)
+    );
+    translate(renderPos[0], renderPos[1]);
+    //rotate(frameCount * 1.2);
     image(
-      imgObj.image,
+      pieceImage,
       0, 0,
-      baseImageObject.size, 
-      baseImageObject.size
+      baseSize, 
+      baseSize
     );
     pop();
   });
+  
+  
+  // TEST ODD ROTATED TRIANGLE POS DATA...
+//   const rotateIndex = 0;
+//   const showPieceIndex = 0;
+//   const showPiece = output.pieces[showPieceIndex];
+//   fill(showPiece.color);
+//   stroke(STROKE_COLOR);
+//   strokeWeight(tileScale * getStrokeWeight());
+//   showPiece.posDataArray[rotateIndex].forEach(pos => {
+//     renderTile(
+//       pos,
+//       getTDir(pos, showPiece.rootIsUpward === (rotateIndex % 2 === 0))
+//     );
+//   });
  
   
   // HOVERED
@@ -699,15 +691,49 @@ function draw() {
     let hoverColor = color("white");
     fill(hoverColor);
     noStroke();
-    renderTile(hoverPos, null, getTDir(hoverPos, true));
+    renderTile(hoverPos, getTDir(hoverPos, true));
   }
   //console.log(frameRate());
 }
  
 
-//////// FROM PUZZLEGENERATOR
 
+// helper functions
 function arrayHasTile(arr, tilePos){
     return arr.some(pos => pos[0] === tilePos[0] && pos[1] === tilePos[1]);
+}
+// return true if this triangle tile is upward
+function getTDir(pos, rootIsUpward){
+  if (rootIsUpward) return (pos[0] + pos[1]) % 2 === 0;
+  return Math.abs((pos[0] + pos[1]) % 2) === 1;
+}
+function getStrokeWeight(){
+  switch(tileType){
+    case "square":
+      return 0.08;
+    case "hexagon":
+      return 0.11;
+    case "triangle":
+      return 0.05;
+  }
+}
+// takes in grid pos and returns render pos
+function calculateRenderPos(pos, isUpward){
+  let x, y;
+  if (tileType === "square") {
+    x = offset[0] + pos[0] * tileScale;
+    y = offset[1] + pos[1] * tileScale;
+  }
+  else if (tileType === "hexagon") {
+    x = offset[0] + pos[0] * tileScale * 3 / 2;
+    y = offset[1] + (pos[1] * 2 + pos[0]) * SCALED_SQRT;
+  }
+  else if (tileType === "triangle") {
+    const CENTER_Y = tileScale / (SQRT_3 * 2);
+    const yOffset = isUpward ? SCALED_SQRT - (CENTER_Y * 2) : 0;
+    x = offset[0] + pos[0] * HALF_SCALE;
+    y = offset[1] + pos[1] * SCALED_SQRT + yOffset;
+  }
+  return [x, y];
 }
 */
