@@ -40,13 +40,11 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
             coverOpacity: 255,
     
             baseImg: null,
-            baseSize: 0,
             pieceImages: []
         },
     
         selectedPieceIndex: 0,
-        placedPieces: [],
-        occupiedTiles: []
+        placedPieces: []
     });
 
     // socket io events
@@ -155,7 +153,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
 
             {/* Canvas */}
             <div id="canvas-parent">
-                {P5_Canvas(levelObject, cv, setCv)}
+                {P5_Canvas(levelObject, cv, setCv, progress, setProgress)}
             </div>
 
         </main>

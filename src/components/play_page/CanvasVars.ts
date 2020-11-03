@@ -10,7 +10,6 @@ export default interface CanvasVars {
         coverOpacity: number, // opacity of rect that covers the canvas
 
         baseImg: p5Types.Image | null,
-        baseSize: number,
         pieceImages: p5Types.Image[]
     },
 
@@ -20,6 +19,5 @@ export default interface CanvasVars {
         placedPos: Pos,
         rotateDeg: DirectionDegree,
         glowValue: number
-    })[],
-    occupiedTiles: Pos[]
+    })[]
 }
