@@ -22,10 +22,11 @@ function P5_Canvas(
     // constants
     const STROKE_COLOR : number = 20;
     const BG_COLOR : number = 28;
+    const GHOST_OPACITY : number = 70;
     const SQRT_3 : number = Math.sqrt(3);
     const HALF_SQRT_3 : number = SQRT_3 / 2;
     const tileType : RoomObject["options"]["type"] = levelObject.base.tileType;
-    ///// a few more from levelObject ...
+    const DEG_FACTOR : number = tileType === "square" ? 90 : 60; // square: 90, triangle & hexagon: 60
 
     // semi constants
     let semiConstantsLoaded: boolean = false;
@@ -40,17 +41,21 @@ function P5_Canvas(
     let cvUpdated: boolean = false;
     let lastCalculatedPos: Pos = [99, 99];
     let occupiedTiles: Pos[] = [];
+    // animations
+    let coverOpacity: number = 255;
+    const pieceOpacityValues: number[] = []; // glow values for pieces
+    for (let i=0; i < levelObject.pieces.length; i++) pieceOpacityValues.push(255);
 
     interface SelectedPiece {
         cursorPos: Pos,
-        renderDeg: DirectionDegree,
-        targetDeg: DirectionDegree,
+        renderRotateIndex: number, // float
+        targetRotateIndex: number, // int
         opacity: number // 0 - 255
     }
     const selectedPiece: SelectedPiece = {
         cursorPos: [0, 0],
-        renderDeg: 0,
-        targetDeg: 0,
+        renderRotateIndex: 0,
+        targetRotateIndex: 0,
         opacity: 0
     };
 
@@ -58,7 +63,7 @@ function P5_Canvas(
     interface GhostPiece {
         pieceIndex: number,
         pos: Pos,
-        rotateDeg: DirectionDegree
+        rotateIndex: number
     }
     const ghostPiece: GhostPiece | null = null;
 
@@ -152,7 +157,6 @@ function P5_Canvas(
           ));
         });
       
-        cv.imagesContainer.loaded = true;
         cvUpdated = true;
         p.background(BG_COLOR);
     }
@@ -176,7 +180,7 @@ function P5_Canvas(
         p.angleMode(p.DEGREES);
         p.imageMode(p.CENTER);
         p.rectMode(p.CENTER);
-        p.frameRate(30);
+        p.frameRate(60);
 
         calculateAndSetSemiConstants(p);
     };
@@ -186,28 +190,57 @@ function P5_Canvas(
         if (!semiConstantsLoaded) calculateAndSetSemiConstants(p);
 
         // all images loaded ?
-        if (cv.imagesContainer.loaded){
-            // RENDERS FOR ALL STATES
-            // base image
-            if (cv.imagesContainer.baseImg) p.image(
-                cv.imagesContainer.baseImg, 
-                p.width/2, p.height/2,
-                p.width,
-                p.height
-            );
-            // placed pieces
-            ///////////////
+        if (cv.imagesContainer.baseImg){
+
+            // RENDERS FOR ALL STATES EXCEPT preparing
+            if (progress !== "preparing"){
+                // base image
+                p.image(
+                    cv.imagesContainer.baseImg, 
+                    p.width/2, p.height/2,
+                    p.width,
+                    p.height
+                );
+                // placed pieces
+                cv.placedPieces.forEach((placedPiece) => {
+                    const pIndex: number = placedPiece.pieceIndex;
+                    const rootPos = placedPiece.placedPos;
+                    const renderPos = calculateRenderPos(
+                        rootPos,
+                        getTDir(rootPos, true)
+                    );
+                    p.push();
+                    p.translate(renderPos[0], renderPos[1]);
+                    p.rotate(getDeg(placedPiece.rotateIndex));
+                    
+                    // apply & update opacity
+                    const opacityValue: number = pieceOpacityValues[pIndex];
+                    if (opacityValue < 255){
+                        p.tint(255, opacityValue); // opacity
+                        pieceOpacityValues[pIndex] += 40;
+                    }
+                    p.image(
+                        cv.imagesContainer.pieceImages[pIndex],
+                        0, 0,
+                        p.width*2, 
+                        p.height*2
+                    );
+                    p.noTint();
+                    p.pop();
+                });
+            } // end: RENDERS FOR ALL STATES EXCEPT preparing
 
             // RENDERS FOR PLAYING STATE
             if (progress === "playing"){
                 // testing
+                /*
                 cv.imagesContainer.pieceImages.forEach((pieceImage, i) => {
-                    p.push();
                     const rootPos = levelObject.pieces[i].rootPosOnBase;
                     const renderPos = calculateRenderPos(
                       rootPos,
                       getTDir(rootPos, true)
                     );
+                    p.push();
                     p.translate(renderPos[0], renderPos[1]);
                     //rotate(frameCount * 1.2);
                     p.image(
@@ -217,46 +250,62 @@ function P5_Canvas(
                       p.height*2
                     );
                     p.pop();
-                });
+                });*/
 
                 // selected piece
                 /////
 
 
-                // ACTION: click by mouse, not touch
-                if (p.mouseIsPressed && !alreadyPressing && p.touches.length === 0){
+                // ACTION: click by mouse (not touch) within canvas
+                if (
+                    p.mouseIsPressed && 
+                    !alreadyPressing && 
+                    p.touches.length === 0 &&
+                    p.mouseX > 0 && p.mouseX < p.width &&
+                    p.mouseY > 0 && p.mouseY < p.height
+                ){
                     alreadyPressing = true;
-                    /////
+                    // CLICK ACTION HERE
+                        ////////////////////
+                        pieceOpacityValues[0] = GHOST_OPACITY;
+                        cv.placedPieces[0].rotateIndex++;
+                        cvUpdated = true;
                 }
                 else if (!p.mouseIsPressed && alreadyPressing){
                     alreadyPressing = false;
                 }
-            }
+                
+            } // end: RENDERS FOR PLAYING STATE
 
-        }
-        else loadData(p);
+        } else loadData(p); // images not loaded
 
-        // render canvas cover
-        if (cv.imagesContainer.coverOpacity > 0){
+        // render canvas cover for preparing state and playing state (fading if loaded)
+        if (progress === "preparing") p.background(BG_COLOR);
+        else if (coverOpacity > 0 && progress === "playing"){
             const c: p5Types.Color = p.color(BG_COLOR);
-            c.setAlpha(cv.imagesContainer.coverOpacity);
+            c.setAlpha(coverOpacity);
             p.fill(c);
             p.rect(p.width/2, p.height/2, p.width * 1.3, p.height * 1.3);
 
             // update canvas cover opacity
-            if (cv.imagesContainer.loaded) {
-                cv.imagesContainer.coverOpacity -= 25; // fade in speed
-                cvUpdated = true;
-            }
+            if (cv.imagesContainer.baseImg) coverOpacity -= 25; // speed
         }
-
-        if (cvUpdated) setCv(cv); // update cv
+    
+         // update cv
+        if (cvUpdated) {
+            console.log("CV updated");
+            setCv(cv);
+            cvUpdated = false;
+        }
     };
 
     // helper functions
     // returns true if the given array has the given position
     function arrayHasTile(arr: Pos[], tilePos: Pos): boolean{
         return arr.some(pos => pos[0] === tilePos[0] && pos[1] === tilePos[1]);
+    }
+    function getDeg(rotateIndex: number): number{
+        return DEG_FACTOR * rotateIndex;
     }
     // return true if this triangle tile is upward
     function getTDir(pos: Pos, rootIsUpward: boolean): boolean{

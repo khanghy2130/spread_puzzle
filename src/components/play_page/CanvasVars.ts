@@ -2,14 +2,10 @@
 import p5Types from "p5"; 
 
 type Pos = [number, number];
-type DirectionDegree = 0 | 30 | 90 | 150 | 180 | 210 | 270 | 330;
 
 export default interface CanvasVars {
     imagesContainer: {
-        loaded: boolean,
-        coverOpacity: number, // opacity of rect that covers the canvas
-
-        baseImg: p5Types.Image | null,
+        baseImg: p5Types.Image | null, // if this is null then no image is loaded yet
         pieceImages: p5Types.Image[]
     },
 
@@ -17,7 +13,6 @@ export default interface CanvasVars {
     placedPieces: ({
         pieceIndex: number,
         placedPos: Pos,
-        rotateDeg: DirectionDegree,
-        glowValue: number
+        rotateIndex: number
     })[]
 }

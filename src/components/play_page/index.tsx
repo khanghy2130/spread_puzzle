@@ -36,15 +36,19 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
     // setting up CV default
     const [cv, setCv] = useState<CanvasVars>({
         imagesContainer: {
-            loaded: false,
-            coverOpacity: 255,
-    
             baseImg: null,
             pieceImages: []
         },
     
         selectedPieceIndex: 0,
-        placedPieces: []
+        placedPieces: [
+            /////////////////
+            {
+                pieceIndex: 0,
+                rotateIndex: 0,
+                placedPos: [0, 0]
+            }
+        ]
     });
 
     // socket io events
