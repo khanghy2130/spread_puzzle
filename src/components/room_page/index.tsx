@@ -168,7 +168,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     Figure size: <span>{options.figure_size}</span>
                 </label>
                 <input ref={optionsContainer.figure_size} 
-                    type="range" min={25} max={50} step={5}
+                    type="range" min={25} max={40} step={5}
                     defaultValue={options.figure_size}
                     onChange={onAnyInputChange}
                     disabled={started}

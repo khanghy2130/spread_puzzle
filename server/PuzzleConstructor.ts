@@ -389,12 +389,12 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
             spawningCount++;
         }
 
-        // check if any piece is too big or just one tile
+        // check if any piece is too big or just one/two tiles
         let gerationRejected: boolean = false;
         const tilesCountLimit: number = allPieceTiles.length / (mappedRootTiles.length * PIECE_SIZE_LIMIT_FACTOR);
         for (let i=0; i < mappedRootTiles.length; i++){
             const tilesCount: number = allPieceTiles.filter(mappedTile => mappedTile.pieceIndex === i).length;
-            if (tilesCount > tilesCountLimit || tilesCount === 1) {
+            if (tilesCount > tilesCountLimit || tilesCount === 1 || tilesCount === 2) {
                 gerationRejected = true;
                 break;
             }
