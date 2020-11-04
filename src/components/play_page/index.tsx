@@ -40,15 +40,13 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
             pieceImages: []
         },
     
-        selectedPieceIndex: 0,
-        placedPieces: [
-            /////////////////
-            {
-                pieceIndex: 0,
-                rotateIndex: 0,
-                placedPos: [0, 0]
-            }
-        ]
+        placedPieces: [{index: 2, placedPos: [0, 0], rotateIndex: 0}],
+
+        selectedPiece: {
+            index: 0,
+            isPlacing: false,
+            nextRotate: null
+        }
     });
 
     // socket io events

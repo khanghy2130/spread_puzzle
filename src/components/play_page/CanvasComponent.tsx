@@ -8,7 +8,6 @@ import RoomObject from '../../../server/Room_Object';
 
 type progressType = "preparing"|"playing"|"incomplete"|"complete";
 type Pos = [number, number];
-type DirectionDegree = 0 | 30 | 90 | 150 | 180 | 210 | 270 | 330;
 
 function P5_Canvas(
     levelObject: LevelObject, 
@@ -22,11 +21,11 @@ function P5_Canvas(
     // constants
     const STROKE_COLOR : number = 20;
     const BG_COLOR : number = 28;
-    const GHOST_OPACITY : number = 70;
     const SQRT_3 : number = Math.sqrt(3);
     const HALF_SQRT_3 : number = SQRT_3 / 2;
     const tileType : RoomObject["options"]["type"] = levelObject.base.tileType;
     const DEG_FACTOR : number = tileType === "square" ? 90 : 60; // square: 90, triangle & hexagon: 60
+    const MAX_ROTATE_AMOUNT: number = tileType === "square" ? 4 : 6;
 
     // semi constants
     let semiConstantsLoaded: boolean = false;
@@ -43,20 +42,24 @@ function P5_Canvas(
     let occupiedTiles: Pos[] = [];
     // animations
     let coverOpacity: number = 255;
-    const pieceOpacityValues: number[] = []; // glow values for pieces
-    for (let i=0; i < levelObject.pieces.length; i++) pieceOpacityValues.push(255);
+    const placedPieceAPs: number[] = []; // start animation by setting the num to 1
+    const rotateIndices: number[] = []; // all rotate indices (int) for pieces
+    for (let i=0; i < levelObject.pieces.length; i++) {
+        placedPieceAPs.push(0);
+        rotateIndices.push(Math.floor(Math.random() * MAX_ROTATE_AMOUNT));
+    }
 
     interface SelectedPiece {
         cursorPos: Pos,
-        renderRotateIndex: number, // float
-        targetRotateIndex: number, // int
-        opacity: number // 0 - 255
+        isRotatingLeft: boolean, // rotating forward
+        rotateProgress: number, // if is 0 then done
+        animateProgress: number // start animation by setting this to 1
     }
     const selectedPiece: SelectedPiece = {
         cursorPos: [0, 0],
-        renderRotateIndex: 0,
-        targetRotateIndex: 0,
-        opacity: 0
+        isRotatingLeft: true,
+        rotateProgress: 0,
+        animateProgress: 1 // starting animation
     };
 
     // if is null instead then there is no ghost piece
@@ -161,6 +164,43 @@ function P5_Canvas(
         p.background(BG_COLOR);
     }
 
+
+    function scrollSelectedPiece(toLeft: boolean): void {
+        // there are only 1 or none piece left
+        if (cv.placedPieces.length + 2 >= rotateIndices.length) return;
+        
+        // make a list of available indices to select
+        const availableIndices: number[] = [];
+        for (let i=0; i < rotateIndices.length; i++){
+            // add index if not in placedPieces
+            if (!cv.placedPieces.some((pp) => pp.index === i)){
+                availableIndices.push(i);
+            }
+        }
+
+        let changingIndex: number = availableIndices.indexOf(cv.selectedPiece.index);
+        if (changingIndex === -1) return; // quit
+        changingIndex += toLeft ? -1 : 1;
+        if (changingIndex < 0) changingIndex = availableIndices.length - 1;
+        else if (changingIndex >= availableIndices.length) changingIndex = 0;
+
+        // set new index, and apply opacity
+        cv.selectedPiece.index = availableIndices[changingIndex];
+        selectedPiece.animateProgress = 1;
+        selectedPiece.rotateProgress = 0; // cancel rotating animation
+    }
+    function rotateSelectedPiece(toLeft: boolean): void{
+        // check to jump to 0 or to max
+        let newRotateIndex: number = rotateIndices[cv.selectedPiece.index] + (toLeft ? -1 : 1);
+        if (newRotateIndex < 0) newRotateIndex = MAX_ROTATE_AMOUNT - 1;
+        else if (newRotateIndex >= MAX_ROTATE_AMOUNT) newRotateIndex = 0;
+        rotateIndices[cv.selectedPiece.index] = newRotateIndex; // set it
+
+        // initiate rotate animation
+        selectedPiece.isRotatingLeft = toLeft;
+        selectedPiece.rotateProgress = 1;
+    }
+
     function calculateAndSetSemiConstants(p: p5Types): void{
         const SMALLEST_SIZE = p.min(document.documentElement.clientWidth, document.documentElement.clientHeight);
         CANVAS_SIZE = p.min(SMALLEST_SIZE - 20, 500);
@@ -173,6 +213,8 @@ function P5_Canvas(
         SCALED_SQRT = HALF_SQRT_3 * tileScale;
 
         p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE);
+        selectedPiece.cursorPos = [CANVAS_SIZE/2, CANVAS_SIZE/2]; // center cursor
+        semiConstantsLoaded = true;
     }
     const windowResized = (p: p5Types) => {calculateAndSetSemiConstants(p)};
     const setup = (p: p5Types, canvasParentRef: Element) => {
@@ -194,44 +236,44 @@ function P5_Canvas(
 
             // RENDERS FOR ALL STATES EXCEPT preparing
             if (progress !== "preparing"){
-                // base image
+                // --- base image
                 p.image(
                     cv.imagesContainer.baseImg, 
                     p.width/2, p.height/2,
                     p.width,
                     p.height
                 );
-                // placed pieces
+                // --- placed pieces
                 cv.placedPieces.forEach((placedPiece) => {
-                    const pIndex: number = placedPiece.pieceIndex;
+                    const pIndex: number = placedPiece.index;
                     const rootPos = placedPiece.placedPos;
                     const renderPos = calculateRenderPos(
                         rootPos,
                         getTDir(rootPos, true)
                     );
-                    p.push();
-                    p.translate(renderPos[0], renderPos[1]);
-                    p.rotate(getDeg(placedPiece.rotateIndex));
-                    
-                    // apply & update opacity
-                    const opacityValue: number = pieceOpacityValues[pIndex];
-                    if (opacityValue < 255){
-                        p.tint(255, opacityValue); // opacity
-                        pieceOpacityValues[pIndex] += 40;
+
+                    // apply & update animate progress (if playing state)
+                    let ap: number = placedPieceAPs[pIndex];
+                    if (ap > 0 && progress === "playing"){
+                        ap -= 0.06; // animate speed
+                        if (ap < 0) ap = 0; // constrain
+                        placedPieceAPs[pIndex] = ap;
                     }
+                    p.push();
+                    p.translate(renderPos[0], renderPos[1] - ap * CANVAS_SIZE * 0.2); // move factor
+                    p.rotate(getDeg(placedPiece.rotateIndex) + ap * -30); // rotate factor
                     p.image(
                         cv.imagesContainer.pieceImages[pIndex],
                         0, 0,
                         p.width*2, 
                         p.height*2
                     );
-                    p.noTint();
                     p.pop();
                 });
             } // end: RENDERS FOR ALL STATES EXCEPT preparing
 
-            // RENDERS FOR PLAYING STATE
-            if (progress === "playing"){
+            // RENDERS FOR PLAYING STATE (and not all pieces are placed yet)
+            if (progress === "playing" && cv.placedPieces.length < rotateIndices.length){
                 // testing
                 /*
                 cv.imagesContainer.pieceImages.forEach((pieceImage, i) => {
@@ -252,27 +294,59 @@ function P5_Canvas(
                     p.pop();
                 });*/
 
-                // selected piece
-                /////
+                // --- selected piece
+                const SPIndex: number = cv.selectedPiece.index;
+                p.push();
+                p.translate(selectedPiece.cursorPos[0], selectedPiece.cursorPos[1]);
 
-
-                // ACTION: click by mouse (not touch) within canvas
-                if (
-                    p.mouseIsPressed && 
-                    !alreadyPressing && 
-                    p.touches.length === 0 &&
-                    p.mouseX > 0 && p.mouseX < p.width &&
-                    p.mouseY > 0 && p.mouseY < p.height
-                ){
-                    alreadyPressing = true;
-                    // CLICK ACTION HERE
-                        ////////////////////
-                        pieceOpacityValues[0] = GHOST_OPACITY;
-                        cv.placedPieces[0].rotateIndex++;
-                        cvUpdated = true;
+                // update rotate progress
+                let rotateRenderIndex: number = rotateIndices[cv.selectedPiece.index];
+                rotateRenderIndex += (selectedPiece.isRotatingLeft ? 1 : -1) * selectedPiece.rotateProgress;
+                if (selectedPiece.rotateProgress > 0){
+                    selectedPiece.rotateProgress -= 0.1;
+                    if (selectedPiece.rotateProgress < 0) selectedPiece.rotateProgress = 0;
                 }
-                else if (!p.mouseIsPressed && alreadyPressing){
-                    alreadyPressing = false;
+                p.rotate(getDeg(rotateRenderIndex));
+
+                // apply & update animate progress
+                let ap: number = selectedPiece.animateProgress;
+                if (ap > 0){
+                    ap -= 0.1; // scale offset speed
+                    if (ap < 0) ap = 0; // constrain
+                    selectedPiece.animateProgress = ap;
+                    p.scale(1 - ap * 0.3); // scale offset factor
+                }
+                p.image(
+                    cv.imagesContainer.pieceImages[SPIndex],
+                    0, 0,
+                    p.width*2, 
+                    p.height*2
+                );
+                p.pop();
+
+
+                // --- ghost piece
+
+
+                
+                // update cursor and check click (if mouse is within canvas)
+                if (p.mouseX > 0 && p.mouseX < p.width &&
+                    p.mouseY > 0 && p.mouseY < p.height){
+                    // update selected piece cursor pos
+                    selectedPiece.cursorPos = [p.mouseX, p.mouseY];
+
+                    // check click
+                    if (p.mouseIsPressed && !alreadyPressing && p.touches.length === 0){
+                        alreadyPressing = true;
+                        // CLICK ACTION HERE
+                            ////////////////////
+                            console.log("mouse clicked");
+                            placedPieceAPs[2] = 1;
+                            
+                    }
+                    else if (!p.mouseIsPressed && alreadyPressing){
+                        alreadyPressing = false;
+                    }
                 }
                 
             } // end: RENDERS FOR PLAYING STATE
@@ -291,11 +365,29 @@ function P5_Canvas(
             if (cv.imagesContainer.baseImg) coverOpacity -= 25; // speed
         }
     
-         // update cv
+        // check win (if all pieces placed and placed piece animations are all done)
+        if (cv.placedPieces.length === rotateIndices.length &&
+            placedPieceAPs.every((ap) => ap === 0)){
+                console.log("win");
+        }
+
+        // update cv
         if (cvUpdated) {
             console.log("CV updated");
             setCv(cv);
             cvUpdated = false;
+        }
+    };
+    const keyPressed = (p: p5Types) => {
+        // a: 65  s: 83  z: 90  x: 88
+        if (p.keyCode === 65){ // A
+            scrollSelectedPiece(true);
+        } else if (p.keyCode === 83){ // S
+            scrollSelectedPiece(false);
+        } else if (p.keyCode === 90){ // Z
+            rotateSelectedPiece(true);
+        } else if (p.keyCode === 88){ // X
+            rotateSelectedPiece(false);
         }
     };
 
@@ -342,7 +434,7 @@ function P5_Canvas(
         return [x, y];
     }
  
-    return <Sketch setup={setup} draw={draw} windowResized={windowResized} />;
+    return <Sketch setup={setup} draw={draw} keyPressed={keyPressed} windowResized={windowResized} />;
 }
 
 export default P5_Canvas;

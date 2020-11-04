@@ -9,10 +9,16 @@ export default interface CanvasVars {
         pieceImages: p5Types.Image[]
     },
 
-    selectedPieceIndex: number,
     placedPieces: ({
-        pieceIndex: number,
+        index: number,
         placedPos: Pos,
         rotateIndex: number
-    })[]
+    })[],
+
+    selectedPiece: {
+        index: number,
+        isPlacing: boolean,
+        // null is not rotating
+        nextRotate: "left" | "right" | null
+    }
 }
