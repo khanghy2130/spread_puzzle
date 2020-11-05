@@ -38,7 +38,6 @@ function P5_Canvas(
     // local controls
     let alreadyPressing = false; // prevent multiple clicks in draw()
     let cvUpdated: boolean = false;
-    let occupiedTiles: Pos[] = [];
     let ghostPiecePos: Pos | null = null; // if not null then can place
     let lastCalculatedPos: Pos = [99, 99];
     let allPiecesPlaced : boolean = false;
@@ -121,23 +120,44 @@ function P5_Canvas(
             // not the same as ghostPiecePos or lastCalculatedPos? 
             if (!(boolA && boolB)){
                 lastCalculatedPos = hoverPos;
-                // check fitting pos (all tiles are in base but not in occupiedTiles)
+                // check fitting pos (all tiles are in base but not in occupied tiles)
+                // sp = selected piece
                 const isFittingPos: boolean = SPPosData.every(tilePos => {
                     const translatedPos: Pos = [
                         tilePos[0] + lastCalculatedPos[0],
                         tilePos[1] + lastCalculatedPos[1]
                     ];
-                    return arrayHasTile(levelObject.base.posData, translatedPos) &&
-                        !arrayHasTile(occupiedTiles, translatedPos);
+
+                    // check if this tile is in any of the placed pieces posData
+                    let posIsOccupied: boolean = false;
+                    // pp = placed piece; ppi = placed piece index
+                    ppLoop:
+                    for (let ppi=0; ppi < cv.placedPieces.length; ppi++){
+                        const pp: CanvasVars["placedPieces"][0] = cv.placedPieces[ppi];
+                        const preTranslatePosData: Pos[] = levelObject.pieces[pp.index].posDataArray[pp.rotateIndex];
+                        // check if tilePos is already occupied
+                        for (let pti=0; pti < preTranslatePosData.length; pti++){
+                            let preTranslatePos: Pos = preTranslatePosData[pti];
+                            const ppTranslatedPos: Pos = [
+                                preTranslatePos[0] + pp.placedPos[0],
+                                preTranslatePos[1] + pp.placedPos[1]
+                            ];
+                            // occupied?
+                            if (translatedPos[0] === ppTranslatedPos[0] && translatedPos[1] === ppTranslatedPos[1]){
+                                posIsOccupied = true;
+                                break ppLoop;
+                            }
+                        }
+                    }
+
+                    return arrayHasTile(levelObject.base.posData, translatedPos) && !posIsOccupied;
                 });
-                if (isFittingPos){
-                    ghostPiecePos = hoverPos;
-                }
+                if (isFittingPos) ghostPiecePos = hoverPos;
             }
         }
         // render
         if (ghostPiecePos !== null){
-            let ghostColor = p.color(100);
+            let ghostColor = p.color(110);
             p.fill(ghostColor);
             p.stroke(ghostColor);
             p.strokeWeight(tileScale * 0.03);
@@ -251,17 +271,8 @@ function P5_Canvas(
         selectedPiece.rotateProgress = 1;
         clearGhost();
     }
-    function placeSelectedPiece(SPPosData: Pos[]): void{
+    function placeSelectedPiece(): void{
         if (ghostPiecePos !== null){
-            // add the tiles to occupiedTiles
-            SPPosData.forEach(tilePos => {
-                const translatedPos: Pos = [
-                    tilePos[0] + lastCalculatedPos[0],
-                    tilePos[1] + lastCalculatedPos[1]
-                ];
-                occupiedTiles.push(translatedPos);
-            });
-
             // get the vars before scrolling to new piece
             const thePlacingPieceIndex: number = cv.selectedPiece.index;
             const placedPos: Pos = [ghostPiecePos[0], ghostPiecePos[1]];
@@ -280,33 +291,8 @@ function P5_Canvas(
         // quit if index is over amount of pieces
         if (targetPieceIndex >= levelObject.pieces.length) return;
 
-        // special case: removing the last placed piece
-        if (cv.placedPieces.length === 1 && cv.placedPieces[0].index === targetPieceIndex){
-            cv.placedPieces = [];
-            occupiedTiles = [];
-            cvUpdated = true;
-            selectTargetPiece(targetPieceIndex);
-            return;
-        }
-
-        // remove from placedPieces and from occupiedTiles
-        cv.placedPieces = cv.placedPieces.filter(pp => {
-            // returns false if is target
-            if (pp.index === targetPieceIndex){
-                // remove from occupiedTiles
-                const addedPosData: Pos[] = levelObject.pieces[pp.index].posDataArray[pp.rotateIndex];
-                occupiedTiles = occupiedTiles.filter(pos => {
-                    // reverse translation
-                    const translatedPos: Pos = [
-                        pos[0] - pp.placedPos[0],
-                        pos[1] - pp.placedPos[1]
-                    ];
-                    return !arrayHasTile(addedPosData, translatedPos); // is not added pos? => pass
-                });
-                return false;
-            }
-            else return true;
-        });
+        // remove from placedPieces
+        cv.placedPieces = cv.placedPieces.filter(pp => pp.index !== targetPieceIndex);
         cvUpdated = true;
         selectTargetPiece(targetPieceIndex);
     }
@@ -431,7 +417,7 @@ function P5_Canvas(
                         alreadyPressing = true;
                         // CLICK ACTION HERE
                             ////////////////////
-                            placeSelectedPiece(SPPosData);
+                            placeSelectedPiece();
                             
                     }
                     else if (!p.mouseIsPressed && alreadyPressing){
@@ -497,8 +483,6 @@ function P5_Canvas(
         else if (p.keyCode === 102 || p.keyCode === 54){ // 5
             unplacePiece(5);
         }
-
-        else console.log(occupiedTiles);
     };
 
     // helper functions
