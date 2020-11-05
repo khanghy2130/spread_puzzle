@@ -445,10 +445,11 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
         }
     });
 
+    /*
     console.log("regenerate count:", regenerateCount);
     console.log("let output=" + JSON.stringify({
         base: outputBase, pieces: outputPieces
-    }));
+    }));*/
 
     // set to 'this' (returning LevelObject)
     this.timeLimit = options.time;

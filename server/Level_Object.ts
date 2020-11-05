@@ -14,7 +14,7 @@ interface PieceGroupOutput {
     rootPosOnBase: Pos, // solution position
     posDataArray: Pos[][], // all rotations posData
     color: string,
-    rootIsUpward?: boolean // triangle only
+    rootIsUpward: boolean // only effects triangle
 }
 
 export default interface LevelObject{

@@ -38,8 +38,11 @@ function P5_Canvas(
     // local controls
     let alreadyPressing = false; // prevent multiple clicks in draw()
     let cvUpdated: boolean = false;
-    let lastCalculatedPos: Pos = [99, 99];
     let occupiedTiles: Pos[] = [];
+    let ghostPiecePos: Pos | null = null; // if not null then can place
+    let lastCalculatedPos: Pos = [99, 99];
+    let allPiecesPlaced : boolean = false;
+
     // animations
     let coverOpacity: number = 255;
     const placedPieceAPs: number[] = []; // start animation by setting the num to 1
@@ -61,14 +64,6 @@ function P5_Canvas(
         rotateProgress: 0,
         animateProgress: 1 // starting animation
     };
-
-    // if is null instead then there is no ghost piece
-    interface GhostPiece {
-        pieceIndex: number,
-        pos: Pos,
-        rotateIndex: number
-    }
-    const ghostPiece: GhostPiece | null = null;
 
     function renderTile(p: p5Types, pos: Pos, isUpward: boolean): void {
         const renderPos = calculateRenderPos(pos, isUpward);
@@ -147,17 +142,18 @@ function P5_Canvas(
             );
           })
           
-          // save image
           const renderPos = calculateRenderPos(
             pieceGroup.rootPosOnBase,
             getTDir(pieceGroup.rootPosOnBase, true)
           );
+          // save image
           cv.imagesContainer.pieceImages.push(p.get(
             renderPos[0] - CS,
             renderPos[1] - CS,
             CS * 2,
             CS * 2
           ));
+          // render and save ghost image
         });
       
         cvUpdated = true;
@@ -165,9 +161,12 @@ function P5_Canvas(
     }
 
 
-    function scrollSelectedPiece(toLeft: boolean): void {
-        // there are only 1 or none piece left
-        if (cv.placedPieces.length + 2 >= rotateIndices.length) return;
+    function scrollSelectedPiece(toLeft: boolean, isPlacing?: boolean): void {
+        // if is placing the last piece
+        if (isPlacing && cv.placedPieces.length + 1 === rotateIndices.length){
+            allPiecesPlaced = true;
+            return;
+        }
         
         // make a list of available indices to select
         const availableIndices: number[] = [];
@@ -186,8 +185,10 @@ function P5_Canvas(
 
         // set new index, and apply opacity
         cv.selectedPiece.index = availableIndices[changingIndex];
+        cvUpdated = true;
         selectedPiece.animateProgress = 1;
         selectedPiece.rotateProgress = 0; // cancel rotating animation
+        clearGhost();
     }
     function rotateSelectedPiece(toLeft: boolean): void{
         // check to jump to 0 or to max
@@ -199,6 +200,32 @@ function P5_Canvas(
         // initiate rotate animation
         selectedPiece.isRotatingLeft = toLeft;
         selectedPiece.rotateProgress = 1;
+        clearGhost();
+    }
+    function placeSelectedPiece(SPPosData: Pos[]): void{
+        if (ghostPiecePos !== null){
+            // add the tiles to occupiedTiles
+            SPPosData.forEach(tilePos => {
+                const translatedPos: Pos = [
+                    tilePos[0] + lastCalculatedPos[0],
+                    tilePos[1] + lastCalculatedPos[1]
+                ];
+                occupiedTiles.push(translatedPos);
+            });
+
+            // get the vars before scrolling to new piece
+            const thePlacingPieceIndex: number = cv.selectedPiece.index;
+            const placedPos: Pos = [ghostPiecePos[0], ghostPiecePos[1]];
+            scrollSelectedPiece(true, true); // scroll (will clear ghostPiecePos and lastCalculatedPos)
+            // add to placed piece
+            cv.placedPieces.push({
+                index: thePlacingPieceIndex,
+                placedPos: placedPos,
+                rotateIndex: rotateIndices[thePlacingPieceIndex]
+            });
+            cvUpdated = true;
+            placedPieceAPs[thePlacingPieceIndex] = 1; // initiate animation
+        }
     }
 
     function calculateAndSetSemiConstants(p: p5Types): void{
@@ -273,29 +300,54 @@ function P5_Canvas(
             } // end: RENDERS FOR ALL STATES EXCEPT preparing
 
             // RENDERS FOR PLAYING STATE (and not all pieces are placed yet)
-            if (progress === "playing" && cv.placedPieces.length < rotateIndices.length){
-                // testing
-                /*
-                cv.imagesContainer.pieceImages.forEach((pieceImage, i) => {
-                    const rootPos = levelObject.pieces[i].rootPosOnBase;
-                    const renderPos = calculateRenderPos(
-                      rootPos,
-                      getTDir(rootPos, true)
-                    );
-                    p.push();
-                    p.translate(renderPos[0], renderPos[1]);
-                    //rotate(frameCount * 1.2);
-                    p.image(
-                      pieceImage,
-                      0, 0,
-                      p.width*2, 
-                      p.height*2
-                    );
-                    p.pop();
-                });*/
+            if (progress === "playing" && !allPiecesPlaced){
+                const SPIndex: number = cv.selectedPiece.index;
+                // --- ghost piece (update and render)
+                const SPPosData: Pos[] = levelObject.pieces[SPIndex].posDataArray[rotateIndices[SPIndex]];
+                let hoverPos: Pos | null = getHoveredTile();
+                if (hoverPos !== null){ // pos is on base?
+                    const boolA: boolean = 
+                        hoverPos[0] === lastCalculatedPos[0] && 
+                        hoverPos[1] === lastCalculatedPos[1];
+                    const boolB: boolean = 
+                        ghostPiecePos !== null && 
+                        hoverPos[0] === ghostPiecePos[0] && 
+                        hoverPos[1] === ghostPiecePos[1];
+                    // not the same as ghostPiecePos or lastCalculatedPos? 
+                    if (!(boolA && boolB)){
+                        lastCalculatedPos = hoverPos;
+                        // check fitting pos (all tiles are in base but not in occupiedTiles)
+                        const isFittingPos: boolean = SPPosData.every(tilePos => {
+                            const translatedPos: Pos = [
+                                tilePos[0] + lastCalculatedPos[0],
+                                tilePos[1] + lastCalculatedPos[1]
+                            ];
+                            return arrayHasTile(levelObject.base.posData, translatedPos) &&
+                                !arrayHasTile(occupiedTiles, translatedPos);
+                        });
+                        if (isFittingPos){
+                            ghostPiecePos = hoverPos;
+                        }
+                    }
+                }
+                // render
+                if (ghostPiecePos !== null){
+                    let ghostColor = p.color(100);
+                    p.fill(ghostColor);
+                    p.stroke(ghostColor);
+                    p.strokeWeight(tileScale * 0.03);
+                    // render all tiles in selected piece in current rotate index
+                    SPPosData.forEach(tilePos => {
+                        if (ghostPiecePos === null) return; // to satisfy complier
+                        const translatedPos: Pos = [
+                            tilePos[0] + ghostPiecePos[0],
+                            tilePos[1] + ghostPiecePos[1]
+                        ];
+                        renderTile(p, translatedPos, getTDir(translatedPos, true));
+                    });
+                }
 
                 // --- selected piece
-                const SPIndex: number = cv.selectedPiece.index;
                 p.push();
                 p.translate(selectedPiece.cursorPos[0], selectedPiece.cursorPos[1]);
 
@@ -318,16 +370,12 @@ function P5_Canvas(
                 }
                 p.image(
                     cv.imagesContainer.pieceImages[SPIndex],
-                    0, 0,
-                    p.width*2, 
-                    p.height*2
+                    0, 0, p.width*2, p.height*2
                 );
                 p.pop();
 
 
-                // --- ghost piece
-
-
+                
                 
                 // update cursor and check click (if mouse is within canvas)
                 if (p.mouseX > 0 && p.mouseX < p.width &&
@@ -340,8 +388,7 @@ function P5_Canvas(
                         alreadyPressing = true;
                         // CLICK ACTION HERE
                             ////////////////////
-                            console.log("mouse clicked");
-                            placedPieceAPs[2] = 1;
+                            placeSelectedPiece(SPPosData);
                             
                     }
                     else if (!p.mouseIsPressed && alreadyPressing){
@@ -366,9 +413,8 @@ function P5_Canvas(
         }
     
         // check win (if all pieces placed and placed piece animations are all done)
-        if (cv.placedPieces.length === rotateIndices.length &&
-            placedPieceAPs.every((ap) => ap === 0)){
-                console.log("win");
+        if (allPiecesPlaced && placedPieceAPs.every((ap) => ap === 0)){
+            setProgress("complete");
         }
 
         // update cv
@@ -385,19 +431,25 @@ function P5_Canvas(
         } else if (p.keyCode === 83){ // S
             scrollSelectedPiece(false);
         } else if (p.keyCode === 90){ // Z
-            rotateSelectedPiece(true);
-        } else if (p.keyCode === 88){ // X
             rotateSelectedPiece(false);
+        } else if (p.keyCode === 88){ // X
+            rotateSelectedPiece(true);
+        } else { // FOR TESTING
+            console.log("cv", cv);
         }
     };
 
     // helper functions
+    function clearGhost(): void {
+        ghostPiecePos = null;
+        lastCalculatedPos = [99, 99];
+    }
     // returns true if the given array has the given position
     function arrayHasTile(arr: Pos[], tilePos: Pos): boolean{
         return arr.some(pos => pos[0] === tilePos[0] && pos[1] === tilePos[1]);
     }
     function getDeg(rotateIndex: number): number{
-        return DEG_FACTOR * rotateIndex;
+        return -DEG_FACTOR * rotateIndex;
     }
     // return true if this triangle tile is upward
     function getTDir(pos: Pos, rootIsUpward: boolean): boolean{
@@ -432,6 +484,47 @@ function P5_Canvas(
             y = offset[1] + pos[1] * SCALED_SQRT + yOffset;
         }
         return [x, y];
+    }
+    // returns null if not a vaild tile
+    function getHoveredTile(): Pos | null{
+        let r: Math["round"] = Math.round;
+        let result: [number, number] = [0, 0];
+        const cursorPos : Pos = selectedPiece.cursorPos;
+        
+        if (tileType === "square"){
+            result = [
+            r((cursorPos[0] - offset[0])/tileScale),
+            r((cursorPos[1] - offset[1])/tileScale),
+            ];
+        } 
+        else if (tileType === "hexagon"){    
+            const xPos = (cursorPos[0] - offset[0])/tileScale/3*2;
+            const yPos = ((cursorPos[1] - offset[1])/SCALED_SQRT - xPos) / 2;
+            result = [r(xPos), r(yPos)];
+        } 
+        else if (tileType === "triangle"){
+            const rootIsUpward: boolean = levelObject.pieces[cv.selectedPiece.index].rootIsUpward;
+            const SPRotateIndex: number = rotateIndices[cv.selectedPiece.index];
+            let lookingForUpward = rootIsUpward === (SPRotateIndex % 2 === 0);
+
+            const CENTER_Y = tileScale / (SQRT_3 * 2);
+            const yOffset = lookingForUpward ? SCALED_SQRT - (CENTER_Y * 2) : 0;
+            const xPos = (cursorPos[0] - offset[0]) / HALF_SCALE;
+            const yPos = (cursorPos[1] - offset[1] - yOffset) / SCALED_SQRT;
+            
+            // if is the other direction
+            if (getTDir([r(xPos), r(yPos)], true) !== lookingForUpward){
+            // more to the right?
+            if (Math.ceil(xPos) - r(xPos) > 0.5){
+                result = [r(xPos + 1), r(yPos)];
+            }
+            else result = [r(xPos - 1), r(yPos)];
+            }
+            else result = [r(xPos), r(yPos)];
+        }
+        
+        if (arrayHasTile(levelObject.base.posData, result)) return result;
+        return null; // return null if not a tile in baseTiles
     }
  
     return <Sketch setup={setup} draw={draw} keyPressed={keyPressed} windowResized={windowResized} />;

@@ -178,7 +178,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     Number of pieces: <span>{options.pieces_amount}</span>
                 </label>
                 <input ref={optionsContainer.pieces_amount} 
-                    type="range" min={4} max={6} 
+                    type="range" min={2} max={6} 
                     defaultValue={options.pieces_amount}
                     onChange={onAnyInputChange}
                     disabled={started}

@@ -40,7 +40,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
             pieceImages: []
         },
     
-        placedPieces: [{index: 2, placedPos: [0, 0], rotateIndex: 0}],
+        placedPieces: [], // dummy piece {index: 2, placedPos: [0, 0], rotateIndex: 0}
 
         selectedPiece: {
             index: 0,
