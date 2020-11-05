@@ -61,7 +61,6 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
             socket.on("end-game", (receivedRoomObject : RoomObject) => {
                 resetRoomPage(receivedRoomObject);
             });
-            console.log(levelObject);
         }
 
         return () => {
@@ -149,9 +148,6 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
 
             {/* Timer text */}
             <h3 id="time-left-text">Time left:  <span ref={time_display}></span></h3>
-
-            <button onClick={() => {setProgress("complete")}}>Win</button>
-            <button onClick={() => {setProgress("incomplete")}}>Lose</button>
 
             {/* Canvas */}
             <div id="canvas-parent">

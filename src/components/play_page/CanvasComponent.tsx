@@ -206,7 +206,15 @@ function P5_Canvas(
         p.background(BG_COLOR);
     }
 
-
+    // user control functions
+    function selectTargetPiece(targetPieceIndex: number): void {
+        // set new index, and start animation (cancel rotate AP)
+        cv.selectedPiece.index = targetPieceIndex;
+        cvUpdated = true;
+        selectedPiece.animateProgress = 1;
+        selectedPiece.rotateProgress = 0; // cancel rotating animation
+        clearGhost();
+    }
     function scrollSelectedPiece(toLeft: boolean, isPlacing?: boolean): void {
         // if is placing the last piece
         if (isPlacing && cv.placedPieces.length + 1 === rotateIndices.length){
@@ -223,18 +231,13 @@ function P5_Canvas(
             }
         }
 
-        let changingIndex: number = availableIndices.indexOf(cv.selectedPiece.index);
-        if (changingIndex === -1) return; // quit
-        changingIndex += toLeft ? -1 : 1;
-        if (changingIndex < 0) changingIndex = availableIndices.length - 1;
-        else if (changingIndex >= availableIndices.length) changingIndex = 0;
+        let finalIndex: number = availableIndices.indexOf(cv.selectedPiece.index);
+        if (finalIndex === -1) return; // quit
+        finalIndex += toLeft ? -1 : 1;
+        if (finalIndex < 0) finalIndex = availableIndices.length - 1;
+        else if (finalIndex >= availableIndices.length) finalIndex = 0;
 
-        // set new index, and apply opacity
-        cv.selectedPiece.index = availableIndices[changingIndex];
-        cvUpdated = true;
-        selectedPiece.animateProgress = 1;
-        selectedPiece.rotateProgress = 0; // cancel rotating animation
-        clearGhost();
+        selectTargetPiece(availableIndices[finalIndex]); // select new piece
     }
     function rotateSelectedPiece(toLeft: boolean): void{
         // check to jump to 0 or to max
@@ -273,6 +276,41 @@ function P5_Canvas(
             placedPieceAPs[thePlacingPieceIndex] = 1; // initiate animation
         }
     }
+    function unplacePiece(targetPieceIndex: number) : void {
+        // quit if index is over amount of pieces
+        if (targetPieceIndex >= levelObject.pieces.length) return;
+
+        // special case: removing the last placed piece
+        if (cv.placedPieces.length === 1 && cv.placedPieces[0].index === targetPieceIndex){
+            cv.placedPieces = [];
+            occupiedTiles = [];
+            cvUpdated = true;
+            selectTargetPiece(targetPieceIndex);
+            return;
+        }
+
+        // remove from placedPieces and from occupiedTiles
+        cv.placedPieces = cv.placedPieces.filter(pp => {
+            // returns false if is target
+            if (pp.index === targetPieceIndex){
+                // remove from occupiedTiles
+                const addedPosData: Pos[] = levelObject.pieces[pp.index].posDataArray[pp.rotateIndex];
+                occupiedTiles = occupiedTiles.filter(pos => {
+                    // reverse translation
+                    const translatedPos: Pos = [
+                        pos[0] - pp.placedPos[0],
+                        pos[1] - pp.placedPos[1]
+                    ];
+                    return !arrayHasTile(addedPosData, translatedPos); // is not added pos? => pass
+                });
+                return false;
+            }
+            else return true;
+        });
+        cvUpdated = true;
+        selectTargetPiece(targetPieceIndex);
+    }
+
 
     function calculateAndSetSemiConstants(p: p5Types): void{
         const SMALLEST_SIZE = p.min(document.documentElement.clientWidth, document.documentElement.clientHeight);
@@ -338,8 +376,8 @@ function P5_Canvas(
                         placedPieceAPs[pIndex] = ap;
                     }
                     p.push();
-                    p.translate(renderPos[0], renderPos[1] - ap * CANVAS_SIZE * 0.2); // move factor
-                    p.rotate(getDeg(placedPiece.rotateIndex) + ap * -30); // rotate factor
+                    p.translate(renderPos[0], renderPos[1] - ap * CANVAS_SIZE * 0.1); // move factor
+                    p.rotate(getDeg(placedPiece.rotateIndex));
                     p.image(
                         cv.imagesContainer.pieceImages[pIndex],
                         0, 0,
@@ -439,9 +477,28 @@ function P5_Canvas(
             rotateSelectedPiece(false);
         } else if (p.keyCode === 88){ // X
             rotateSelectedPiece(true);
-        } else { // FOR TESTING
-            console.log("cv", cv);
+        } 
+        // unplace/select piece
+        else if (p.keyCode === 97 || p.keyCode === 49){ // 0
+            unplacePiece(0);
+        } 
+        else if (p.keyCode === 98 || p.keyCode === 50){ // 1
+            unplacePiece(1);
+        } 
+        else if (p.keyCode === 99 || p.keyCode === 51){ // 2
+            unplacePiece(2);
+        } 
+        else if (p.keyCode === 100 || p.keyCode === 52){ // 3
+            unplacePiece(3);
+        } 
+        else if (p.keyCode === 101 || p.keyCode === 53){ // 4
+            unplacePiece(4);
+        } 
+        else if (p.keyCode === 102 || p.keyCode === 54){ // 5
+            unplacePiece(5);
         }
+
+        else console.log(occupiedTiles);
     };
 
     // helper functions
