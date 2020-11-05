@@ -107,6 +107,52 @@ function P5_Canvas(
         }
     }
 
+    function renderGhostPiece(p: p5Types, SPPosData: Pos[]): void {
+        // --- ghost piece (update and render)
+        let hoverPos: Pos | null = getHoveredTile();
+        if (hoverPos !== null){ // pos is on base?
+            const boolA: boolean = 
+                hoverPos[0] === lastCalculatedPos[0] && 
+                hoverPos[1] === lastCalculatedPos[1];
+            const boolB: boolean = 
+                ghostPiecePos !== null && 
+                hoverPos[0] === ghostPiecePos[0] && 
+                hoverPos[1] === ghostPiecePos[1];
+            // not the same as ghostPiecePos or lastCalculatedPos? 
+            if (!(boolA && boolB)){
+                lastCalculatedPos = hoverPos;
+                // check fitting pos (all tiles are in base but not in occupiedTiles)
+                const isFittingPos: boolean = SPPosData.every(tilePos => {
+                    const translatedPos: Pos = [
+                        tilePos[0] + lastCalculatedPos[0],
+                        tilePos[1] + lastCalculatedPos[1]
+                    ];
+                    return arrayHasTile(levelObject.base.posData, translatedPos) &&
+                        !arrayHasTile(occupiedTiles, translatedPos);
+                });
+                if (isFittingPos){
+                    ghostPiecePos = hoverPos;
+                }
+            }
+        }
+        // render
+        if (ghostPiecePos !== null){
+            let ghostColor = p.color(100);
+            p.fill(ghostColor);
+            p.stroke(ghostColor);
+            p.strokeWeight(tileScale * 0.03);
+            // render all tiles in selected piece in current rotate index
+            SPPosData.forEach(tilePos => {
+                if (ghostPiecePos === null) return; // to satisfy complier
+                const translatedPos: Pos = [
+                    tilePos[0] + ghostPiecePos[0],
+                    tilePos[1] + ghostPiecePos[1]
+                ];
+                renderTile(p, translatedPos, getTDir(translatedPos, true));
+            });
+        }
+    }
+
     function loadData(p: p5Types): void{
         const CS = CANVAS_SIZE;
         p.background(BG_COLOR);
@@ -260,6 +306,8 @@ function P5_Canvas(
 
         // all images loaded ?
         if (cv.imagesContainer.baseImg){
+            const SPIndex: number = cv.selectedPiece.index;
+            const SPPosData: Pos[] = levelObject.pieces[SPIndex].posDataArray[rotateIndices[SPIndex]];
 
             // RENDERS FOR ALL STATES EXCEPT preparing
             if (progress !== "preparing"){
@@ -270,6 +318,9 @@ function P5_Canvas(
                     p.width,
                     p.height
                 );
+
+                renderGhostPiece(p, SPPosData); // ghost piece layer before placed pieces
+
                 // --- placed pieces
                 cv.placedPieces.forEach((placedPiece) => {
                     const pIndex: number = placedPiece.index;
@@ -301,52 +352,6 @@ function P5_Canvas(
 
             // RENDERS FOR PLAYING STATE (and not all pieces are placed yet)
             if (progress === "playing" && !allPiecesPlaced){
-                const SPIndex: number = cv.selectedPiece.index;
-                // --- ghost piece (update and render)
-                const SPPosData: Pos[] = levelObject.pieces[SPIndex].posDataArray[rotateIndices[SPIndex]];
-                let hoverPos: Pos | null = getHoveredTile();
-                if (hoverPos !== null){ // pos is on base?
-                    const boolA: boolean = 
-                        hoverPos[0] === lastCalculatedPos[0] && 
-                        hoverPos[1] === lastCalculatedPos[1];
-                    const boolB: boolean = 
-                        ghostPiecePos !== null && 
-                        hoverPos[0] === ghostPiecePos[0] && 
-                        hoverPos[1] === ghostPiecePos[1];
-                    // not the same as ghostPiecePos or lastCalculatedPos? 
-                    if (!(boolA && boolB)){
-                        lastCalculatedPos = hoverPos;
-                        // check fitting pos (all tiles are in base but not in occupiedTiles)
-                        const isFittingPos: boolean = SPPosData.every(tilePos => {
-                            const translatedPos: Pos = [
-                                tilePos[0] + lastCalculatedPos[0],
-                                tilePos[1] + lastCalculatedPos[1]
-                            ];
-                            return arrayHasTile(levelObject.base.posData, translatedPos) &&
-                                !arrayHasTile(occupiedTiles, translatedPos);
-                        });
-                        if (isFittingPos){
-                            ghostPiecePos = hoverPos;
-                        }
-                    }
-                }
-                // render
-                if (ghostPiecePos !== null){
-                    let ghostColor = p.color(100);
-                    p.fill(ghostColor);
-                    p.stroke(ghostColor);
-                    p.strokeWeight(tileScale * 0.03);
-                    // render all tiles in selected piece in current rotate index
-                    SPPosData.forEach(tilePos => {
-                        if (ghostPiecePos === null) return; // to satisfy complier
-                        const translatedPos: Pos = [
-                            tilePos[0] + ghostPiecePos[0],
-                            tilePos[1] + ghostPiecePos[1]
-                        ];
-                        renderTile(p, translatedPos, getTDir(translatedPos, true));
-                    });
-                }
-
                 // --- selected piece
                 p.push();
                 p.translate(selectedPiece.cursorPos[0], selectedPiece.cursorPos[1]);
