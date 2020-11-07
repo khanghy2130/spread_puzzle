@@ -2,32 +2,123 @@
 
 #play-page-main {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
     padding-top: 30px;
 
-    #time-left-text {
-        background-color: rgba(0,0,0, 0.7);
-        text-align: center;
-        align-self: center;
-        margin: 0.7em 0;
-        padding: 0.1em 1em;
+    #canvas-section {
+        display: flex;
+        flex-direction: column;
 
-        span {
-            color: $support_blue
+        #time-left-text {
+            background-color: rgba(0,0,0, 0.7);
+            text-align: center;
+            align-self: center;
+            margin: 0.7em 0;
+            padding: 0.1em 1em;
+            min-width: 50%;
+    
+            span {
+                color: $support_blue
+            }
+        }
+    
+        #canvas-parent {
+            overflow: hidden;
+            border-radius: 10%;
+            border: 0.4em solid $black;
+            
+            .react-p5 {
+                display: flex;
+                touch-action: none;
+            }
         }
     }
 
-    #canvas-parent {
-        overflow: hidden;
-        border-radius: 10%;
-        border: 0.4em solid $black;
-        
-        .react-p5 {
+    #control-section {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        min-width: 350px;
+        max-width: 400px;
+        margin: 5em 1em 0;
+
+        & div {
             display: flex;
         }
+
+        #control-buttons {
+            flex-direction: column;
+
+            #pieces-panel {
+
+            }
+
+            #selected-piece-controls {
+                margin-top: 1em;
+                flex-direction: row;
+
+                & > button {
+                    flex-grow: 1;
+                    border: $black 0.2em solid;
+                    transition: background-color 0.3s;
+                    background-color: darken($color: $support_blue, $amount: 35%);
+                    outline: none;
+        
+                    &:hover {
+                        background-color: darken($color: $support_blue, $amount: 10%) !important;
+                    }
+                    &:nth-child(2){ // middle
+                        border-left: none;
+                        border-right: none;
+                    }
+
+                    & > img {
+                        max-height: 3em;
+                        width: auto;
+                    }
+                }
+            }
+        }
+
+        #extra-buttons {
+            margin-top: 3.5em;
+            flex-direction: column;
+
+            button {
+                @extend .font-header;
+                padding: 0.2em 0.5em;
+                border: $black 0.2em solid;
+                color: $black;
+                transition: background-color 0.3s;
+    
+                &:hover {
+                    background-color: $text_white !important;
+                }
+            }
+
+            & > div {
+                flex-direction: row;
+                justify-content: center;
+
+                #help-button {
+                    background-color: $support_blue;
+                    padding: 0 1.5em;
+                }
+                #chat-button {
+                    flex-grow: 1;
+                    border-left: none;
+                    background-color: $yellow;
+                }
+            }
+            #give-up-button {
+                margin-top: 1em;
+                background-color: $red;
+            }
+        }
     }
+
 
     #play-page-modal {
         position: fixed;
@@ -67,12 +158,15 @@
 
 }
 
-// move chessman container to the top
-@media only screen and (max-width: $tablet-bp){
-    // #play-page-main
-}
+@media only screen and (max-width: 900px){
+    #play-page-main {
+        flex-direction: column;
+        align-items: center;
 
-// table cells are now viewport-width-responsive
-@media only screen and (max-width: $mobile-bp){
-    // #play-page-main
+        #control-section {
+            margin: 1em 0 0;
+            min-width: 0;
+            width: 90vw;
+        }
+    }
 }

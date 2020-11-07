@@ -6,6 +6,9 @@ import RoomObject from '../../../server/Room_Object';
 import CanvasVars from './CanvasVars';
 
 import P5_Canvas from './CanvasComponent';
+import downPNG from './images/down.png';
+import leftPNG from './images/left.png';
+import rightPNG from './images/right.png';
 
 // timeout or give up: setProgress("incomplete");   win: setProgress("complete");
 
@@ -29,6 +32,33 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
     const begin_countdown_display = useRef<HTMLHeadingElement>(null);
     let beginCountdownIntervalID: any; // ID of the begin countdown interval
 
+    // confirm giving up
+    let givingUp: boolean = false;
+    let givingUpTimerID : NodeJS.Timeout;
+    const give_up_button = useRef<HTMLButtonElement>(null);
+
+    function onGiveUp(){
+        if (!give_up_button || !give_up_button.current) return;
+
+        // 1st click
+        if (!givingUp) {
+            give_up_button.current.innerText = "CONFIRM GIVING UP";
+            givingUp = true;
+            givingUpTimerID = setTimeout(()=>{
+                if (typeof givingUp !== "undefined" && give_up_button && give_up_button.current) {
+                    give_up_button.current.innerText = "Give up";
+                    givingUp = false;
+                }
+            }, 3000);
+        }
+        // 2nd click
+        else {
+            give_up_button.current.hidden = true;
+            clearTimeout(givingUpTimerID); // stop timer
+            setProgress("incomplete");
+        }
+    }
+
     // main game state status
     type progressType = "preparing"|"playing"|"incomplete"|"complete";
     const [progress, setProgress] = useState<progressType>("preparing");
@@ -40,7 +70,7 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
             pieceImages: []
         },
     
-        placedPieces: [], // dummy piece {index: 2, placedPos: [0, 0], rotateIndex: 0}
+        placedPieces: [],
 
         selectedPiece: {
             index: 0,
@@ -146,13 +176,53 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
                 </div>
             )}
 
-            {/* Timer text */}
-            <h3 id="time-left-text">Time left:  <span ref={time_display}></span></h3>
+            <section id="canvas-section">
+                {/* Timer text */}
+                <h3 id="time-left-text">Time left:  <span ref={time_display}></span></h3>
 
-            {/* Canvas */}
-            <div id="canvas-parent">
-                {P5_Canvas(levelObject, cv, setCv, progress, setProgress)}
-            </div>
+                {/* Canvas */}
+                <div id="canvas-parent">
+                    {P5_Canvas(levelObject, cv, setCv, progress, setProgress)}
+                </div>
+            </section>
+            
+            <section id="control-section">
+                
+                <div id="control-buttons">
+                    <div id="pieces-panel"></div>
+                    <div id="selected-piece-controls">
+                        <button onClick={() => {
+                            cv.selectedPiece.isPlacing = true;
+                            setCv(cv);
+                        }}>
+                            <img src={downPNG} alt="place button"/>
+                        </button>
+                        <button onClick={() => {
+                            cv.selectedPiece.nextRotate = "left";
+                            setCv(cv);
+                        }}>
+                            <img src={leftPNG} alt="rotate left button"/>
+                        </button>
+                        <button onClick={() => {
+                            cv.selectedPiece.nextRotate = "right";
+                            setCv(cv);
+                        }}>
+                            <img src={rightPNG} alt="rotate right button"/>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="extra-buttons">
+                    <div>
+                        <button id="help-button">Help</button>
+                        <button id="chat-button">Chat</button>
+                    </div>
+                    <button id="give-up-button" onClick={onGiveUp} ref={give_up_button}>
+                        Give up
+                    </button>
+                </div>
+
+            </section>
 
         </main>
     );

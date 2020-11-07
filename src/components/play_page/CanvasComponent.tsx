@@ -16,7 +16,7 @@ function P5_Canvas(
     progress: progressType, 
     setProgress: React.Dispatch<React.SetStateAction<progressType>>
 ) {
-    if (!cv) return null;
+    if (!cv) return null; // no canvas if no cv
     
     // constants
     const STROKE_COLOR : number = 20;
@@ -403,8 +403,6 @@ function P5_Canvas(
                 );
                 p.pop();
 
-
-                
                 
                 // update cursor and check click (if mouse is within canvas)
                 if (p.mouseX > 0 && p.mouseX < p.width &&
@@ -415,14 +413,23 @@ function P5_Canvas(
                     // check click
                     if (p.mouseIsPressed && !alreadyPressing && p.touches.length === 0){
                         alreadyPressing = true;
-                        // CLICK ACTION HERE
-                            ////////////////////
-                            placeSelectedPiece();
-                            
+                        placeSelectedPiece(); 
                     }
                     else if (!p.mouseIsPressed && alreadyPressing){
                         alreadyPressing = false;
                     }
+                }
+
+                // check button element inputs (placing and rotating)
+                if (cv.selectedPiece.isPlacing){
+                    placeSelectedPiece();
+                    cv.selectedPiece.isPlacing = false;
+                    cvUpdated = true;
+                }
+                if (cv.selectedPiece.nextRotate !== null){
+                    rotateSelectedPiece(cv.selectedPiece.nextRotate === "right");
+                    cv.selectedPiece.nextRotate = null;
+                    cvUpdated = true;
                 }
                 
             } // end: RENDERS FOR PLAYING STATE
@@ -482,6 +489,9 @@ function P5_Canvas(
         } 
         else if (p.keyCode === 102 || p.keyCode === 54){ // 5
             unplacePiece(5);
+        }
+        else if (p.keyCode === 103 || p.keyCode === 55){ // 5
+            unplacePiece(6);
         }
     };
 

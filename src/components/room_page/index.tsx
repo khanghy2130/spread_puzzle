@@ -69,7 +69,6 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
     // confirm leaving state
     const [leaving, setLeaving] = useState<boolean>(false);
     const [leavingTimerID, setLeavingTimerID] = useState<any>(null);
-    const leave_button = useRef<HTMLButtonElement>(null);
 
     function onAnyInputChange(){
         // if not already started
@@ -168,7 +167,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     Figure size: <span>{options.figure_size}</span>
                 </label>
                 <input ref={optionsContainer.figure_size} 
-                    type="range" min={25} max={40} step={5}
+                    type="range" min={30} max={50} step={5}
                     defaultValue={options.figure_size}
                     onChange={onAnyInputChange}
                     disabled={started}
@@ -178,7 +177,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     Number of pieces: <span>{options.pieces_amount}</span>
                 </label>
                 <input ref={optionsContainer.pieces_amount} 
-                    type="range" min={2} max={6} 
+                    type="range" min={4} max={7} 
                     defaultValue={options.pieces_amount}
                     onChange={onAnyInputChange}
                     disabled={started}
@@ -209,7 +208,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     <p id="not-host-message">Only the host can start the game.</p>
                 }
 
-                <button id="leave-button" ref={leave_button} onClick={onLeave}>
+                <button id="leave-button" onClick={onLeave}>
                     {(leaving) ? "CONFIRM LEAVING" : "Leave Room"}
                 </button>
             </div>
@@ -223,7 +222,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     )}
                 </div>
                 
-                <button onClick={()=>{console.log("chat clicked")}}>
+                <button id="chat-button" onClick={()=>{console.log("chat clicked")}}>
                     Chat
                 </button>
                 {

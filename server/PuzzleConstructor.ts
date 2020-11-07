@@ -31,7 +31,7 @@ const HEXAGON_DIRS: DirectionDegree[] = [30, 90, 150, 210, 270, 330];
 const UPWARD_TRIANGLE_DIRS: DirectionDegree[] = [30, 150, 270];
 const DOWNWARD_TRIANLGE_DIRS: DirectionDegree[] = [90, 210, 330];
 const PIECE_SIZE_LIMIT_FACTOR: number = 0.7;
-const PIECE_COLORS: string[] = ["crimson", "lime", "blue", "yellow", "violet", "aqua"];
+const PIECE_COLORS: string[] = ["crimson", "lime", "blue", "yellow", "violet", "aqua", "pink"];
 
 // types for generator
 interface Borders {
@@ -444,7 +444,7 @@ const PuzzleConstructor = function(this: LevelObject, options: RoomObject["optio
             );
         }
     });
-
+    
     /*
     console.log("regenerate count:", regenerateCount);
     console.log("let output=" + JSON.stringify({
