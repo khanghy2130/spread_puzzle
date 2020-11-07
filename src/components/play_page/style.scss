@@ -52,11 +52,29 @@
             flex-direction: column;
 
             #pieces-panel {
+                flex-direction: row;
+                justify-content: center;
+                height: 5em;
 
+                // piece button
+                & > button {
+                    flex-grow: 1;
+                    height: 3em;
+                    border: solid 0.2em $black;
+                    transition: height 0.2s;
+                    outline: none;
+
+                    &:hover, &.selected{
+                        height: 4em;
+                    }
+                    &.placed {
+                        height: 2em;
+                        &:hover {height: 4em;}
+                    }
+                }
             }
 
             #selected-piece-controls {
-                margin-top: 1em;
                 flex-direction: row;
 
                 & > button {
@@ -166,7 +184,7 @@
         #control-section {
             margin: 1em 0 0;
             min-width: 0;
-            width: 90vw;
+            width: 95vw;
         }
     }
 }

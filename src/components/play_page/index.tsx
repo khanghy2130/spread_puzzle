@@ -75,9 +75,17 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
         selectedPiece: {
             index: 0,
             isPlacing: false,
-            nextRotate: null
+            nextRotate: null,
+            nextPiece: null
         }
     });
+
+    // piece button refs
+    const pieceButtonRefs = useRef(Array.from(
+        {length: levelObject.pieces.length}, 
+        a => React.createRef<HTMLButtonElement>()
+    ));
+
 
     // socket io events
     useEffect(()=>{
@@ -152,6 +160,41 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
     }, [progress]);
 
 
+    function Pieces_Panel(){
+        return <div id="pieces-panel">
+            {levelObject.pieces.map((pieceGroup, index) => (
+                <button
+                    ref={pieceButtonRefs.current[index]}
+                    className={0 === index? "selected" : "" /* set up value only */}
+                    style={{backgroundColor: pieceGroup.color}}
+                    key={index} 
+                    onClick={() => {
+                        cv.selectedPiece.nextPiece = index;
+                        setCv(cv);
+                    }}
+                    disabled={progress !== "playing"}
+                ></button>
+            ))}
+        </div>
+    }
+    // functions about setting piece buttons class names for canvas component
+    function setPlacedClass(targetPieceIndex: number, adding: boolean): void {
+        const btnClassList: any = pieceButtonRefs.current[targetPieceIndex].current?.classList;
+        if (!btnClassList) return; // quit
+        if (adding) btnClassList.add("placed");
+        else btnClassList.remove("placed");
+    }
+    function setSelectedClass(selectedPieceIndex: number): void{
+        pieceButtonRefs.current.forEach((btnRef, btnIndex) => {
+            // is clicked btn
+            if (btnIndex === selectedPieceIndex){
+                btnRef.current?.classList.add("selected");
+                setPlacedClass(btnIndex, false);
+            }
+            else btnRef.current?.classList.remove("selected");
+        });
+    }
+
     return (
         <main id="play-page-main">
 
@@ -182,14 +225,15 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
 
                 {/* Canvas */}
                 <div id="canvas-parent">
-                    {P5_Canvas(levelObject, cv, setCv, progress, setProgress)}
+                    {P5_Canvas(levelObject, cv, setCv, progress, setProgress, setPlacedClass, setSelectedClass)}
                 </div>
             </section>
             
             <section id="control-section">
                 
                 <div id="control-buttons">
-                    <div id="pieces-panel"></div>
+                    {Pieces_Panel()}
+
                     <div id="selected-piece-controls">
                         <button onClick={() => {
                             cv.selectedPiece.isPlacing = true;
@@ -227,5 +271,6 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
         </main>
     );
 };
+
 
 export default Play_Page;

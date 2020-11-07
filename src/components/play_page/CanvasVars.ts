@@ -18,7 +18,8 @@ export default interface CanvasVars {
     selectedPiece: {
         index: number,
         isPlacing: boolean,
-        // null is not rotating
-        nextRotate: "left" | "right" | null
+        // null is no action
+        nextRotate: "left" | "right" | null,
+        nextPiece: number | null
     }
 }

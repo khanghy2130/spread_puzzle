@@ -14,7 +14,9 @@ function P5_Canvas(
     cv: CanvasVars, 
     setCv: React.Dispatch<React.SetStateAction<CanvasVars>>,
     progress: progressType, 
-    setProgress: React.Dispatch<React.SetStateAction<progressType>>
+    setProgress: React.Dispatch<React.SetStateAction<progressType>>,
+    setPlacedClass: (targetPieceIndex: number, adding: boolean) => void,
+    setSelectedClass: (selectedPieceIndex: number) => void
 ) {
     if (!cv) return null; // no canvas if no cv
     
@@ -234,7 +236,10 @@ function P5_Canvas(
         selectedPiece.animateProgress = 1;
         selectedPiece.rotateProgress = 0; // cancel rotating animation
         clearGhost();
+        setPlacedClass(targetPieceIndex, false); // update class names
+        setSelectedClass(targetPieceIndex);
     }
+    // on scroll and on place
     function scrollSelectedPiece(toLeft: boolean, isPlacing?: boolean): void {
         // if is placing the last piece
         if (isPlacing && cv.placedPieces.length + 1 === rotateIndices.length){
@@ -276,7 +281,7 @@ function P5_Canvas(
             // get the vars before scrolling to new piece
             const thePlacingPieceIndex: number = cv.selectedPiece.index;
             const placedPos: Pos = [ghostPiecePos[0], ghostPiecePos[1]];
-            scrollSelectedPiece(true, true); // scroll (will clear ghostPiecePos and lastCalculatedPos)
+            scrollSelectedPiece(false, true); // scroll (will clear ghostPiecePos and lastCalculatedPos)
             // add to placed piece
             cv.placedPieces.push({
                 index: thePlacingPieceIndex,
@@ -285,6 +290,7 @@ function P5_Canvas(
             });
             cvUpdated = true;
             placedPieceAPs[thePlacingPieceIndex] = 1; // initiate animation
+            setPlacedClass(thePlacingPieceIndex, true); // update class names
         }
     }
     function unplacePiece(targetPieceIndex: number) : void {
@@ -295,6 +301,7 @@ function P5_Canvas(
         cv.placedPieces = cv.placedPieces.filter(pp => pp.index !== targetPieceIndex);
         cvUpdated = true;
         selectTargetPiece(targetPieceIndex);
+        setPlacedClass(targetPieceIndex, false); // update class names
     }
 
 
@@ -421,15 +428,23 @@ function P5_Canvas(
                 }
 
                 // check button element inputs (placing and rotating)
-                if (cv.selectedPiece.isPlacing){
+                if (cv.selectedPiece.isPlacing){ // placing
                     placeSelectedPiece();
                     cv.selectedPiece.isPlacing = false;
                     cvUpdated = true;
+                    selectedPiece.cursorPos = [p.width/2, p.height/2];
                 }
-                if (cv.selectedPiece.nextRotate !== null){
+                if (cv.selectedPiece.nextRotate !== null){ // rotating
                     rotateSelectedPiece(cv.selectedPiece.nextRotate === "right");
                     cv.selectedPiece.nextRotate = null;
                     cvUpdated = true;
+                    selectedPiece.cursorPos = [p.width/2, p.height/2];
+                }
+                if (cv.selectedPiece.nextPiece !== null){ // select piece
+                    unplacePiece(cv.selectedPiece.nextPiece);
+                    cv.selectedPiece.nextPiece = null;
+                    cvUpdated = true;
+                    selectedPiece.cursorPos = [p.width/2, p.height/2];
                 }
                 
             } // end: RENDERS FOR PLAYING STATE
@@ -455,7 +470,6 @@ function P5_Canvas(
 
         // update cv
         if (cvUpdated) {
-            console.log("CV updated");
             setCv(cv);
             cvUpdated = false;
         }
