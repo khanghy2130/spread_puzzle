@@ -242,7 +242,7 @@ const Main_Page = ({ socket }: propObject) => {
                     <div id="credits-div">
                         <h2 className="main-page-header">Credits</h2>
                         <ul>
-                            <li>Spread Puzzle is developed by&nbsp;
+                            <li>Spread Puzzle™ is developed by&nbsp;
                                 <a target="_blank" 
                                 rel="noopener noreferrer" 
                                 href="https://www.hynguyen.info">
