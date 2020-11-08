@@ -119,7 +119,7 @@
                 }
                 // current player
                 &.you {
-                    color: $green;
+                    color: $support_blue;
                 }
                 // not last
                 &:not(:last-of-type){
@@ -132,7 +132,7 @@
         }
         
         #chat-button {
-            background-color: $yellow;
+            background-color: $green;
         }
         button {
             @extend .font-header;
@@ -211,7 +211,7 @@
             padding: 2em 1em;
         }
 
-        #players-div {
+        #left-div {
             margin-top: 0;
         }
     }

@@ -429,10 +429,11 @@ function P5_Canvas(
 
                 // check button element inputs (placing and rotating)
                 if (cv.selectedPiece.isPlacing){ // placing
+                    const ghostIsNotNull: boolean = ghostPiecePos !== null;
                     placeSelectedPiece();
                     cv.selectedPiece.isPlacing = false;
                     cvUpdated = true;
-                    selectedPiece.cursorPos = [p.width/2, p.height/2];
+                    if (ghostIsNotNull) selectedPiece.cursorPos = [p.width/2, p.height/2];
                 }
                 if (cv.selectedPiece.nextRotate !== null){ // rotating
                     rotateSelectedPiece(cv.selectedPiece.nextRotate === "right");

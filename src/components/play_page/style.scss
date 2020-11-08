@@ -5,7 +5,6 @@
     flex-direction: row;
     justify-content: center;
     align-items: flex-start;
-    padding-top: 30px;
 
     #canvas-section {
         display: flex;
@@ -15,7 +14,7 @@
             background-color: rgba(0,0,0, 0.7);
             text-align: center;
             align-self: center;
-            margin: 0.7em 0;
+            margin: 0.5em 0;
             padding: 0.1em 1em;
             min-width: 50%;
     
@@ -40,7 +39,7 @@
         display: flex;
         flex-direction: column;
         align-items: stretch;
-        min-width: 350px;
+        width: 35vw;
         max-width: 400px;
         margin: 5em 1em 0;
 
@@ -61,6 +60,7 @@
                     flex-grow: 1;
                     height: 3em;
                     border: solid 0.2em $black;
+                    border-radius: 0 0 20% 20%;
                     transition: height 0.2s;
                     outline: none;
 
@@ -93,7 +93,7 @@
                     }
 
                     & > img {
-                        max-height: 3em;
+                        max-height: 2.7em;
                         width: auto;
                     }
                 }
@@ -127,7 +127,7 @@
                 #chat-button {
                     flex-grow: 1;
                     border-left: none;
-                    background-color: $yellow;
+                    background-color: $green;
                 }
             }
             #give-up-button {
@@ -176,7 +176,7 @@
 
 }
 
-@media only screen and (max-width: 900px){
+@media only screen and (max-width: 850px){
     #play-page-main {
         flex-direction: column;
         align-items: center;

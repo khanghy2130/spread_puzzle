@@ -17,6 +17,13 @@ const Main_Page = ({ socket }: propObject) => {
 
     const colors: string[] = ["Black","Blue","Brown","Green","Orange","Pink","Purple","Red","White","Yellow"];
     const fruits: string[] = ["Apple","Berry","Banana","Cherry","Coconut","Grape","Lemon","Mango","Peach","Pear"];
+    // order of this credits must match order of languages
+    const creditsData: [string, string | null][] = [
+        ["Logix Indie", "https://www.youtube.com/channel/UCs9Pt9s8V0SDfhrfFFCNV7Q"],
+        ["Google Translate", null],
+        ["Google Translate", null],
+        ["Google Translate", null]
+    ];
     
     const [nickname, setNickname] = useState<string>(rollNewName());
     const nickname_input = useRef<HTMLInputElement>(null);
@@ -224,39 +231,44 @@ const Main_Page = ({ socket }: propObject) => {
 
                 <div id="info-wrapper">
                     <div id="tutorial-div">
-                        <h2 className="main-page-header">What is Chess Puzzle?</h2>
+                        <h2 className="main-page-header">Welcome!</h2>
                         <ul>
-                            <li>Chess Puzzle is a multiplayer game.</li>
-                            <li>To begin, create a new room or join an existing room.</li>
-                            <li>The room host can change the options and start the game.</li>
-                            <li>Turn your piece into any given chessman to make the move.</li>
-                            <li>Race with other players to capture all targets. Have fun!</li>
+                            <li>Sample text</li>
+                            <li>Sample text</li>
+                            <li>Sample text</li>
                         </ul>
                     </div>
 
                     <div id="credits-div">
                         <h2 className="main-page-header">Credits</h2>
                         <ul>
-                            <li>Chess Puzzle is made by&nbsp;
+                            <li>Spread Puzzle is developed by&nbsp;
                                 <a target="_blank" 
                                 rel="noopener noreferrer" 
                                 href="https://www.hynguyen.info">
                                     Hy Nguyen
                                 </a>
                             </li>
-                            <li>The game is inspired by&nbsp;
-                                <a target="_blank" 
-                                rel="noopener noreferrer" 
-                                href="https://play.google.com/store/apps/details?id=com.mythicowl.chessace&hl=en_US">
-                                    Chess Ace
-                                </a>
-                            </li>
-                            <li>Chessman images by&nbsp;
-                                <a target="_blank" 
-                                rel="noopener noreferrer" 
-                                href="https://en.wikipedia.org/wiki/User:Cburnett">
-                                    Colin Burnett
-                                </a>
+                            <li>
+                                Translations by:
+                                <ul>
+                                    {creditsData.map((cdItem, index) => {
+                                        return (<li key={index}>
+                                            { // there is a link?
+                                                cdItem[1] !== null ? (
+                                                    <a target="_blank" 
+                                                    rel="noopener noreferrer" 
+                                                    href={cdItem[1]}>
+                                                        {cdItem[0]}
+                                                    </a>
+                                                ) : (cdItem[0])
+                                            }
+                                            &nbsp;{!lang ? null : (
+                                                `(${lang.langs_list[index + 1][0]})`
+                                            )}
+                                        </li>);
+                                    })}
+                                </ul>
                             </li>
                         </ul>
                     </div>
