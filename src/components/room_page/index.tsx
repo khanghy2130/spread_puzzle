@@ -12,7 +12,8 @@ interface propObject {
     resetMainPage: () => void,
     nickname: string,
     setRoom: (receivedRoomObject: RoomObject) => void,
-    getText: (tree: string[]) => string
+    getText: (tree: string[]) => string,
+    selectedLang: string
 };
 
 interface optionElements {
@@ -28,7 +29,7 @@ interface ChatDataObject {
     message?: string
 }
 
-const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: propObject) => {
+const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, selectedLang }: propObject) => {
     // render room page (true) or play page (false)
     const [showRoom, setShowRoom] = useState<boolean>(true);
     const [levelObject, setLevelObject] = useState<LevelObject | null>(null);
@@ -63,18 +64,20 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                 setShowRoom(false);
                 setChatModalHidden(true); // hide chat
             });
+        }
+        return () => {socket.off("start-game");}
+    // eslint-disable-next-line
+    }, []);
+    // a separated useEffect to update language for updateChat()
+    useEffect(()=>{
+        if (typeof window !== 'undefined') {
             socket.on("chat-from-server", (chatData : ChatDataObject) => {
                 updateChat(chatData);
             });
         }
-
-        return () => {
-            // removing listeners
-            socket.off("start-game");
-            socket.off("chat-from-server");
-        }
+        return () => {socket.off("chat-from-server");}
     // eslint-disable-next-line
-    }, []);
+    }, [selectedLang]);
 
 
     // confirm leaving state
@@ -84,16 +87,12 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
     function onAnyInputChange(){
         // if not already started
         if (!started){
-            // @ts-ignore
             const newOptions : RoomObject["options"] = {
+                time: Number(optionsContainer.time.current?.value),
                 // @ts-ignore
-                time: Number(optionsContainer.time.current.value),
-                // @ts-ignore
-                type: optionsContainer.type.current.value,
-                // @ts-ignore
-                figure_size: Number(optionsContainer.figure_size.current.value),
-                // @ts-ignore
-                pieces_amount: Number(optionsContainer.pieces_amount.current.value)
+                type: optionsContainer.type.current?.value,
+                figure_size: Number(optionsContainer.figure_size.current?.value),
+                pieces_amount: Number(optionsContainer.pieces_amount.current?.value)
             };
 
             setOptions(newOptions);
@@ -159,12 +158,14 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                         if (event.key === "Enter") sendChat();
                     }} ref={chatInput}
                     type="text" maxLength={100}
-                    placeholder="Chat"></input>
-                    <button onClick={sendChat}>Send</button>
+                    placeholder={getText(["room_page", "chat"])}></input>
+                    <button onClick={sendChat}>
+                        {getText(["room_page", "send"])}
+                    </button>
                 </div>
             </div>
             <button id="close-chat-button" onClick={()=>{setChatModalHidden(true)}}>
-                Close
+                {getText(["room_page", "close"])}
             </button>
         </div>;
     }
@@ -197,13 +198,13 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                 openChatButton.current?.classList.add("new-message"); // show notification
             }    
         } else if (chatData.type === "solve"){
-            h3Ele.innerHTML = `>> ${getNameSpan()} has solved the puzzle.`; 
+            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "has_solved_the_puzzle"])}`; 
         } else if (chatData.type === "giveup"){
-            h3Ele.innerHTML = `>> ${getNameSpan()} has given up.`; 
+            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "has_given_up"])}`; 
         } else if (chatData.type === "join"){
-            h3Ele.innerHTML = `>> ${getNameSpan()} has joined the room.`; 
+            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "has_joined_the_room"])}`; 
         } else if (chatData.type === "leave"){
-            h3Ele.innerHTML = `>> ${getNameSpan()} has left the room.`; 
+            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "has_left_the_room"])}`; 
         }
         function getNameSpan(): string {
             const youClass: string = chatData.sender === nickname ? `class="you"` : "";
@@ -235,24 +236,24 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
     return (<Fragment>
         <main id="room-page-main">
             <div id="options-div">
-                <h2>Room ID: {room.roomID}</h2>
+                <h2>{getText(["main_page", "room_id"])}: {room.roomID}</h2>
 
                 <label>
-                    Tile type:&nbsp;&nbsp;
+                    {getText(["room_page", "tile_type"])}:&nbsp;&nbsp;
                     <select ref={optionsContainer.type} 
                         defaultValue={options.type}
                         onChange={onAnyInputChange}
                         disabled={started}
                         className={!isHost ? "hidden-input" : ""} >
-                        <option value="square">square</option>
-                        <option value="triangle">triangle</option>
-                        <option value="hexagon">hexagon</option>
+                        <option value="square">{getText(["room_page", "tile_types_list", "square"])}</option>
+                        <option value="triangle">{getText(["room_page", "tile_types_list", "triangle"])}</option>
+                        <option value="hexagon">{getText(["room_page", "tile_types_list", "hexagon"])}</option>
                     </select>
                     {isHost? null : <span>{options.type}</span>}
                 </label>
 
                 <label>
-                    Figure size: <span>{options.figure_size}</span>
+                    {getText(["room_page", "figure_size"])}: <span>{options.figure_size}</span>
                 </label>
                 <input ref={optionsContainer.figure_size} 
                     type="range" min={30} max={50} step={5}
@@ -262,7 +263,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     className={!isHost ? "hidden-input" : ""} />
 
                 <label>
-                    Number of pieces: <span>{options.pieces_amount}</span>
+                    {getText(["room_page", "number_of_pieces"])}: <span>{options.pieces_amount}</span>
                 </label>
                 <input ref={optionsContainer.pieces_amount} 
                     type="range" min={4} max={7} 
@@ -272,7 +273,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     className={!isHost ? "hidden-input" : ""} />
                 
                 <label>
-                    Time limit: <span>{convertToTime(options.time)}</span>
+                    {getText(["room_page", "time_limit"])}: <span>{convertToTime(options.time)}</span>
                 </label>
                 <input ref={optionsContainer.time} 
                     type="range" min={30} max={600} step={30}
@@ -281,23 +282,20 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     disabled={started}
                     className={!isHost ? "hidden-input" : ""} />
                 
-                {/* Save and Start buttons */}
-                {
-                    (isHost) ? 
-                    <div id="host-buttons">
-                        <button id="help-button" onClick={onHelp}>
-                            Help
-                        </button>
-                        <button id="start-button" disabled={started} onClick={onStart}>
-                            {started ? "Starting..." : "Start"}
-                        </button>
-                    </div>
-                    :
-                    <p id="not-host-message">Only the host can start the game.</p>
-                }
+                {!isHost? <p id="not-host-message">{getText(["room_page", "only_the_room_host_can_start"])}</p> : null}
+
+                {/* Help and Start (if is host) buttons */}
+                <div id="host-buttons">
+                    <button id="help-button" onClick={onHelp}>
+                        {getText(["room_page", "help"])}
+                    </button>
+                    {isHost? <button id="start-button" disabled={started} onClick={onStart}>
+                        {getText(["room_page", "start"])}{started ? "..." : ""}
+                    </button> : null}
+                </div>
 
                 <button id="leave-button" onClick={onLeave}>
-                    {(leaving) ? "CONFIRM LEAVING" : "Leave Room"}
+                    {(leaving) ? getText(["room_page", "confirm_leaving"]) : getText(["room_page", "leave_room"])}
                 </button>
             </div>
 
@@ -306,18 +304,22 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                 <h2>{getText(["room_page", "players"])}</h2>
                 <div id="players-div">
                     {room.users.map(
-                        (user) => <h4 className={(user.id === socket.id) ? "you" : ""} key={user.id}>{user.nickname}</h4>
+                        (user) => (<h4 
+                            className={(user.id === socket.id) ? "you" : ""} 
+                            key={user.id}>
+                            {user.nickname} ({getText(["room_page", "host"])})
+                        </h4>)
                     )}
                 </div>
                 
                 <button id="chat-button" ref={openChatButton}
                 onClick={()=>{setChatModalHidden(false)}}>
-                    Chat
+                    {getText(["room_page", "chat"])}
                 </button>
                 {
                     (room.results.length === 0) ? null :
                     <button onClick={()=>{setShowResults(true)}}>
-                        See Results
+                        {getText(["room_page", "see_results"])}
                     </button>
                 }
             </div>
@@ -326,9 +328,6 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
             {
                 (!showResults) ? null :
                 <div id="results-wrapper">
-                    <button id="close-button" onClick={()=>{setShowResults(false)}}>
-                        Close
-                    </button>
                     <div id="results-div">
                         {room.results.map((result: any, index: number) => (
                             <h3 key={index}>
@@ -340,6 +339,9 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                             </h3>
                         ))}
                     </div>
+                    <button id="close-button" onClick={()=>{setShowResults(false)}}>
+                        {getText(["room_page", "close"])}
+                    </button>
                 </div>
             }       
         </main>

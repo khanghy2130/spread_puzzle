@@ -52,11 +52,11 @@ const Play_Page = ({
 
         // 1st click
         if (!givingUp) {
-            give_up_button.current.innerText = "CONFIRM GIVING UP";
+            give_up_button.current.innerText = getText(["play_page", "confirm_giving_up"]);
             givingUp = true;
             givingUpTimerID = setTimeout(()=>{
                 if (typeof givingUp !== "undefined" && give_up_button && give_up_button.current) {
-                    give_up_button.current.innerText = "Give up";
+                    give_up_button.current.innerText = getText(["play_page", "give_up"]);
                     givingUp = false;
                 }
             }, 3000);
@@ -221,22 +221,22 @@ const Play_Page = ({
                 <div id="play-page-modal">
                     {
                         (progress === "preparing") ? (<div>
-                            <h3>Fit all pieces together!</h3>
-                            <h2>Starting in...</h2>
+                            <h3>{getText(["play_page", "fit_all_pieces_together"])}</h3>
+                            <h2>{getText(["play_page", "starting_in"])}</h2>
                             <h2 className="blue-color" ref={begin_countdown_display}>3</h2>
                         </div>) :
                         (progress === "complete") ? (<div>
-                            <h2 className="blue-color">Puzzle solved!</h2>
-                            <h3>Your time:</h3>
+                            <h2 className="blue-color">{getText(["play_page", "puzzle_solved"])}</h2>
+                            <h3>{getText(["play_page", "your_time"])}</h3>
                             <h3 className="green-color">{convertToTime(levelObject.timeLimit - timeLeft.current.value)}</h3>
                             <button onClick={()=>{setChatModalHidden(false)}}>
-                                Chat
+                                {getText(["room_page", "chat"])}
                             </button>
                         </div>) :
                         (progress === "incomplete") ? (<div>
-                            <h2 className="red-color">Game over!</h2>
+                            <h2 className="red-color">{getText(["play_page", "did_not_finish"])}</h2>
                             <button onClick={()=>{setChatModalHidden(false)}}>
-                                Chat
+                                {getText(["room_page", "chat"])}
                             </button>
                         </div>) : null
                     }
@@ -245,7 +245,7 @@ const Play_Page = ({
 
             <section id="canvas-section">
                 {/* Timer text */}
-                <h3 id="time-left-text">Time left:  <span ref={time_display}></span></h3>
+                <h3 id="time-left-text">{getText(["play_page", "time_left"])}:  <span ref={time_display}></span></h3>
 
                 {/* Canvas */}
                 <div id="canvas-parent">
@@ -282,13 +282,15 @@ const Play_Page = ({
 
                 <div id="extra-buttons">
                     <div>
-                        <button id="help-button">Help</button>
+                        <button id="help-button">
+                            {getText(["room_page", "help"])}
+                        </button>
                         <button id="chat-button" onClick={()=>{setChatModalHidden(false)}}>
-                            Chat
+                            {getText(["room_page", "chat"])}
                         </button>
                     </div>
                     <button id="give-up-button" onClick={onGiveUp} ref={give_up_button}>
-                        Give up
+                        {getText(["play_page", "give_up"])}
                     </button>
                 </div>
 

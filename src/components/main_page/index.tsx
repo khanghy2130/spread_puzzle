@@ -184,6 +184,7 @@ const Main_Page = ({ socket }: propObject) => {
                 nickname={nickname}
                 setRoom={setRoom}
                 getText={getText}
+                selectedLang={selectedLang}
             />
             {footerComponent()}
         </Fragment>
@@ -208,30 +209,30 @@ const Main_Page = ({ socket }: propObject) => {
                         <button onClick={newNameClicked}>{getText(["main_page", "randomize"])}</button>
                     </div>
                     <div id="create-room-div">
-                        <h2 className="main-page-header">Create new room</h2>
-                        <button onClick={createRoom}>Create room</button>
+                        <h2 className="main-page-header">{getText(["main_page", "create_room"])}</h2>
+                        <button onClick={createRoom}>{getText(["main_page", "create_room"])}</button>
                     </div>
                     <div id="join-room-div">
-                        <h2 className="main-page-header">Join room</h2>
+                        <h2 className="main-page-header">{getText(["main_page", "join_room"])}</h2>
                         <p ref={no_room_alert_text} id="no-room-alert" hidden></p>
                         <input 
                             ref={roomID_input} 
                             type="text" 
                             pattern="[0-9]{4}" 
-                            placeholder="Room ID" 
+                            placeholder={getText(["main_page", "room_id"])}
                             title="Room ID is a 4-digits number"
                             required
                             onKeyUp={(e) => {
                                 if (e.keyCode === 13) joinRoom();
                             }}     
                         />
-                        <br/><button onClick={joinRoom}>Join room</button>
+                        <br/><button onClick={joinRoom}>{getText(["main_page", "join_room"])}</button>
                     </div>
                 </div>
 
                 <div id="info-wrapper">
                     <div id="tutorial-div">
-                        <h2 className="main-page-header">Welcome!</h2>
+                        <h2 className="main-page-header">{getText(["main_page", "welcome"])}</h2>
                         <ul>
                             <li>Sample text</li>
                             <li>Sample text</li>
@@ -240,9 +241,8 @@ const Main_Page = ({ socket }: propObject) => {
                     </div>
 
                     <div id="credits-div">
-                        <h2 className="main-page-header">Credits</h2>
                         <ul>
-                            <li>Spread Puzzle™ is developed by&nbsp;
+                            <li>{getText(["main_page", "developed_by"])}&nbsp;
                                 <a target="_blank" 
                                 rel="noopener noreferrer" 
                                 href="https://www.hynguyen.info">
@@ -250,7 +250,7 @@ const Main_Page = ({ socket }: propObject) => {
                                 </a>
                             </li>
                             <li>
-                                Translations by:
+                                {getText(["main_page", "translations_by"])}
                                 <ul>
                                     {creditsData.map((cdItem, index) => {
                                         return (<li key={index}>

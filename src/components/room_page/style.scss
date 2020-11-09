@@ -61,7 +61,7 @@
             }
             #help-button {
                 background-color: $support_blue;
-                padding: 0 1.5em;
+                padding: 0 1em;
             }
             #start-button {
                 flex-grow: 1;
@@ -74,7 +74,7 @@
         #not-host-message {
             font-size: 0.9em;
             color: $text_white;
-            margin: 3em 0 1em;
+            margin: 2em 0 0;
         }
 
         #leave-button {
@@ -113,10 +113,6 @@
 
             // each player
             h4 {
-                // host player
-                &:first-of-type(){
-                    &::after { content: " (Host)"; }
-                }
                 // current player
                 &.you {
                     color: $support_blue;
@@ -166,20 +162,6 @@
         justify-content: center;
         align-items: center;
 
-        #close-button {
-            @extend .font-header;
-            margin: 0.6em 0;
-            padding: 0.1em 0.7em;
-            border: $black 0.1em solid;
-            color: $black !important;
-            background-color: $red;
-            transition: background-color 0.3s;
-
-            &:hover {
-                background-color: $text_white !important;
-            }
-        }
-
         #results-div {
             background-color: $dark;
             border: $black 0.2em solid;
@@ -201,6 +183,20 @@
                 }
             }
         }
+
+        #close-button {
+            @extend .font-header;
+            margin: 0.4em 0;
+            padding: 0.1em 0.7em;
+            border: $black 0.1em solid;
+            color: $black !important;
+            background-color: $red;
+            transition: background-color 0.3s;
+
+            &:hover {
+                background-color: $text_white !important;
+            }
+        }
     }
 }
 
@@ -213,20 +209,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
-    #close-chat-button {
-        @extend .font-header;
-        margin: 0.3em 0;
-        padding: 0.1em 0.7em;
-        border: $black 0.1em solid;
-        color: $black !important;
-        background-color: $red;
-        transition: background-color 0.3s;
-
-        &:hover {
-            background-color: $text_white !important;
-        }
-    }
 
     #chat-modal-content {
         background-color: $dark;
@@ -286,6 +268,20 @@
                     background-color: $text_white !important;
                 }
             }
+        }
+    }
+
+    #close-chat-button {
+        @extend .font-header;
+        margin: 0.3em 0;
+        padding: 0.1em 0.7em;
+        border: $black 0.1em solid;
+        color: $black !important;
+        background-color: $red;
+        transition: background-color 0.3s;
+
+        &:hover {
+            background-color: $text_white !important;
         }
     }
 }
