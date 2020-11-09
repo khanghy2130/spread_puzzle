@@ -2,11 +2,16 @@ import RoomObject from './Room_Object';
 import LevelObject from './Level_Object';
 const PuzzleConstructor = require('./PuzzleConstructor').PuzzleConstructor;
 
+interface ChatDataObject {
+    sender: string,
+    type: "chat" | "solve" | "giveup" | "join" | "leave",
+    message?: string
+}
 
 // [key]roomID : RoomObjects
 const roomsList: {[key: string]:  RoomObject} = {}; 
 
-function leaveRoom(socket: any, roomID: string){
+function leaveRoom(socket: any, namespace: any, roomID: string){
     if (!roomsList[roomID]) return;
 
     const usersList = roomsList[roomID].users;
@@ -27,6 +32,11 @@ function leaveRoom(socket: any, roomID: string){
     // there are other user(s) and room is not in progress? => update room for others
     else if (roomsList[roomID].timerID === null){
         socket.to(roomID).emit('update-room', roomsList[roomID]);
+        const chatData: ChatDataObject = {
+            sender: socket.nickname,
+            type: "leave"
+        };
+        namespace.in(roomID).emit("chat-from-server", chatData);
     }
 }
 
@@ -125,12 +135,12 @@ exports.manager = function(socket: any, namespace: any) : void {
         if (socket.currentRoomID) {
             // send report in case is in a game
             checkoffReport(namespace, socket, socket.currentRoomID, null);
-            leaveRoom(socket, socket.currentRoomID); //leave room
+            leaveRoom(socket, namespace, socket.currentRoomID); //leave room
         }
     });
 
 
-    /*                         ->> = receive    <<- = send
+    /*        from perspective of the server    ->> = receive    <<- = send
             MAIN PAGE events
         ->> enter-room:   {nickname, roomID}     @join or create a room (roomID = null)
         <<- join-success: {room_object}
@@ -142,6 +152,8 @@ exports.manager = function(socket: any, namespace: any) : void {
         ->> save-options: {option_moves, option_time}   @host clicks save
         ->> start-game                          @host clicks start
         <<- start-game:   {play_object}
+        ->> chat-from-client:    {type, message?}
+        <<- chat-from-server:     {type, message?}
 
             PLAY PAGE events
         ->> play-report:  {nickname, time}
@@ -177,7 +189,7 @@ exports.manager = function(socket: any, namespace: any) : void {
             roomID = newRoomID;
         }
         
-        // if room exists
+        // joining room
         if (roomsList[roomID]){
             // stop the joining if room is in progress
             if (roomsList[roomID].timerID !== null) {
@@ -203,6 +215,11 @@ exports.manager = function(socket: any, namespace: any) : void {
 
             socket.emit("join-success", roomsList[roomID]); // notify client
             socket.to(roomID).emit('update-room', roomsList[roomID]); //  update room for others
+            const chatData: ChatDataObject = {
+                sender: socket.nickname,
+                type: "join"
+            };
+            namespace.in(roomID).emit("chat-from-server", chatData);
         }
         else {
             socket.emit("join-fail", `Room ${roomID} doesn't exist.`);
@@ -211,8 +228,7 @@ exports.manager = function(socket: any, namespace: any) : void {
     
     socket.on("leave-room", (roomID: string) => {
         if (!roomsList[roomID]) return;
-
-        leaveRoom(socket, roomID);
+        leaveRoom(socket, namespace, roomID);
     });
 
     socket.on("save-options", (roomID: string, newOptions: RoomObject["options"]) => {
@@ -232,9 +248,14 @@ exports.manager = function(socket: any, namespace: any) : void {
         startGame(namespace, roomsList[roomID]);
     });
 
-    socket.on("play-report", (roomID: string, finishedTime: number) => {
+    socket.on("play-report", (roomID: string, finishedTime: number | null) => {
         if (!roomsList[roomID]) return;
         checkoffReport(namespace, socket, roomID, finishedTime);
+    });
+
+    socket.on("chat-from-client", (roomID: string, chatData: ChatDataObject) => {
+        if (!roomsList[roomID]) return;
+        namespace.in(roomID).emit("chat-from-server", chatData);
     });
 }
 

@@ -101,7 +101,7 @@
         }
 
         #extra-buttons {
-            margin-top: 3.5em;
+            margin-top: 3em;
             flex-direction: column;
 
             button {
@@ -168,6 +168,23 @@
             }
             h3 {
                 font-size: 1.5em;
+            }
+
+            // chat button
+            button {
+                @extend .font-header;
+                font-size: 1.1em;
+                width: auto;
+                padding: 0 0.6em;
+                margin: 0.4em 0 0;
+                border: $black 0.2em solid;
+                color: $black;
+                background-color: $green;
+                transition: background-color 0.3s;
+
+                &:hover {
+                    background-color: $text_white !important;
+                }
             }
         }
     }

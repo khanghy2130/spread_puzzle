@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, Fragment } from 'react';
 
 import "./style.scss";
 import RoomObject from '../../../server/Room_Object';
@@ -20,6 +20,12 @@ interface optionElements {
     type: React.RefObject<HTMLSelectElement>,
     figure_size: React.RefObject<HTMLInputElement>,
     pieces_amount: React.RefObject<HTMLInputElement>
+}
+
+interface ChatDataObject {
+    sender: string,
+    type: "chat" | "solve" | "giveup" | "join" | "leave",
+    message?: string
 }
 
 const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: propObject) => {
@@ -55,12 +61,17 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
             socket.on("start-game", (receivedLevelObject : LevelObject) => {
                 setLevelObject(receivedLevelObject);
                 setShowRoom(false);
+                setChatModalHidden(true); // hide chat
+            });
+            socket.on("chat-from-server", (chatData : ChatDataObject) => {
+                updateChat(chatData);
             });
         }
 
         return () => {
             // removing listeners
             socket.off("start-game");
+            socket.off("chat-from-server");
         }
     // eslint-disable-next-line
     }, []);
@@ -121,6 +132,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
         setShowRoom(true);
         setShowResults(true);
         setStarted(false);
+        setChatModalHidden(true); // hide chat
     }
 
     // convert seconds to time format mm:ss
@@ -131,20 +143,96 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
         return `${text_minutes}:${text_seconds}`;
     }
 
+    // chat modal
+    const openChatButton = useRef<HTMLButtonElement>(null);
+    const chatModalRef = useRef<HTMLDivElement>(null);
+    const chatMessagesContainer = useRef<HTMLDivElement>(null);
+    const chatInput = useRef<HTMLInputElement>(null);
+    function chatModalRender(){
+        return <div id="chat-modal" ref={chatModalRef}>
+            <button id="close-chat-button" onClick={()=>{setChatModalHidden(true)}}>
+                Close
+            </button>
+            <div id="chat-modal-content">
+                <div id="chat-messages-container" ref={chatMessagesContainer}>
+                    {/* h3 of span and text */}
+                </div>
+                <div id="chat-input-div">
+                    <input onKeyPress={(event) => {
+                        if (event.key === "Enter") sendChat();
+                    }} ref={chatInput}
+                    type="text" maxLength={100}
+                    placeholder="Chat"></input>
+                    <button onClick={sendChat}>Send</button>
+                </div>
+            </div>
+        </div>;
+    }
+    
+    function setChatModalHidden(toBeHidden: boolean): void {
+        if (!chatModalRef || !chatModalRef.current) return; // null? quit
+        chatModalRef.current.style.display = toBeHidden ? "none" : "flex";
+        openChatButton.current?.classList.remove("new-message"); // clear notification
+    }
+    function sendChat(): void{
+        if (!chatInput || !chatInput.current) return; // null? quit
+        // not empty chat box?
+        if (chatInput.current.value.length > 0){
+            const chatData: ChatDataObject = {
+                sender: nickname, type: "chat", message: chatInput.current.value
+            };
+            socket.emit("chat-from-client", room.roomID, chatData);
+            chatInput.current.value = ""; // clear chat
+        }
+    }
+    // receive chat data from server => add to chat container
+    function updateChat(chatData: ChatDataObject): void {
+        if (!chatMessagesContainer || !chatMessagesContainer.current) return; // null? quit
+
+        const msgContainer: HTMLDivElement = chatMessagesContainer.current;
+        const h3Ele: HTMLHeadElement = document.createElement("h3");
+        if (chatData.type === "chat"){
+            h3Ele.innerHTML = `${getNameSpan()} ${chatData.message}`;
+            if (chatModalRef.current?.style.display !== "flex"){
+                openChatButton.current?.classList.add("new-message"); // show notification
+            }    
+        } else if (chatData.type === "solve"){
+            h3Ele.innerHTML = `>> ${getNameSpan()} has solved the puzzle.`; 
+        } else if (chatData.type === "giveup"){
+            h3Ele.innerHTML = `>> ${getNameSpan()} has given up.`; 
+        } else if (chatData.type === "join"){
+            h3Ele.innerHTML = `>> ${getNameSpan()} has joined the room.`; 
+        } else if (chatData.type === "leave"){
+            h3Ele.innerHTML = `>> ${getNameSpan()} has left the room.`; 
+        }
+        function getNameSpan(): string {
+            const youClass: string = chatData.sender === nickname ? `class="you"` : "";
+            const colon: string = chatData.type === "chat" ? ":" : "";
+            return `<span ${youClass}>${chatData.sender}${colon}</span>`;
+        }
+        msgContainer.appendChild(h3Ele);
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+
     // play page?
     if (!showRoom && levelObject !== null) {
-        return (<PLAY_PAGE 
-            socket={socket} 
-            levelObject={levelObject} 
-            resetRoomPage={resetRoomPage} 
-            roomID={room.roomID}
-            convertToTime={convertToTime}
-            getText={getText}
-        />);
+        return (<Fragment>
+            <PLAY_PAGE 
+                socket={socket} 
+                levelObject={levelObject} 
+                resetRoomPage={resetRoomPage} 
+                roomID={room.roomID}
+                nickname={nickname}
+                convertToTime={convertToTime}
+                setChatModalHidden={setChatModalHidden}
+                getText={getText}
+            />
+            {chatModalRender()}
+        </Fragment>);
     }
 
     // for options, render the sliders and update button if isHost
-    return (
+    return (<Fragment>
         <main id="room-page-main">
             <div id="options-div">
                 <h2>Room ID: {room.roomID}</h2>
@@ -222,7 +310,8 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     )}
                 </div>
                 
-                <button id="chat-button" onClick={()=>{console.log("chat clicked")}}>
+                <button id="chat-button" ref={openChatButton}
+                onClick={()=>{setChatModalHidden(false)}}>
                     Chat
                 </button>
                 {
@@ -238,7 +327,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                 (!showResults) ? null :
                 <div id="results-wrapper">
                     <button id="close-button" onClick={()=>{setShowResults(false)}}>
-                        Close Results
+                        Close
                     </button>
                     <div id="results-div">
                         {room.results.map((result: any, index: number) => (
@@ -254,7 +343,8 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                 </div>
             }       
         </main>
-    );
+        {chatModalRender()}
+    </Fragment>);
 };
 
 export default Room_Page;

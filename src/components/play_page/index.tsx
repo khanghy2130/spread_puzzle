@@ -10,19 +10,29 @@ import downPNG from './images/down.png';
 import leftPNG from './images/left.png';
 import rightPNG from './images/right.png';
 
-// timeout or give up: setProgress("incomplete");   win: setProgress("complete");
+
+interface ChatDataObject {
+    sender: string,
+    type: "chat" | "solve" | "giveup" | "join" | "leave",
+    message?: string
+}
 
 interface propObject {
     socket: any,
     levelObject: LevelObject,
     resetRoomPage: (receivedLevelObject: RoomObject) => void,
     roomID: string,
+    nickname: string,
     convertToTime: (seconds: number) => string,
+    setChatModalHidden: (toBeHidden: boolean) => void,
     getText: (tree: string[]) => string
 };
 
-
-const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, getText} : propObject) => {
+const Play_Page = ({
+    socket, levelObject, resetRoomPage, 
+    roomID, nickname, 
+    convertToTime, setChatModalHidden, getText
+} : propObject) => {
     const time_display = useRef<HTMLHeadingElement>(null);
     // store timeLeft as ref
     const timeLeft = useRef<any>({ value: levelObject.timeLimit });
@@ -56,6 +66,10 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
             give_up_button.current.hidden = true;
             clearTimeout(givingUpTimerID); // stop timer
             setProgress("incomplete");
+            const chatData: ChatDataObject = {
+                sender: nickname, type: "giveup"
+            };
+            socket.emit("chat-from-client", roomID, chatData);
         }
     }
 
@@ -146,6 +160,10 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
         // after puzzle is solved
         else if (progress === "complete"){
             socket.emit("play-report", roomID, levelObject.timeLimit - timeLeft.current.value);
+            const chatData: ChatDataObject = {
+                sender: nickname, type: "solve"
+            };
+            socket.emit("chat-from-client", roomID, chatData);
         }
         // after time limit countdown is done
         else if (progress === "incomplete"){
@@ -211,9 +229,15 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
                             <h2 className="blue-color">Puzzle solved!</h2>
                             <h3>Your time:</h3>
                             <h3 className="green-color">{convertToTime(levelObject.timeLimit - timeLeft.current.value)}</h3>
+                            <button onClick={()=>{setChatModalHidden(false)}}>
+                                Chat
+                            </button>
                         </div>) :
                         (progress === "incomplete") ? (<div>
                             <h2 className="red-color">Game over!</h2>
+                            <button onClick={()=>{setChatModalHidden(false)}}>
+                                Chat
+                            </button>
                         </div>) : null
                     }
                 </div>
@@ -259,7 +283,9 @@ const Play_Page = ({socket, levelObject, resetRoomPage, roomID, convertToTime, g
                 <div id="extra-buttons">
                     <div>
                         <button id="help-button">Help</button>
-                        <button id="chat-button">Chat</button>
+                        <button id="chat-button" onClick={()=>{setChatModalHidden(false)}}>
+                            Chat
+                        </button>
                     </div>
                     <button id="give-up-button" onClick={onGiveUp} ref={give_up_button}>
                         Give up

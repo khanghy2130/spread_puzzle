@@ -133,6 +133,9 @@
         
         #chat-button {
             background-color: $green;
+            &.new-message {
+                &::after { content: " (!)"; }
+            }
         }
         button {
             @extend .font-header;
@@ -195,6 +198,92 @@
                     &.dnf {
                         color: $red;
                     }
+                }
+            }
+        }
+    }
+}
+
+#chat-modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; // flex when visible
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    #close-chat-button {
+        @extend .font-header;
+        margin: 0.2em 0;
+        padding: 0.1em 0.7em;
+        border: $black 0.1em solid;
+        color: $black !important;
+        background-color: $red;
+        transition: background-color 0.3s;
+
+        &:hover {
+            background-color: $text_white !important;
+        }
+    }
+
+    #chat-modal-content {
+        background-color: $dark;
+        color: $text_white;
+        max-width: 500px;
+        max-height: 400px;
+        width: 95vw;
+        height: 80vh;
+        display: flex;
+        flex-direction: column;
+        border: 0.2em $black solid;
+
+        #chat-messages-container {
+            overflow-y: scroll;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+
+            // message item, span is name
+            h3 {
+                font-size: 1.1em;
+                color: $text_white;
+                padding: 0.2em 0.4em;
+                border-bottom: 0.1em $black solid;
+
+                span {
+                    color: $green;
+                }
+                span.you {
+                    color: $support_blue;
+                }
+            }
+        }
+        
+        #chat-input-div {
+            display: flex;
+            justify-content: center;
+
+            & > input[type="text"] {
+                @extend .font-body;
+                font-size: 1em;
+                background-color: $text_white;
+                color: $black;
+                border: none;
+                padding: 0.2em 0.4em;
+                flex-grow: 1;
+                min-width: 0;
+            }
+            
+            & > button {
+                @extend .font-header;
+                padding: 0.1em 0.7em;
+                color: $black !important;
+                background-color: $support_blue;
+                transition: background-color 0.3s;
+                &:hover {
+                    background-color: $text_white !important;
                 }
             }
         }
