@@ -150,9 +150,6 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
     const chatInput = useRef<HTMLInputElement>(null);
     function chatModalRender(){
         return <div id="chat-modal" ref={chatModalRef}>
-            <button id="close-chat-button" onClick={()=>{setChatModalHidden(true)}}>
-                Close
-            </button>
             <div id="chat-modal-content">
                 <div id="chat-messages-container" ref={chatMessagesContainer}>
                     {/* h3 of span and text */}
@@ -166,6 +163,9 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText }: 
                     <button onClick={sendChat}>Send</button>
                 </div>
             </div>
+            <button id="close-chat-button" onClick={()=>{setChatModalHidden(true)}}>
+                Close
+            </button>
         </div>;
     }
     
