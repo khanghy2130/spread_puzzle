@@ -59,6 +59,19 @@ button {
 	border: none;
 	cursor: pointer;
 }
+.close-modal-button {
+  @extend .font-header;
+  margin: 0.4em 0;
+  padding: 0.1em 0.7em;
+  border: $black 0.2em solid;
+  color: $black !important;
+  background-color: $red;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: $text_white !important;
+  }
+}
 
 // Hide arrow buttons on number inputs
 /* Chrome, Safari, Edge, Opera */

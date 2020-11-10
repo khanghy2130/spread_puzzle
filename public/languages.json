@@ -44,8 +44,8 @@
             "es" : "",
             "pt" : ""
         },
-        "room_id" : {
-            "en" : "Room ID",
+        "room_number" : {
+            "en" : "Room number",
             "vi" : "Số phòng",
             "it" : "",
             "es" : "",
@@ -58,6 +58,36 @@
             "it" : "",
             "es" : "",
             "pt" : ""
+        },
+        "welcome_list" : {
+            "li0" : {
+                "en" : "This is a multiplayer game where computer users and mobile users can play together.",
+                "vi" : "",
+                "it" : "",
+                "es" : "",
+                "pt" : ""
+            },
+            "li1" :{
+                "en" : "Featuring procedurally generated puzzles, you won't see the same puzzle twice.",
+                "vi" : "",
+                "it" : "",
+                "es" : "",
+                "pt" : ""
+            },
+            "li2" :{
+                "en" : "You can chat with other players and customize the game options.",
+                "vi" : "",
+                "it" : "",
+                "es" : "",
+                "pt" : ""
+            },
+            "li3" :{
+                "en" : "Create or join a room to begin. Have fun!",
+                "vi" : "",
+                "it" : "",
+                "es" : "",
+                "pt" : ""
+            }
         },
 
         "developed_by" : {
@@ -106,28 +136,28 @@
             "pt" : ""
         },
         "chat_auto" : {
-            "has_solved_the_puzzle" : {
+            "solve" : {
                 "en" : "has solved the puzzle.",
                 "vi" : "đã giải xong.",
                 "it" : "",
                 "es" : "",
                 "pt" : ""
             },
-            "has_given_up" : {
+            "giveup" : {
                 "en" : "has given up.",
                 "vi" : "đã bỏ cuộc.",
                 "it" : "",
                 "es" : "",
                 "pt" : ""
             },
-            "has_joined_the_room" : {
+            "join" : {
                 "en" : "has joined the room.",
                 "vi" : "đã nhập phòng.",
                 "it" : "",
                 "es" : "",
                 "pt" : ""
             },
-            "has_left_the_room" : {
+            "leave" : {
                 "en" : "has left the room.",
                 "vi" : "đã rời phòng.",
                 "it" : "",
@@ -298,13 +328,5 @@
             "es" : "",
             "pt" : ""
         }
-    },
-
-    "xxx" : {
-        "en" : "",
-        "vi" : "",
-        "it" : "",
-        "es" : "",
-        "pt" : ""
     }
 }

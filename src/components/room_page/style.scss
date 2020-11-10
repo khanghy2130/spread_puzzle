@@ -20,8 +20,9 @@
         max-width: 450px;
         width: 60%;
 
-        // Room ID
+        // Room number
         h2 {
+            font-size: 1.4em;
             color: $support_blue;
             margin-bottom: 0.5em;
         }
@@ -183,20 +184,6 @@
                 }
             }
         }
-
-        #close-button {
-            @extend .font-header;
-            margin: 0.4em 0;
-            padding: 0.1em 0.7em;
-            border: $black 0.1em solid;
-            color: $black !important;
-            background-color: $red;
-            transition: background-color 0.3s;
-
-            &:hover {
-                background-color: $text_white !important;
-            }
-        }
     }
 }
 
@@ -270,19 +257,22 @@
             }
         }
     }
+}
 
-    #close-chat-button {
-        @extend .font-header;
-        margin: 0.3em 0;
-        padding: 0.1em 0.7em;
-        border: $black 0.1em solid;
-        color: $black !important;
-        background-color: $red;
-        transition: background-color 0.3s;
+#help-modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; // flex when visible
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
-        &:hover {
-            background-color: $text_white !important;
-        }
+    & > img {
+        width: 90vw;
+        height: auto;
+        max-width: 400px;
     }
 }
 

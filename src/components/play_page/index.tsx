@@ -25,13 +25,16 @@ interface propObject {
     nickname: string,
     convertToTime: (seconds: number) => string,
     setChatModalHidden: (toBeHidden: boolean) => void,
+    setHelpModalHidden: (toBeHidden: boolean) => void,
     getText: (tree: string[]) => string
 };
 
 const Play_Page = ({
     socket, levelObject, resetRoomPage, 
     roomID, nickname, 
-    convertToTime, setChatModalHidden, getText
+    convertToTime, 
+    setChatModalHidden, setHelpModalHidden,
+    getText
 } : propObject) => {
     const time_display = useRef<HTMLHeadingElement>(null);
     // store timeLeft as ref
@@ -282,7 +285,7 @@ const Play_Page = ({
 
                 <div id="extra-buttons">
                     <div>
-                        <button id="help-button">
+                        <button id="help-button" onClick={()=>{setHelpModalHidden(false)}}>
                             {getText(["room_page", "help"])}
                         </button>
                         <button id="chat-button" onClick={()=>{setChatModalHidden(false)}}>

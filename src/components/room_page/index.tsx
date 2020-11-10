@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, Fragment } from 'react';
 
 import "./style.scss";
+import help_img from './help.png';
 import RoomObject from '../../../server/Room_Object';
 import PLAY_PAGE from '../play_page/index'; 
 import LevelObject from '../../../server/Level_Object';
@@ -105,10 +106,6 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
         socket.emit("start-game", room.roomID, options);
     }
 
-    function onHelp(){
-        console.log("Help clicked");
-    }
-
     function onLeave(){
         // 1st click
         if (!leaving) {
@@ -147,7 +144,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
     const chatModalRef = useRef<HTMLDivElement>(null);
     const chatMessagesContainer = useRef<HTMLDivElement>(null);
     const chatInput = useRef<HTMLInputElement>(null);
-    function chatModalRender(){
+    function chatModalRender(): JSX.Element{
         return <div id="chat-modal" ref={chatModalRef}>
             <div id="chat-modal-content">
                 <div id="chat-messages-container" ref={chatMessagesContainer}>
@@ -164,7 +161,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
                     </button>
                 </div>
             </div>
-            <button id="close-chat-button" onClick={()=>{setChatModalHidden(true)}}>
+            <button className="close-modal-button" onClick={()=>{setChatModalHidden(true)}}>
                 {getText(["room_page", "close"])}
             </button>
         </div>;
@@ -198,13 +195,13 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
                 openChatButton.current?.classList.add("new-message"); // show notification
             }    
         } else if (chatData.type === "solve"){
-            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "has_solved_the_puzzle"])}`; 
+            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "solve"])}`; 
         } else if (chatData.type === "giveup"){
-            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "has_given_up"])}`; 
+            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "giveup"])}`; 
         } else if (chatData.type === "join"){
-            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "has_joined_the_room"])}`; 
+            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "join"])}`; 
         } else if (chatData.type === "leave"){
-            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "has_left_the_room"])}`; 
+            h3Ele.innerHTML = `>> ${getNameSpan()} ${getText(["room_page", "chat_auto", "leave"])}`; 
         }
         function getNameSpan(): string {
             const youClass: string = chatData.sender === nickname ? `class="you"` : "";
@@ -213,6 +210,21 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
         }
         msgContainer.appendChild(h3Ele);
         msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+
+    // help modal
+    const helpModalRef = useRef<HTMLDivElement>(null);
+    function helpModalRender(): JSX.Element {
+        return <div id="help-modal" ref={helpModalRef}>
+            <img src={help_img} alt="control keys" />
+            <button className="close-modal-button" onClick={()=>{setHelpModalHidden(true)}}>
+                {getText(["room_page", "close"])}
+            </button>
+        </div>;
+    }
+    function setHelpModalHidden(toBeHidden: boolean): void {
+        if (!helpModalRef || !helpModalRef.current) return; // null? quit
+        helpModalRef.current.style.display = toBeHidden ? "none" : "flex";
     }
 
     // play page?
@@ -226,8 +238,10 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
                 nickname={nickname}
                 convertToTime={convertToTime}
                 setChatModalHidden={setChatModalHidden}
+                setHelpModalHidden={setHelpModalHidden}
                 getText={getText}
             />
+            {helpModalRender()}
             {chatModalRender()}
         </Fragment>);
     }
@@ -236,7 +250,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
     return (<Fragment>
         <main id="room-page-main">
             <div id="options-div">
-                <h2>{getText(["main_page", "room_id"])}: {room.roomID}</h2>
+                <h2>{getText(["main_page", "room_number"])}: {room.roomID}</h2>
 
                 <label>
                     {getText(["room_page", "tile_type"])}:&nbsp;&nbsp;
@@ -286,7 +300,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
 
                 {/* Help and Start (if is host) buttons */}
                 <div id="host-buttons">
-                    <button id="help-button" onClick={onHelp}>
+                    <button id="help-button" onClick={()=>{setHelpModalHidden(false)}}>
                         {getText(["room_page", "help"])}
                     </button>
                     {isHost? <button id="start-button" disabled={started} onClick={onStart}>
@@ -339,12 +353,13 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
                             </h3>
                         ))}
                     </div>
-                    <button id="close-button" onClick={()=>{setShowResults(false)}}>
+                    <button className="close-modal-button" onClick={()=>{setShowResults(false)}}>
                         {getText(["room_page", "close"])}
                     </button>
                 </div>
             }       
         </main>
+        {helpModalRender()}
         {chatModalRender()}
     </Fragment>);
 };

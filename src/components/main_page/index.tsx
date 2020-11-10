@@ -219,8 +219,8 @@ const Main_Page = ({ socket }: propObject) => {
                             ref={roomID_input} 
                             type="text" 
                             pattern="[0-9]{4}" 
-                            placeholder={getText(["main_page", "room_id"])}
-                            title="Room ID is a 4-digits number"
+                            placeholder={getText(["main_page", "room_number"])}
+                            title="Room number is a 4-digits number"
                             required
                             onKeyUp={(e) => {
                                 if (e.keyCode === 13) joinRoom();
@@ -234,9 +234,10 @@ const Main_Page = ({ socket }: propObject) => {
                     <div id="tutorial-div">
                         <h2 className="main-page-header">{getText(["main_page", "welcome"])}</h2>
                         <ul>
-                            <li>Sample text</li>
-                            <li>Sample text</li>
-                            <li>Sample text</li>
+                            <li>{getText(["main_page", "welcome_list", "li0"])}</li>
+                            <li>{getText(["main_page", "welcome_list", "li1"])}</li>
+                            <li>{getText(["main_page", "welcome_list", "li2"])}</li>
+                            <li>{getText(["main_page", "welcome_list", "li3"])}</li>
                         </ul>
                     </div>
 
