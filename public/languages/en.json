@@ -1,0 +1,66 @@
+{
+    "main_page" : {
+        "language" : "Language",
+        "nickname" : "Nickname",
+        "randomize" : "Randomize",
+        "create_room" : "Create room",
+        "join_room" : "Join room",
+        "room_number" : "Room number",
+
+        "welcome" : "Welcome to Spread Puzzle!",
+        "welcome_list" : {
+            "li0" : "This is a multiplayer game where computer users and mobile users can play together.",
+            "li1" : "Featuring procedurally generated puzzles, you won't see the same puzzle twice.",
+            "li2" : "You can chat with other players and customize the game options.",
+            "li3" : "Create or join a room to begin. Have fun!"
+        },
+
+        "developed_by" : "Spread Puzzle is developed by",
+        "translations_by" : "Translations by:"
+    },
+
+
+    "room_page" : {
+        "players" : "Players",
+        "host" : "Host",
+        "close" : "Close",
+        "see_results" : "See results",
+        "chat" : "Chat",
+        "send" : "Send",
+        "chat_auto" : {
+            "solve" : "has solved the puzzle.",
+            "giveup" : "has given up.",
+            "join" : "has joined the room.",
+            "leave" : "has left the room."
+        },
+        
+        "tile_type" : "Tile type",
+        "tile_types_list" : {
+            "square" : "square",
+            "triangle" : "triangle",
+            "hexagon" : "hexagon"
+        },
+        "figure_size" : "Figure size",
+        "number_of_pieces" : "Number of pieces",
+        "time_limit" : "Time limit",
+
+        "non_host_message" : "Only the room host can start.",
+        "help" : "Help",
+        "start" : "Start",
+        "leave_room" : "Leave room",
+        "confirm_leaving" :  "CONFIRM LEAVING"
+    },
+
+
+    "play_page" : {
+        "time_left" : "Time left",
+        "give_up" : "Give up",
+        "confirm_giving_up" : "CONFIRM GIVING UP",
+
+        "fit_all_pieces_together" : "Fit all pieces together!",
+        "starting_in" : "Starting in...",
+        "puzzle_solved" : "Puzzle solved!",
+        "your_time" : "Your time:",
+        "did_not_finish" : "Did not finish"
+    }
+}

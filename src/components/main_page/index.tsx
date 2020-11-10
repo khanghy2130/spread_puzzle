@@ -24,22 +24,45 @@ const Main_Page = ({ socket }: propObject) => {
         ["Google Translate", null],
         ["Google Translate", null]
     ];
+    const langs_list: [string, string][] = [
+        ["English", "en"],
+        ["Tiếng Việt", "vi"],
+        ["Italiano", "it"],
+        ["Español", "es"],
+        ["Português", "pt"]
+    ];
     
-    const [nickname, setNickname] = useState<string>(rollNewName());
+
+    // nickname: get from local storage | rollNewName
+    const [nickname, setNickname] = useState<string>(
+        window.localStorage.getItem("nickname") || rollNewName()
+    );
     const nickname_input = useRef<HTMLInputElement>(null);
     const no_room_alert_text = useRef<HTMLParagraphElement>(null);
     const roomID_input = useRef<HTMLInputElement>(null);
     // joining => true when clicked create or join
     const [joining, setJoining] = useState<boolean>(false);
 
-    const [lang, setLang] = useState<any>(null); // json object
-    const langSelectorInput = useRef<HTMLSelectElement>(null);
+    const [lang, setLang] = useState<any>(null); // json object of texts of a language
     const [selectedLang, setSelectedLang] = useState<string>("en");
-    function _setSelectedLang (){
+    const langSelectorInput = useRef<HTMLSelectElement>(null);
+
+    function fetchAndSetLanguage(newLang: string): void {
+        // set value for select element
         if (langSelectorInput && langSelectorInput.current) {
-            setSelectedLang(langSelectorInput.current.value);
+            langSelectorInput.current.value = newLang;
         }
+
+        // load target json file and set state to langObject
+        fetch(`/languages/${newLang}.json`)
+            .then(res => res.json())
+            .then(languagesJSON => {
+                setLang(languagesJSON);
+                setSelectedLang(newLang);
+                window.localStorage.setItem("selectedLang", newLang); // save
+            });
     }
+
     // get text in selected language with given tree of keys
     function getText(tree: string[]): string {
         if (!lang) return "";
@@ -48,17 +71,20 @@ const Main_Page = ({ socket }: propObject) => {
             result = result[key]
         });
         // @ts-ignore
-        return (result[selectedLang] || result["en"]);
+        return (result);
     }
 
     useEffect(()=>{
         if (typeof window !== 'undefined') {
-            // load languages.json
-            fetch("/languages.json")
-                .then(res => res.json())
-                .then(languagesJSON => {
-                    setLang(languagesJSON);
-                });
+            // selectedLang: get from local storage | browser language | en
+            let initSelectedLang: string | null = window.localStorage.getItem("selectedLang");
+            if (initSelectedLang === null) {
+                const browserLang: string = navigator.language.slice(0,2);
+                // browserLang is in list?
+                if (langs_list.some(item => item[1] === browserLang)) initSelectedLang = browserLang;
+                else initSelectedLang = "en";
+            }
+            fetchAndSetLanguage(initSelectedLang);
 
             // adding listeners
             socket.on("join-success", (receivedRoom: RoomObject) => {
@@ -137,6 +163,7 @@ const Main_Page = ({ socket }: propObject) => {
             setNickname(nickname_input.current.value);
         }
     }
+    
     function newNameClicked(): void{
         const newName: string = rollNewName();
         setNickname(newName);
@@ -159,14 +186,14 @@ const Main_Page = ({ socket }: propObject) => {
                 <label>{getText(["main_page", "nickname"])}:  <span>{nickname}</span></label>
             </div>
             <div>
-                <label>{getText(["language"])}:</label>
-                <select ref={langSelectorInput} onChange={_setSelectedLang}>
+                <label>{getText(["main_page", "language"])}:</label>
+                <select ref={langSelectorInput} onChange={() => {
+                    fetchAndSetLanguage(langSelectorInput.current?.value || "en");
+                }}>
                     {
-                        !lang ? null : (
-                            lang.langs_list.map((item: [string, string], i: number) => (
-                                <option key={i} value={item[1]}>{item[0]}</option>
-                            ))
-                        )
+                        langs_list.map((item: [string, string], i: number) => (
+                            <option key={i} value={item[1]}>{item[0]}</option>
+                        ))
                     }
                 </select>
             </div>
@@ -264,9 +291,7 @@ const Main_Page = ({ socket }: propObject) => {
                                                     </a>
                                                 ) : (cdItem[0])
                                             }
-                                            &nbsp;{!lang ? null : (
-                                                `(${lang.langs_list[index + 1][0]})`
-                                            )}
+                                            &nbsp;({langs_list[index + 1][0]})
                                         </li>);
                                     })}
                                 </ul>

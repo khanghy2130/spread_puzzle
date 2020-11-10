@@ -59,6 +59,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
 
     useEffect(()=>{
         if (typeof window !== 'undefined') {
+            window.localStorage.setItem("nickname", nickname); // save
             // adding listeners
             socket.on("start-game", (receivedLevelObject : LevelObject) => {
                 setLevelObject(receivedLevelObject);
@@ -296,7 +297,7 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
                     disabled={started}
                     className={!isHost ? "hidden-input" : ""} />
                 
-                {!isHost? <p id="not-host-message">{getText(["room_page", "only_the_room_host_can_start"])}</p> : null}
+                {!isHost? <p id="not-host-message">{getText(["room_page", "non_host_message"])}</p> : null}
 
                 {/* Help and Start (if is host) buttons */}
                 <div id="host-buttons">

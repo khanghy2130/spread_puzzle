@@ -1,0 +1,66 @@
+{
+    "main_page" : {
+        "language" : "",
+        "nickname" : "",
+        "randomize" : "",
+        "create_room" : "",
+        "join_room" : "",
+        "room_number" : "",
+
+        "welcome" : "",
+        "welcome_list" : {
+            "li0" : "",
+            "li1" : "",
+            "li2" : "",
+            "li3" : ""
+        },
+
+        "developed_by" : "",
+        "translations_by" : ""
+    },
+
+
+    "room_page" : {
+        "players" : "",
+        "host" : "",
+        "close" : "",
+        "see_results" : "",
+        "chat" : "",
+        "send" : "",
+        "chat_auto" : {
+            "solve" : "",
+            "giveup" : "",
+            "join" : "",
+            "leave" : ""
+        },
+        
+        "tile_type" : "",
+        "tile_types_list" : {
+            "square" : "",
+            "triangle" : "",
+            "hexagon" : ""
+        },
+        "figure_size" : "",
+        "number_of_pieces" : "",
+        "time_limit" : "",
+
+        "non_host_message" : "",
+        "help" : "",
+        "start" : "",
+        "leave_room" : "",
+        "confirm_leaving" :  ""
+    },
+
+
+    "play_page" : {
+        "time_left" : "",
+        "give_up" : "",
+        "confirm_giving_up" : "",
+
+        "fit_all_pieces_together" : "",
+        "starting_in" : "",
+        "puzzle_solved" : "",
+        "your_time" : "",
+        "did_not_finish" : ""
+    }
+}

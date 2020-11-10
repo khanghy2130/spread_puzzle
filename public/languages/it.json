@@ -1,0 +1,66 @@
+{
+    "main_page" : {
+        "language" : "Linguaggio",
+        "nickname" : "Nickname",
+        "randomize" : "Rendi casuale",
+        "create_room" : "Crea stanza",
+        "join_room" : "Entra nella stanza",
+        "room_number" : "Numero di camera",
+
+        "welcome" : "Benvenuto in Spread Puzzle!",
+        "welcome_list" : {
+            "li0" : "Questo è un gioco multiplayer in cui gli utenti di computer e gli utenti di dispositivi mobili possono giocare insieme.",
+            "li1" : "Con i puzzle generati proceduralmente, non vedrai lo stesso puzzle due volte.",
+            "li2" : "Puoi chattare con altri giocatori e personalizzare le opzioni di gioco.",
+            "li3" : "Crea o unisciti a una stanza per iniziare. Buon divertimento!"
+        },
+
+        "developed_by" : "Spread Puzzle è sviluppato da",
+        "translations_by" : "Traduzioni di:"
+    },
+
+
+    "room_page" : {
+        "players" : "Giocatori",
+        "host" : "Padrone",
+        "close" : "Chiudere",
+        "see_results" : "Visualizza risultati",
+        "chat" : "Chiacchierare",
+        "send" : "Spedire",
+        "chat_auto" : {
+            "solve" : "ha risolto il puzzle.",
+            "giveup" : "ha rinunciato.",
+            "join" : "si è unito alla stanza.",
+            "leave" : "ha lasciato la stanza."
+        },
+        
+        "tile_type" : "Tipo di riquadro",
+        "tile_types_list" : {
+            "square" : "quadrato",
+            "triangle" : "triangolo",
+            "hexagon" : "esagono"
+        },
+        "figure_size" : "Taglia della figura",
+        "number_of_pieces" : "Numero di pezzi",
+        "time_limit" : "Limite di tempo",
+
+        "non_host_message" : "Solo l'ospite della sala può iniziare.",
+        "help" : "Aiuto",
+        "start" : "Inizio",
+        "leave_room" : "Lasciare la stanza",
+        "confirm_leaving" :  "CONFERMA PARTENZA"
+    },
+
+
+    "play_page" : {
+        "time_left" : "Tempo rimasto",
+        "give_up" : "Rinunciare",
+        "confirm_giving_up" : "CONFERMA RINUNCIARE",
+
+        "fit_all_pieces_together" : "Unisci tutti i pezzi insieme!",
+        "starting_in" : "A partire da...",
+        "puzzle_solved" : "Puzzle risolto!",
+        "your_time" : "Il tuo tempo:",
+        "did_not_finish" : "Non è terminato"
+    }
+}

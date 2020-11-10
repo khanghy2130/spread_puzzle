@@ -1,0 +1,66 @@
+{
+    "main_page" : {
+        "language" : "Ngôn ngữ",
+        "nickname" : "Biệt danh",
+        "randomize" : "Ngẫu nhiên",
+        "create_room" : "Tạo phòng",
+        "join_room" : "Vào phòng",
+        "room_number" : "Số phòng",
+
+        "welcome" : "Chào mừng bạn đến Spread Puzzle!",
+        "welcome_list" : {
+            "li0" : "Đây là một trò chơi nhiều người, các người chơi dùng di động hay máy vi tính điều có thể chơi chung.",
+            "li1" : "Các màn chơi được tạo ngẫu nhiên, mỗi lượt chơi đêm một trãi nghiệm mới.",
+            "li2" : "Bạn có thể trò chuyện với các người chơi khác và tùy chỉnh màn chơi.",
+            "li3" : "Tạo hoặc vào phòng để bắt đầu. Chúc bạn chơi vui vẻ!"
+        },
+
+        "developed_by" : "Spread Puzzle được tạo bởi",
+        "translations_by" : "Dịch bởi:"
+    },
+
+
+    "room_page" : {
+        "players" : "Các người chơi",
+        "host" : "Chủ",
+        "close" : "Đóng",
+        "see_results" : "Xem kết quả",
+        "chat" : "Trò chuyện",
+        "send" : "Gửi",
+        "chat_auto" : {
+            "solve" : "đã giải xong.",
+            "giveup" : "đã bỏ cuộc.",
+            "join" : "đã nhập phòng.",
+            "leave" : "đã rời phòng."
+        },
+        
+        "tile_type" : "Loại ô",
+        "tile_types_list" : {
+            "square" : "vuông",
+            "triangle" : "tam giác",
+            "hexagon" : "lục giác"
+        },
+        "figure_size" : "Kích cỡ hình",
+        "number_of_pieces" : "Số miếng",
+        "time_limit" : "Thời gian giới hạn",
+
+        "non_host_message" : "Chỉ chủ phòng mới có thể bắt đầu.",
+        "help" : "Trợ giúp",
+        "start" : "Bắt đầu",
+        "leave_room" : "Rời phòng",
+        "confirm_leaving" :  "XÁC NHẬN THOÁT"
+    },
+
+
+    "play_page" : {
+        "time_left" : "Thời gian còn lại",
+        "give_up" : "Bỏ cuộc",
+        "confirm_giving_up" : "XÁC NHẬN BỎ CUỘC",
+
+        "fit_all_pieces_together" : "Ghép các miếng vào hình!",
+        "starting_in" : "Bắt đầu trong...",
+        "puzzle_solved" : "Hoàn tất!",
+        "your_time" : "Thời gian:",
+        "did_not_finish" : "Chưa giải xong"
+    }
+}
