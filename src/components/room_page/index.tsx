@@ -326,10 +326,10 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
                 <h2>{getText(["room_page", "players"])}</h2>
                 <div id="players-div">
                     {room.users.map(
-                        (user) => (<h4 
+                        (user, userIndex) => (<h4 
                             className={(user.id === socket.id) ? "you" : ""} 
                             key={user.id}>
-                            {user.nickname} ({getText(["room_page", "host"])})
+                            {user.nickname} {userIndex === 0? `(${getText(["room_page", "host"])})` : null}
                         </h4>)
                     )}
                 </div>
