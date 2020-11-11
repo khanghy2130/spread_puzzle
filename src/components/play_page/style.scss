@@ -134,6 +134,22 @@
                 margin-top: 1em;
                 background-color: $red;
             }
+
+            #safari-mode-div {
+                align-self: center;
+                background-color: rgba(0,0,0, 0.5);
+                padding: 0.5em;
+                margin-top: 2em;
+                flex-direction: column;
+                align-items: center;
+                font-size: 0.8em;
+                text-align: center;
+
+                & > button {
+                    background-color: $red;
+                    padding: 0 0.2em;
+                }
+            }
         }
     }
 

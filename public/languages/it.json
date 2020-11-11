@@ -62,6 +62,9 @@
         "time_left" : "Tempo rimasto",
         "give_up" : "Rinunciare",
         "confirm_giving_up" : "CONFERMA RINUNCIARE",
+        "safari_mode_note" : "Attiva Safari Mode se i pezzi non vengono visualizzati.",
+        "on" : "acceso",
+        "off" : "spento",
 
         "fit_all_pieces_together" : "Unisci tutti i pezzi insieme!",
         "starting_in" : "A partire da...",

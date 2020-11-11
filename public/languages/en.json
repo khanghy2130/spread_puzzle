@@ -62,6 +62,9 @@
         "time_left" : "Time left",
         "give_up" : "Give up",
         "confirm_giving_up" : "CONFIRM GIVING UP",
+        "safari_mode_note" : "Turn on Safari Mode if the pieces are not showing.",
+        "on" : "on",
+        "off" : "off",
 
         "fit_all_pieces_together" : "Fit all pieces together!",
         "starting_in" : "Starting in...",

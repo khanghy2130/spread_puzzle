@@ -76,6 +76,20 @@ const Play_Page = ({
         }
     }
 
+    // safariMode ("on" or "off") in local storage
+    const safari_mode_toggler = useRef<HTMLButtonElement>(null);
+    const [safariMode, setSafariMode] = useState<boolean>(
+        window?.localStorage?.getItem("safariMode") === "on" || false
+    );
+    function toggleSafariMode(): void {
+        const newModeStatus: boolean = !safariMode;
+        setSafariMode(newModeStatus); // switch
+        // save
+        window.localStorage.setItem("safariMode", newModeStatus ? "on" : "off");
+    }
+
+
+
     // main game state status
     type progressType = "preparing"|"playing"|"incomplete"|"complete";
     const [progress, setProgress] = useState<progressType>("preparing");
@@ -252,7 +266,14 @@ const Play_Page = ({
 
                 {/* Canvas */}
                 <div id="canvas-parent">
-                    {P5_Canvas(levelObject, cv, setCv, progress, setProgress, setPlacedClass, setSelectedClass)}
+                    {P5_Canvas(
+                        levelObject, 
+                        cv, setCv, 
+                        progress, setProgress, 
+                        setPlacedClass, 
+                        setSelectedClass,
+                        safariMode
+                    )}
                 </div>
             </section>
             
@@ -292,9 +313,17 @@ const Play_Page = ({
                             {getText(["room_page", "chat"])}
                         </button>
                     </div>
+
                     <button id="give-up-button" onClick={onGiveUp} ref={give_up_button}>
                         {getText(["play_page", "give_up"])}
                     </button>
+
+                    <div id="safari-mode-div">
+                        <p id="safari-mode-note">{getText(["play_page", "safari_mode_note"])}</p>
+                        <button onClick={toggleSafariMode} ref={safari_mode_toggler}>
+                            Safari Mode: {safariMode ? getText(["play_page", "on"]) : getText(["play_page", "off"])}
+                        </button>
+                    </div>
                 </div>
 
             </section>

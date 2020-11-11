@@ -62,6 +62,9 @@
         "time_left" : "Tiempo restante",
         "give_up" : "Rendirse",
         "confirm_giving_up" : "CONFIRMAR RENDICIÓN",
+        "safari_mode_note" : "Encienda Safari Mode si las piezas no se ven.",
+        "on" : "encendido",
+        "off" : "apagado",
 
         "fit_all_pieces_together" : "¡Encaja todas las piezas!",
         "starting_in" : "Comenzando en...",

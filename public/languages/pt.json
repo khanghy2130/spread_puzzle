@@ -62,6 +62,9 @@
         "time_left" : "Tempo restante",
         "give_up" : "Desistir",
         "confirm_giving_up" : "CONFIRMAR DESISTIR",
+        "safari_mode_note" : "Ligue o Safari Mode se as peças não estiverem aparecendo.",
+        "on" : "ligado",
+        "off" : "desligado",
 
         "fit_all_pieces_together" : "Encaixe todas as peças!",
         "starting_in" : "Começando em...",
