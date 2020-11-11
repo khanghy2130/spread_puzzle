@@ -1,72 +1,72 @@
 {
     "main_page" : {
-        "language" : "",
-        "nickname" : "",
-        "randomize" : "",
-        "create_room" : "",
-        "join_room" : "",
-        "room_number" : "",
+        "language" : "Idioma",
+        "nickname" : "Apodo",
+        "randomize" : "Aleatorizar",
+        "create_room" : "Crear espacio",
+        "join_room" : "Unirse a la habitación",
+        "room_number" : "Número de habitación",
 
-        "welcome" : "",
+        "welcome" : "¡Bienvenido a Spread Puzzle!",
         "welcome_list" : {
-            "li0" : "",
-            "li1" : "",
-            "li2" : "",
-            "li3" : ""
+            "li0" : "Este es un juego multijugador donde los usuarios de computadoras y los usuarios móviles pueden jugar juntos.",
+            "li1" : "Con rompecabezas generados por procedimientos, no verá el mismo rompecabezas dos veces.",
+            "li2" : "Puedes chatear con otros jugadores y personalizar las opciones del juego.",
+            "li3" : "Crea o únete a una sala para comenzar. ¡Diviértete!"
         },
 
-        "developed_by" : "",
-        "translations_by" : ""
+        "developed_by" : "Spread Puzzle fue desarrollado por",
+        "translations_by" : "Traducciones de:"
     },
 
 
     "room_page" : {
-        "players" : "",
-        "host" : "",
-        "close" : "",
-        "see_results" : "",
-        "chat" : "",
-        "send" : "",
+        "players" : "Jugadores",
+        "host" : "Anfitrión",
+        "close" : "Cerrar",
+        "see_results" : "Ver resultados",
+        "chat" : "Charla",
+        "send" : "Enviar",
         "chat_auto" : {
-            "solve" : "",
-            "giveup" : "",
-            "join" : "",
-            "leave" : ""
+            "solve" : "ha resuelto el rompecabezas.",
+            "giveup" : "se ha dado por vencido.",
+            "join" : "se ha unido a la habitación.",
+            "leave" : "ha salido de la habitación."
         },
         
-        "tile_type" : "",
+        "tile_type" : "Tipo de mosaico",
         "tile_types_list" : {
-            "square" : "",
-            "triangle" : "",
-            "hexagon" : ""
+            "square" : "cuadrado",
+            "triangle" : "triángulo",
+            "hexagon" : "hexágono"
         },
-        "figure_size" : "",
-        "number_of_pieces" : "",
-        "time_limit" : "",
+        "figure_size" : "Tamaño de la figura",
+        "number_of_pieces" : "Numero de piezas",
+        "time_limit" : "Límite de tiempo",
 
-        "non_host_message" : "",
-        "help" : "",
-        "start" : "",
-        "leave_room" : "",
-        "confirm_leaving" :  ""
+        "non_host_message" : "Solo el anfitrión de la sala puede iniciar.",
+        "help" : "Ayuda",
+        "start" : "Comienzo",
+        "leave_room" : "Dejar la habitación",
+        "confirm_leaving" :  "CONFIRMAR SALIR"
     },
 
 
     "play_page" : {
         "help_list" : {
-            "li0" : "",
-            "li1" : "",
-            "li2" : ""
+            "li0" : "Seleccionar pieza",
+            "li1" : "Colocar pieza",
+            "li2" : "Girar pieza"
         },
 
-        "time_left" : "",
-        "give_up" : "",
-        "confirm_giving_up" : "",
+        "time_left" : "Tiempo restante",
+        "give_up" : "Rendirse",
+        "confirm_giving_up" : "CONFIRMAR RENDICIÓN",
 
-        "fit_all_pieces_together" : "",
-        "starting_in" : "",
-        "puzzle_solved" : "",
-        "your_time" : "",
-        "did_not_finish" : ""
+        "fit_all_pieces_together" : "¡Encaja todas las piezas!",
+        "starting_in" : "Comenzando en...",
+        "puzzle_solved" : "¡Rompecabezas resuelto!",
+        "your_time" : "Su tiempo:",
+        "did_not_finish" : "No terminó"
     }
 }

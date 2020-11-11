@@ -1,72 +1,72 @@
 {
     "main_page" : {
-        "language" : "",
-        "nickname" : "",
-        "randomize" : "",
-        "create_room" : "",
-        "join_room" : "",
-        "room_number" : "",
+        "language" : "Língua",
+        "nickname" : "Apelido",
+        "randomize" : "Aleatória",
+        "create_room" : "Criar sala",
+        "join_room" : "Entrar sala",
+        "room_number" : "Número do sala",
 
-        "welcome" : "",
+        "welcome" : "Bem-vindo ao Spread Puzzle!",
         "welcome_list" : {
-            "li0" : "",
-            "li1" : "",
-            "li2" : "",
-            "li3" : ""
+            "li0" : "Este é um jogo multijogador em que usuários de computador e usuários de dispositivos móveis podem jogar juntos.",
+            "li1" : "Apresentando quebra-cabeças gerados por procedimentos, você não verá o mesmo quebra-cabeça duas vezes.",
+            "li2" : "Você pode conversar com outros jogadores e personalizar as opções de jogo.",
+            "li3" : "Crie ou entre em uma sala para começar. Divirta-se!"
         },
 
-        "developed_by" : "",
-        "translations_by" : ""
+        "developed_by" : "Spread Puzzle é desenvolvido por",
+        "translations_by" : "Traduções por:"
     },
 
 
     "room_page" : {
-        "players" : "",
-        "host" : "",
-        "close" : "",
-        "see_results" : "",
-        "chat" : "",
-        "send" : "",
+        "players" : "Jogadoras",
+        "host" : "Hospedeiro",
+        "close" : "Fechar",
+        "see_results" : "Ver resultados",
+        "chat" : "Bate-papo",
+        "send" : "Enviar",
         "chat_auto" : {
-            "solve" : "",
-            "giveup" : "",
-            "join" : "",
-            "leave" : ""
+            "solve" : "resolveu o quebra-cabeça.",
+            "giveup" : "desistiu.",
+            "join" : "entrou na sala.",
+            "leave" : "saiu da sala."
         },
         
-        "tile_type" : "",
+        "tile_type" : "Tipo de bloco",
         "tile_types_list" : {
-            "square" : "",
-            "triangle" : "",
-            "hexagon" : ""
+            "square" : "quadrado",
+            "triangle" : "triângulo",
+            "hexagon" : "hexágono"
         },
-        "figure_size" : "",
-        "number_of_pieces" : "",
-        "time_limit" : "",
+        "figure_size" : "Tamanho do figurino",
+        "number_of_pieces" : "Número de peças",
+        "time_limit" : "Limite de tempo",
 
-        "non_host_message" : "",
-        "help" : "",
-        "start" : "",
-        "leave_room" : "",
-        "confirm_leaving" :  ""
+        "non_host_message" : "Apenas o host da sala pode iniciar.",
+        "help" : "Socorro",
+        "start" : "Iniciar",
+        "leave_room" : "Sair da sala",
+        "confirm_leaving" :  "CONFIRMAR SAÍDA"
     },
 
 
     "play_page" : {
         "help_list" : {
-            "li0" : "",
-            "li1" : "",
-            "li2" : ""
+            "li0" : "Selecionar peça",
+            "li1" : "Coloque peça",
+            "li2" : "Rodar peça"
         },
 
-        "time_left" : "",
-        "give_up" : "",
-        "confirm_giving_up" : "",
+        "time_left" : "Tempo restante",
+        "give_up" : "Desistir",
+        "confirm_giving_up" : "CONFIRMAR DESISTIR",
 
-        "fit_all_pieces_together" : "",
-        "starting_in" : "",
-        "puzzle_solved" : "",
-        "your_time" : "",
-        "did_not_finish" : ""
+        "fit_all_pieces_together" : "Encaixe todas as peças!",
+        "starting_in" : "Começando em...",
+        "puzzle_solved" : "Quebra-cabeça resolvido",
+        "your_time" : "Seu tempo:",
+        "did_not_finish" : "Não terminei"
     }
 }
