@@ -217,7 +217,14 @@ const Room_Page = ({ socket, room, resetMainPage, nickname, setRoom, getText, se
     const helpModalRef = useRef<HTMLDivElement>(null);
     function helpModalRender(): JSX.Element {
         return <div id="help-modal" ref={helpModalRef}>
-            <img src={help_img} alt="control keys" />
+            <div id="help-modal-content">
+                <img src={help_img} alt="control keys" />
+                <div>
+                    <p>1. {getText(["play_page", "help_list", "li0"])}</p>
+                    <p>2. {getText(["play_page", "help_list", "li1"])}</p>
+                    <p>3. {getText(["play_page", "help_list", "li2"])}</p>
+                </div>
+            </div>
             <button className="close-modal-button" onClick={()=>{setHelpModalHidden(true)}}>
                 {getText(["room_page", "close"])}
             </button>

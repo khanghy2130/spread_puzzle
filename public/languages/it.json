@@ -53,6 +53,12 @@
 
 
     "play_page" : {
+        "help_list" : {
+            "li0" : "Selezionare pezzo",
+            "li1" : "Mettere pezzo",
+            "li2" : "Ruotare pezzo"
+        },
+
         "time_left" : "Tempo rimasto",
         "give_up" : "Rinunciare",
         "confirm_giving_up" : "CONFERMA RINUNCIARE",

@@ -53,6 +53,12 @@
 
 
     "play_page" : {
+        "help_list" : {
+            "li0" : "Select piece",
+            "li1" : "Place piece",
+            "li2" : "Rotate piece"
+        },
+
         "time_left" : "Time left",
         "give_up" : "Give up",
         "confirm_giving_up" : "CONFIRM GIVING UP",

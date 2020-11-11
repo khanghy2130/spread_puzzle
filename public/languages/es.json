@@ -53,6 +53,12 @@
 
 
     "play_page" : {
+        "help_list" : {
+            "li0" : "",
+            "li1" : "",
+            "li2" : ""
+        },
+
         "time_left" : "",
         "give_up" : "",
         "confirm_giving_up" : "",

@@ -53,6 +53,12 @@
 
 
     "play_page" : {
+        "help_list" : {
+            "li0" : "Chọn miếng",
+            "li1" : "Đặt miếng",
+            "li2" : "Xoay miếng"
+        },
+
         "time_left" : "Thời gian còn lại",
         "give_up" : "Bỏ cuộc",
         "confirm_giving_up" : "XÁC NHẬN BỎ CUỘC",
