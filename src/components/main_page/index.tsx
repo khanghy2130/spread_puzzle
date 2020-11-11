@@ -21,7 +21,7 @@ const Main_Page = ({ socket }: propObject) => {
     const creditsData: [string, string | null][] = [
         ["Logix Indie", "https://www.youtube.com/channel/UCs9Pt9s8V0SDfhrfFFCNV7Q"],
         ["Google Translate", null],
-        ["Google Translate", null],
+        ["Jafet Uribe", "https://www.instagram.com/jafet_uribe_16"],
         ["Google Translate", null]
     ];
     const langs_list: [string, string][] = [
