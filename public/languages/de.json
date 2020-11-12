@@ -1,0 +1,75 @@
+{
+    "main_page" : {
+        "language" : "Sprache",
+        "nickname" : "Spitzname",
+        "randomize" : "Randomize",
+        "create_room" : "Raum schaffen",
+        "join_room" : "Raum betreten",
+        "room_number" : "Zimmernummer",
+
+        "welcome" : "Willkommen bei Spread Puzzle!",
+        "welcome_list" : {
+            "li0" : "Dies ist ein Multiplayer-Spiel, in dem Computerbenutzer und mobile Benutzer zusammen spielen können.",
+            "li1" : "Alle Rätsel werden prozedural generiert.",
+            "li2" : "Sie können mit anderen Spielern chatten und die Spieloptionen anpassen.",
+            "li3" : "Erstelle einen Raum oder schließe dich ihm an. Viel Spaß!"
+        },
+
+        "developed_by" : "Spread Puzzle wird entwickelt von",
+        "translations_by" : "Übersetzungen von:"
+    },
+
+
+    "room_page" : {
+        "players" : "Spieler",
+        "host" : "Raumwirt",
+        "close" : "Schließen",
+        "see_results" : "Ergebnisse anzeigen",
+        "chat" : "Katze",
+        "send" : "Senden",
+        "chat_auto" : {
+            "solve" : "hat das Rätsel gelöst.",
+            "giveup" : "hat aufgegeben.",
+            "join" : "ist dem Raum beigetreten.",
+            "leave" : "hat den Raum verlassen."
+        },
+        
+        "tile_type" : "Kacheltyp",
+        "tile_types_list" : {
+            "square" : "quadrat",
+            "triangle" : "dreieck",
+            "hexagon" : "sechseck"
+        },
+        "figure_size" : "Figurengröße",
+        "number_of_pieces" : "Anzahl der Stücke",
+        "time_limit" : "Zeitlimit",
+
+        "non_host_message" : "Nur der Raumwirt kann starten.",
+        "help" : "Hilfe",
+        "start" : "Start",
+        "leave_room" : "Raum verlassen",
+        "confirm_leaving" :  "BESTÄTIGEN VERLASSEN"
+    },
+
+
+    "play_page" : {
+        "help_list" : {
+            "li0" : "Stück auswählen",
+            "li1" : "Stück platzieren",
+            "li2" : "Stück drehen"
+        },
+
+        "time_left" : "Übrige zeit",
+        "give_up" : "Gib auf",
+        "confirm_giving_up" : "BESTÄTIGEN AUFGEBEN",
+        "safari_mode_note" : "Aktivieren Sie den Safari Mode, wenn die Teile nicht angezeigt werden.",
+        "on" : "eingeschaltet",
+        "off" : "ausgeschaltet",
+
+        "fit_all_pieces_together" : "Alle Teile zusammenfügen!",
+        "starting_in" : "Ab...",
+        "puzzle_solved" : "Rätsel gelöst!",
+        "your_time" : "Deine zeit:",
+        "did_not_finish" : "Nicht durchgeführt"
+    }
+}

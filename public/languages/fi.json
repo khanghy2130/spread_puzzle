@@ -1,0 +1,75 @@
+{
+    "main_page" : {
+        "language" : "Kieli",
+        "nickname" : "Nimimerkki",
+        "randomize" : "Satunnaista",
+        "create_room" : "Luo huone",
+        "join_room" : "Liity huone",
+        "room_number" : "Huone numero",
+
+        "welcome" : "Tervetuloa Spread Puzzle!",
+        "welcome_list" : {
+            "li0" : "Tämä on moninpeli, jossa tietokoneen käyttäjät ja mobiilikäyttäjät voivat pelata yhdessä.",
+            "li1" : "Satunnaisesti tuotettujen pulmien avulla et näe samaa palapeliä kahdesti.",
+            "li2" : "Voit keskustella muiden pelaajien kanssa ja mukauttaa pelivaihtoehtoja.",
+            "li3" : "Aloita luomalla huone tai liittymällä siihen. Pidä hauskaa!"
+        },
+
+        "developed_by" : "Spread Puzzle on kehittänyt",
+        "translations_by" : "Käännökset teki:"
+    },
+
+
+    "room_page" : {
+        "players" : "Pelaajat",
+        "host" : "Isäntä",
+        "close" : "Sulkea",
+        "see_results" : "Näytä tulokset",
+        "chat" : "Kissa",
+        "send" : "Lähettää",
+        "chat_auto" : {
+            "solve" : "on ratkaissut pulman.",
+            "giveup" : "on luopunut.",
+            "join" : "on liittynyt huoneeseen.",
+            "leave" : "on poistunut huoneesta."
+        },
+        
+        "tile_type" : "Laattatyyppi",
+        "tile_types_list" : {
+            "square" : "neliö",
+            "triangle" : "kolmio",
+            "hexagon" : "kuusikulmio"
+        },
+        "figure_size" : "Muoto koko",
+        "number_of_pieces" : "Palojen lukumäärä",
+        "time_limit" : "Määräaika",
+
+        "non_host_message" : "Vain huoneen isäntä voi alkaa.",
+        "help" : "Auttaa",
+        "start" : "Alkaa",
+        "leave_room" : "Lähde huoneesta",
+        "confirm_leaving" :  "VAHVISTA POISTUMINEN"
+    },
+
+
+    "play_page" : {
+        "help_list" : {
+            "li0" : "Valitse pala",
+            "li1" : "Aseta pala",
+            "li2" : "Kierrä pala"
+        },
+
+        "time_left" : "Aikaa jäljellä",
+        "give_up" : "Luovuttaa",
+        "confirm_giving_up" : "VAHVISTA LUOVUTTAA",
+        "safari_mode_note" : "Ota Safari Mode käyttöön, jos pala eivät näy.",
+        "on" : "päälle",
+        "off" : "päältä",
+
+        "fit_all_pieces_together" : "Sovita kaikki kappaleet yhteen!",
+        "starting_in" : "Slkaa...",
+        "puzzle_solved" : "Palapeli ratkaistu!",
+        "your_time" : "Sinun aika:",
+        "did_not_finish" : "Ei valmis"
+    }
+}

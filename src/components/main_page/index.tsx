@@ -20,16 +20,22 @@ const Main_Page = ({ socket }: propObject) => {
     // order of this credits must match order of languages
     const creditsData: [string, string | null][] = [
         ["Logix Indie", "https://www.youtube.com/channel/UCs9Pt9s8V0SDfhrfFFCNV7Q"],
-        ["Google Translate", null],
         ["Jafet Uribe", "https://www.instagram.com/jafet_uribe_16"],
+        ["Vitor Lima", null],
+        ["Google Translate", null],
+        ["Google Translate", null],
+        ["Google Translate", null],
         ["Google Translate", null]
     ];
     const langs_list: [string, string][] = [
         ["English", "en"],
         ["Tiếng Việt", "vi"],
-        ["Italiano", "it"],
         ["Español", "es"],
-        ["Português", "pt"]
+        ["Português", "pt"],
+        ["French", "fr"],
+        ["Germany", "de"],
+        ["Italiano", "it"],
+        ["Finnish", "fi"]
     ];
     
 

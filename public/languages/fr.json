@@ -1,0 +1,75 @@
+{
+    "main_page" : {
+        "language" : "Langue",
+        "nickname" : "Surnom",
+        "randomize" : "Randomiser",
+        "create_room" : "Créer une chambre",
+        "join_room" : "Rejoindre la chambre",
+        "room_number" : "Numéro de chambre",
+
+        "welcome" : "Bienvenue dans Spread Puzzle!",
+        "welcome_list" : {
+            "li0" : "Il s'agit d'un jeu multijoueur dans lequel les utilisateurs d'ordinateurs et les utilisateurs mobiles peuvent jouer ensemble.",
+            "li1" : "Avec des puzzles générés de manière procédurale, vous ne verrez pas le même puzzle deux fois.",
+            "li2" : "Vous pouvez discuter avec d'autres joueurs et personnaliser les options de jeu.",
+            "li3" : "Créez ou rejoignez une salle pour commencer. Amusez-vous bien!"
+        },
+
+        "developed_by" : "Spread Puzzle est développé par",
+        "translations_by" : "Traductions par:"
+    },
+
+
+    "room_page" : {
+        "players" : "Joueurs",
+        "host" : "Hôte",
+        "close" : "Proche",
+        "see_results" : "Voir les résultats",
+        "chat" : "Chatter",
+        "send" : "Envoyer",
+        "chat_auto" : {
+            "solve" : "a résolu le puzzle.",
+            "giveup" : "a laissé tomber.",
+            "join" : "a rejoint la salle.",
+            "leave" : "a quitté la salle."
+        },
+        
+        "tile_type" : "Type de tuile",
+        "tile_types_list" : {
+            "square" : "carré",
+            "triangle" : "triangle",
+            "hexagon" : "hexagone"
+        },
+        "figure_size" : "Taille de la figure",
+        "number_of_pieces" : "Nombre de pièces",
+        "time_limit" : "Limite de temps",
+
+        "non_host_message" : "Seul l'hôte de la salle peut démarrer.",
+        "help" : "aider",
+        "start" : "Commencer",
+        "leave_room" : "Quitter la pièce",
+        "confirm_leaving" :  "CONFIRMER LA SORTIE"
+    },
+
+
+    "play_page" : {
+        "help_list" : {
+            "li0" : "Sélectionner la pièce",
+            "li1" : "Placer la pièce",
+            "li2" : "Faire pivoter la pièce"
+        },
+
+        "time_left" : "Temps restant",
+        "give_up" : "Abandonner",
+        "confirm_giving_up" : "CONFIRMER L'ABANDON",
+        "safari_mode_note" : "Activez le Safari Mode si les pièces ne s'affichent pas.",
+        "on" : "allumé",
+        "off" : "éteint",
+
+        "fit_all_pieces_together" : "Assemblez toutes les pièces!",
+        "starting_in" : "À partir de...",
+        "puzzle_solved" : "Puzzle résolu!",
+        "your_time" : "Ton temps:",
+        "did_not_finish" : "N'a pas fini"
+    }
+}

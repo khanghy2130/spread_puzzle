@@ -1,75 +1,71 @@
 {
-    "main_page" : {
-        "language" : "Língua",
-        "nickname" : "Apelido",
-        "randomize" : "Aleatória",
-        "create_room" : "Criar sala",
-        "join_room" : "Entrar sala",
-        "room_number" : "Número do sala",
+    "main_page": {
+        "language": "Língua",
+        "nickname": "Apelido",
+        "randomize": "Aleatória",
+        "create_room": "Criar sala",
+        "join_room": "Entrar sala",
+        "room_number": "Número do sala",
 
-        "welcome" : "Bem-vindo ao Spread Puzzle!",
-        "welcome_list" : {
-            "li0" : "Este é um jogo multijogador em que usuários de computador e usuários de dispositivos móveis podem jogar juntos.",
-            "li1" : "Apresentando quebra-cabeças gerados por procedimentos, você não verá o mesmo quebra-cabeça duas vezes.",
-            "li2" : "Você pode conversar com outros jogadores e personalizar as opções de jogo.",
-            "li3" : "Crie ou entre em uma sala para começar. Divirta-se!"
-        },
-
-        "developed_by" : "Spread Puzzle é desenvolvido por",
-        "translations_by" : "Traduções por:"
-    },
-
-
-    "room_page" : {
-        "players" : "Jogadoras",
-        "host" : "Hospedeiro",
-        "close" : "Fechar",
-        "see_results" : "Ver resultados",
-        "chat" : "Bate-papo",
-        "send" : "Enviar",
-        "chat_auto" : {
-            "solve" : "resolveu o quebra-cabeça.",
-            "giveup" : "desistiu.",
-            "join" : "entrou na sala.",
-            "leave" : "saiu da sala."
+        "welcome": "Bem-vindo ao Spread Puzzle!",
+        "welcome_list": {
+            "li0": "Este é um jogo multijogador em que usuários de computador e usuários de dispositivos móveis podem jogar juntos.",
+            "li1": "Apresentando quebra-cabeças gerados aleatóriamente, você não verá o mesmo quebra-cabeça duas vezes.",
+            "li2": "Você pode conversar com outros jogadores e personalizar as opções de jogo.",
+            "li3": "Crie ou entre em uma sala para começar. Divirta-se!"
         },
         
-        "tile_type" : "Tipo de bloco",
-        "tile_types_list" : {
-            "square" : "quadrado",
-            "triangle" : "triângulo",
-            "hexagon" : "hexágono"
-        },
-        "figure_size" : "Tamanho do figurino",
-        "number_of_pieces" : "Número de peças",
-        "time_limit" : "Limite de tempo",
-
-        "non_host_message" : "Apenas o host da sala pode iniciar.",
-        "help" : "Socorro",
-        "start" : "Iniciar",
-        "leave_room" : "Sair da sala",
-        "confirm_leaving" :  "CONFIRMAR SAÍDA"
+        "developed_by": "Spread Puzzle é desenvolvido por",
+        "translations_by": "Traduções por:"
     },
-
-
-    "play_page" : {
-        "help_list" : {
-            "li0" : "Selecionar peça",
-            "li1" : "Coloque peça",
-            "li2" : "Rodar peça"
+    "room_page": {
+        "players": "Jogadoras",
+        "host": "Hospedeiro",
+        "close": "Fechar",
+        "see_results": "Ver resultados",
+        "chat": "Bate-papo",
+        "send": "Enviar",
+        "chat_auto": {
+            "solve": "resolveu o quebra-cabeça.",
+            "giveup": "desistiu.",
+            "join": "entrou na sala.",
+            "leave": "saiu da sala."
         },
 
-        "time_left" : "Tempo restante",
-        "give_up" : "Desistir",
-        "confirm_giving_up" : "CONFIRMAR DESISTIR",
-        "safari_mode_note" : "Ligue o Safari Mode se as peças não estiverem aparecendo.",
-        "on" : "ligado",
-        "off" : "desligado",
+        "tile_type": "Tipo de bloco",
+        "tile_types_list": {
+            "square": "quadrado",
+            "triangle": "triângulo",
+            "hexagon": "hexágono"
+        },
+        "figure_size": "Tamanho da figura",
+        "number_of_pieces": "Número de peças",
+        "time_limit": "Limite de tempo",
 
-        "fit_all_pieces_together" : "Encaixe todas as peças!",
-        "starting_in" : "Começando em...",
-        "puzzle_solved" : "Quebra-cabeça resolvido",
-        "your_time" : "Seu tempo:",
-        "did_not_finish" : "Não terminei"
+        "non_host_message": "Apenas o host da sala pode iniciar.",
+        "help": "Ajuda",
+        "start": "Iniciar",
+        "leave_room": "Sair da sala",
+        "confirm_leaving": "CONFIRMAR SAÍDA"
+    },
+    "play_page": {
+        "help_list": {
+            "li0": "Selecionar peça",
+            "li1": "Coloque peça",
+            "li2": "Rodar peça"
+        },
+
+        "time_left": "Tempo restante",
+        "give_up": "Desistir",
+        "confirm_giving_up": "CONFIRMAR DESISTIR",
+        "safari_mode_note": "Ligue o Safari Mode se as peças não estiverem aparecendo.",
+        "on": "ligado",
+        "off": "desligado",
+
+        "fit_all_pieces_together": "Encaixe todas as peças!",
+        "starting_in": "Começando em...",
+        "puzzle_solved": "Quebra-cabeça resolvido",
+        "your_time": "Seu tempo:",
+        "did_not_finish": "Não terminei"
     }
 }
