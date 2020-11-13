@@ -43,6 +43,8 @@ function P5_Canvas(
     let cvUpdated: boolean = false;
     let ghostPiecePos: Pos | null = null; // if not null then can place
     let lastCalculatedPos: Pos = [99, 99];
+    let previousCursorPos : Pos = [0, 0]; // for disabling ghost
+    let disableGhost: boolean = true;
     let allPiecesPlaced : boolean = false;
 
     // animations
@@ -211,7 +213,7 @@ function P5_Canvas(
         if (ghostPiecePos !== null){
             // get the vars before scrolling to new piece
             const thePlacingPieceIndex: number = cv.selectedPiece.index;
-            const placedPos: Pos = [ghostPiecePos[0], ghostPiecePos[1]];
+            const placedPos: Pos = [ghostPiecePos[0], ghostPiecePos[1]]; // save it here because it will be cleared next line
             scrollSelectedPiece(false, true); // scroll (will clear ghostPiecePos and lastCalculatedPos)
             // add to placed piece
             cv.placedPieces.push({
@@ -236,6 +238,11 @@ function P5_Canvas(
     }
 
     function renderAndUpdateGhostPiece(p: p5Types, SPPosData: Pos[]): void {
+        // quits if ghost is disabled
+        if (disableGhost) {
+            ghostPiecePos = null;
+            return;
+        }
         let hoverPos: Pos | null = getHoveredTile();
         if (hoverPos !== null){ // pos is on base?
             const boolA: boolean = 
@@ -369,10 +376,6 @@ function P5_Canvas(
 
                 // render tiles in this piece group
                 SP.posDataArray[SPRotateIndex].forEach((pos) => {
-                    const converteCursorPos: Pos = [
-                        pos[0] + selectedPiece.cursorPos[0], 
-                        pos[1] + selectedPiece.cursorPos[1]
-                    ];
                     renderTile(
                         p, pos,
                         getTDir(pos, SP.rootIsUpward === (SPRotateIndex % 2 === 0))
@@ -418,6 +421,7 @@ function P5_Canvas(
 
         p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE);
         selectedPiece.cursorPos = [CANVAS_SIZE/2, CANVAS_SIZE/2]; // center cursor
+        clearGhost();
         semiConstantsLoaded = true;
     }
     const windowResized = (p: p5Types) => {calculateAndSetSemiConstants(p)};
@@ -477,24 +481,34 @@ function P5_Canvas(
                     }
                 }
 
+                // enable ghost
+                if (disableGhost && 
+                    selectedPiece.cursorPos[0] !== previousCursorPos[0] && 
+                    selectedPiece.cursorPos[1] !== previousCursorPos[1]) disableGhost = false;
+
                 // check button element inputs (placing and rotating)
                 if (cv.selectedPiece.isPlacing){ // placing
-                    const ghostIsNotNull: boolean = ghostPiecePos !== null;
-                    placeSelectedPiece();
+                    // successful placement?
+                    if (ghostPiecePos !== null) {
+                        centerCursor();
+                        placeSelectedPiece();
+                    }
                     cv.selectedPiece.isPlacing = false;
                     cvUpdated = true;
-                    if (ghostIsNotNull) selectedPiece.cursorPos = [p.width/2, p.height/2];
                 }
                 if (cv.selectedPiece.nextRotate !== null){ // rotating
+                    centerCursor();
                     rotateSelectedPiece(cv.selectedPiece.nextRotate === "right");
                     cv.selectedPiece.nextRotate = null;
                     cvUpdated = true;
-                    selectedPiece.cursorPos = [p.width/2, p.height/2];
                 }
                 if (cv.selectedPiece.nextPiece !== null){ // select piece
+                    centerCursor();
                     unplacePiece(cv.selectedPiece.nextPiece);
                     cv.selectedPiece.nextPiece = null;
                     cvUpdated = true;
+                }
+                function centerCursor(): void{
                     selectedPiece.cursorPos = [p.width/2, p.height/2];
                 }
                 
@@ -564,6 +578,9 @@ function P5_Canvas(
     function clearGhost(): void {
         ghostPiecePos = null;
         lastCalculatedPos = [99, 99];
+        // disable ghost
+        previousCursorPos = [selectedPiece.cursorPos[0], selectedPiece.cursorPos[1]];
+        disableGhost = true;
     }
     // returns true if the given array has the given position
     function arrayHasTile(arr: Pos[], tilePos: Pos): boolean{
