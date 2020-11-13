@@ -62,7 +62,8 @@
         "time_left" : "Aikaa jäljellä",
         "give_up" : "Luovuttaa",
         "confirm_giving_up" : "VAHVISTA LUOVUTTAA",
-        "safari_mode_note" : "Ota Safari Mode käyttöön, jos pala eivät näy.",
+        "safari_mode": "Safaritila",
+        "safari_mode_note" : "Ota Safaritila käyttöön, jos pala eivät näy.",
         "on" : "päälle",
         "off" : "päältä",
 

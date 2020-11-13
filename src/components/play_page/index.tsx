@@ -321,7 +321,7 @@ const Play_Page = ({
                     <div id="safari-mode-div">
                         <p id="safari-mode-note">{getText(["play_page", "safari_mode_note"])}</p>
                         <button onClick={toggleSafariMode} ref={safari_mode_toggler}>
-                            Safari Mode: {safariMode ? getText(["play_page", "on"]) : getText(["play_page", "off"])}
+                            {getText(["play_page", "safari_mode"])}: {safariMode ? getText(["play_page", "on"]) : getText(["play_page", "off"])}
                         </button>
                     </div>
                 </div>

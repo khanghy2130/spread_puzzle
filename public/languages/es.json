@@ -62,7 +62,8 @@
         "time_left" : "Tiempo restante",
         "give_up" : "Rendirse",
         "confirm_giving_up" : "CONFIRMAR RENDICIÓN",
-        "safari_mode_note" : "Activa Safari Mode si las piezas no se ven.",
+        "safari_mode": "Modo Safari",
+        "safari_mode_note" : "Activa modo Safari si las piezas no se ven.",
         "on" : "encendido",
         "off" : "apagado",
 

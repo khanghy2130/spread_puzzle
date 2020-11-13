@@ -58,7 +58,8 @@
         "time_left": "Tempo restante",
         "give_up": "Desistir",
         "confirm_giving_up": "CONFIRMAR DESISTIR",
-        "safari_mode_note": "Ligue o Safari Mode se as peças não estiverem aparecendo.",
+        "safari_mode": "Modo Safari",
+        "safari_mode_note": "Ligue o modo Safari se as peças não estiverem aparecendo.",
         "on": "ligado",
         "off": "desligado",
 

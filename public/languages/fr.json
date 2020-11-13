@@ -2,17 +2,17 @@
     "main_page" : {
         "language" : "Langue",
         "nickname" : "Surnom",
-        "randomize" : "Randomiser",
-        "create_room" : "Créer une chambre",
-        "join_room" : "Rejoindre la chambre",
-        "room_number" : "Numéro de chambre",
+        "randomize" : "Aléatoire",
+        "create_room" : "Créer une partie",
+        "join_room" : "Rejoindre la partie",
+        "room_number" : "Numéro de partie",
 
         "welcome" : "Bienvenue dans Spread Puzzle!",
         "welcome_list" : {
-            "li0" : "Il s'agit d'un jeu multijoueur dans lequel les utilisateurs d'ordinateurs et les utilisateurs mobiles peuvent jouer ensemble.",
-            "li1" : "Avec des puzzles générés de manière procédurale, vous ne verrez pas le même puzzle deux fois.",
+            "li0" : "Il s'agit d'un jeu multijoueur dans lequel les utilisateurs d'ordinateurs et de téléphones peuvent jouer ensemble.",
+            "li1" : "Avec des puzzles générés de manière procédurale, vous ne verrez jamais deux fois le même puzzle.",
             "li2" : "Vous pouvez discuter avec d'autres joueurs et personnaliser les options de jeu.",
-            "li3" : "Créez ou rejoignez une salle pour commencer. Amusez-vous bien!"
+            "li3" : "Créez ou rejoignez une partie pour commencer. Amusez-vous bien!"
         },
 
         "developed_by" : "Spread Puzzle est développé par",
@@ -23,31 +23,31 @@
     "room_page" : {
         "players" : "Joueurs",
         "host" : "Hôte",
-        "close" : "Proche",
+        "close" : "Fermer",
         "see_results" : "Voir les résultats",
-        "chat" : "Chatter",
+        "chat" : "Chat",
         "send" : "Envoyer",
         "chat_auto" : {
             "solve" : "a résolu le puzzle.",
             "giveup" : "a laissé tomber.",
-            "join" : "a rejoint la salle.",
-            "leave" : "a quitté la salle."
+            "join" : "a rejoint la partie.",
+            "leave" : "a quitté la partie."
         },
         
-        "tile_type" : "Type de tuile",
+        "tile_type" : "Type de pièce",
         "tile_types_list" : {
             "square" : "carré",
             "triangle" : "triangle",
             "hexagon" : "hexagone"
         },
-        "figure_size" : "Taille de la figure",
+        "figure_size" : "Taille du puzzle",
         "number_of_pieces" : "Nombre de pièces",
         "time_limit" : "Limite de temps",
 
         "non_host_message" : "Seul l'hôte de la salle peut démarrer.",
-        "help" : "aider",
+        "help" : "Aide",
         "start" : "Commencer",
-        "leave_room" : "Quitter la pièce",
+        "leave_room" : "Quitter la partie",
         "confirm_leaving" :  "CONFIRMER LA SORTIE"
     },
 
@@ -62,12 +62,13 @@
         "time_left" : "Temps restant",
         "give_up" : "Abandonner",
         "confirm_giving_up" : "CONFIRMER L'ABANDON",
-        "safari_mode_note" : "Activez le Safari Mode si les pièces ne s'affichent pas.",
+        "safari_mode": "Mode Safari",
+        "safari_mode_note" : "Activez le mode Safari si les pièces ne s'affichent pas.",
         "on" : "allumé",
         "off" : "éteint",
 
         "fit_all_pieces_together" : "Assemblez toutes les pièces!",
-        "starting_in" : "À partir de...",
+        "starting_in" : "La partie commence dans...",
         "puzzle_solved" : "Puzzle résolu!",
         "your_time" : "Ton temps:",
         "did_not_finish" : "N'a pas fini"

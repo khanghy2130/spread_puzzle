@@ -22,7 +22,7 @@ const Main_Page = ({ socket }: propObject) => {
         ["Logix Indie", "https://www.youtube.com/channel/UCs9Pt9s8V0SDfhrfFFCNV7Q"],
         ["Jafet Uribe", "https://www.instagram.com/jafet_uribe_16"],
         ["Vitor Lima", null],
-        ["Google Translate", null],
+        ["DarkFluo", null],
         ["Google Translate", null],
         ["Google Translate", null],
         ["Google Translate", null]
@@ -32,10 +32,10 @@ const Main_Page = ({ socket }: propObject) => {
         ["Tiếng Việt", "vi"],
         ["Español", "es"],
         ["Português", "pt"],
-        ["French", "fr"],
-        ["Germany", "de"],
+        ["Français", "fr"],
+        ["Deutsch", "de"],
         ["Italiano", "it"],
-        ["Finnish", "fi"]
+        ["Suomi", "fi"]
     ];
     
 

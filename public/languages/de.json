@@ -62,7 +62,8 @@
         "time_left" : "Übrige zeit",
         "give_up" : "Gib auf",
         "confirm_giving_up" : "BESTÄTIGEN AUFGEBEN",
-        "safari_mode_note" : "Aktivieren Sie den Safari Mode, wenn die Teile nicht angezeigt werden.",
+        "safari_mode": "Safari-Modus",
+        "safari_mode_note" : "Aktivieren Sie den Safari-Modus, wenn die Teile nicht angezeigt werden.",
         "on" : "eingeschaltet",
         "off" : "ausgeschaltet",
 

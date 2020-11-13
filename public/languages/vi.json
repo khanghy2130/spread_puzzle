@@ -62,7 +62,8 @@
         "time_left" : "Thời gian còn lại",
         "give_up" : "Bỏ cuộc",
         "confirm_giving_up" : "XÁC NHẬN BỎ CUỘC",
-        "safari_mode_note" : "Bật Safari Mode nếu không thấy các miếng.",
+        "safari_mode": "Chế độ Safari",
+        "safari_mode_note" : "Bật chế độ Safari nếu không thấy các miếng.",
         "on" : "bật",
         "off" : "tắt",
 
