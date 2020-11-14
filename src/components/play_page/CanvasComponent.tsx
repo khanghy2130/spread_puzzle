@@ -483,8 +483,8 @@ function P5_Canvas(
 
                 // enable ghost
                 if (disableGhost && 
-                    selectedPiece.cursorPos[0] !== previousCursorPos[0] && 
-                    selectedPiece.cursorPos[1] !== previousCursorPos[1]) disableGhost = false;
+                    !(selectedPiece.cursorPos[0] === previousCursorPos[0] && 
+                    selectedPiece.cursorPos[1] === previousCursorPos[1])) disableGhost = false;
 
                 // check button element inputs (placing and rotating)
                 if (cv.selectedPiece.isPlacing){ // placing
