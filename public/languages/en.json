@@ -71,6 +71,6 @@
         "starting_in" : "Starting in...",
         "puzzle_solved" : "Puzzle solved!",
         "your_time" : "Your time:",
-        "did_not_finish" : "Did not finish"
+        "game_over" : "Game over"
     }
 }

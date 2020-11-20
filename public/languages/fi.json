@@ -71,6 +71,6 @@
         "starting_in" : "Slkaa...",
         "puzzle_solved" : "Palapeli ratkaistu!",
         "your_time" : "Sinun aika:",
-        "did_not_finish" : "Ei valmis"
+        "game_over" : "Peli ohi"
     }
 }

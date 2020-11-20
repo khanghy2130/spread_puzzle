@@ -71,6 +71,6 @@
         "starting_in" : "La partie commence dans...",
         "puzzle_solved" : "Puzzle résolu!",
         "your_time" : "Ton temps:",
-        "did_not_finish" : "N'a pas fini"
+        "game_over" : "Jeu terminé"
     }
 }

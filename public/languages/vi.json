@@ -71,6 +71,6 @@
         "starting_in" : "Bắt đầu trong...",
         "puzzle_solved" : "Hoàn tất!",
         "your_time" : "Thời gian:",
-        "did_not_finish" : "Chưa giải xong"
+        "game_over" : "Màn chơi kết thúc"
     }
 }

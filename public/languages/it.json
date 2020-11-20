@@ -71,6 +71,6 @@
         "starting_in" : "A partire da...",
         "puzzle_solved" : "Puzzle risolto!",
         "your_time" : "Il tuo tempo:",
-        "did_not_finish" : "Non è terminato"
+        "game_over" : "Gioco finito"
     }
 }

@@ -251,7 +251,7 @@ const Play_Page = ({
                             </button>
                         </div>) :
                         (progress === "incomplete") ? (<div>
-                            <h2 className="red-color">{getText(["play_page", "did_not_finish"])}</h2>
+                            <h2 className="red-color">{getText(["play_page", "game_over"])}</h2>
                             <button onClick={()=>{setChatModalHidden(false)}}>
                                 {getText(["room_page", "chat"])}
                             </button>
