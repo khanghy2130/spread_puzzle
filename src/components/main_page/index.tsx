@@ -23,7 +23,7 @@ const Main_Page = ({ socket }: propObject) => {
         ["Jafet Uribe", "https://www.instagram.com/jafet_uribe_16"],
         ["Vitor Lima", null],
         ["DarkFluo", null],
-        ["Google Translate", null],
+        ["Wasabi", "https://github.com/Gitkubikon"],
         ["Google Translate", null],
         ["Google Translate", null]
     ];
